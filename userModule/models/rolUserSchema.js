@@ -14,6 +14,16 @@ const roleuserSchema = new Schema({
 {
   timestamps: true,
 });
-
+roleuserSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",    
+  ]; // método 'post' libre
+  return protectedMethods.includes(method);
+};
 // Exportar el modelo de role
 export {roleuserSchema};

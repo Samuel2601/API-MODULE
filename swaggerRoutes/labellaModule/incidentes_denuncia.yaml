@@ -1,0 +1,112 @@
+components:
+    schemas:
+      Incidentes_denuncia:
+        type: object
+        properties:
+          field:
+            type: string
+            description: Description of the field.
+  
+tags:
+    - name: Incidentes_denuncia
+      description: Incidentes_denuncia managing API
+  
+paths:
+    /incidentes_denuncia}:
+      get:
+        summary: Retrieve a list of Incidentes_denuncia
+        tags:
+          - Incidentes_denuncia
+        responses:
+          '200':
+            description: A list of Incidentes_denuncia
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Incidentes_denuncia'
+  
+      post:
+        summary: Create a new Incidentes_denuncia
+        tags:
+          - Incidentes_denuncia
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incidentes_denuncia'
+        responses:
+          '200':
+            description: The Incidentes_denuncia was successfully created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Incidentes_denuncia'
+  
+    /incidentes_denuncia/{id}:
+      get:
+        summary: Get a Incidentes_denuncia by ID
+        tags:
+          - Incidentes_denuncia
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Incidentes_denuncia ID
+        responses:
+          '200':
+            description: The Incidentes_denuncia description by ID
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Incidentes_denuncia'
+          '404':
+            description: The Incidentes_denuncia was not found
+  
+      put:
+        summary: Update a Incidentes_denuncia by ID
+        tags:
+          - Incidentes_denuncia
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Incidentes_denuncia ID
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incidentes_denuncia'
+        responses:
+          '200':
+            description: The Incidentes_denuncia was successfully updated
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Incidentes_denuncia'
+  
+      delete:
+        summary: Delete a Incidentes_denuncia by ID
+        tags:
+          - Incidentes_denuncia
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Incidentes_denuncia ID
+        responses:
+          '200':
+            description: The Incidentes_denuncia was successfully deleted
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Incidentes_denuncia'

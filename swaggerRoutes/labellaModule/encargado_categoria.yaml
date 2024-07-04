@@ -1,0 +1,112 @@
+components:
+    schemas:
+      Encargado_categoria:
+        type: object
+        properties:
+          field:
+            type: string
+            description: Description of the field.
+  
+tags:
+    - name: Encargado_categoria
+      description: Encargado_categoria managing API
+  
+paths:
+    /encargado_categoria}:
+      get:
+        summary: Retrieve a list of Encargado_categoria
+        tags:
+          - Encargado_categoria
+        responses:
+          '200':
+            description: A list of Encargado_categoria
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Encargado_categoria'
+  
+      post:
+        summary: Create a new Encargado_categoria
+        tags:
+          - Encargado_categoria
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Encargado_categoria'
+        responses:
+          '200':
+            description: The Encargado_categoria was successfully created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Encargado_categoria'
+  
+    /encargado_categoria/{id}:
+      get:
+        summary: Get a Encargado_categoria by ID
+        tags:
+          - Encargado_categoria
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Encargado_categoria ID
+        responses:
+          '200':
+            description: The Encargado_categoria description by ID
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Encargado_categoria'
+          '404':
+            description: The Encargado_categoria was not found
+  
+      put:
+        summary: Update a Encargado_categoria by ID
+        tags:
+          - Encargado_categoria
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Encargado_categoria ID
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Encargado_categoria'
+        responses:
+          '200':
+            description: The Encargado_categoria was successfully updated
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Encargado_categoria'
+  
+      delete:
+        summary: Delete a Encargado_categoria by ID
+        tags:
+          - Encargado_categoria
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Encargado_categoria ID
+        responses:
+          '200':
+            description: The Encargado_categoria was successfully deleted
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Encargado_categoria'

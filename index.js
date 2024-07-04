@@ -31,11 +31,11 @@ import * as passportSetupF from "./userModule/config/facebook.js";
 import swaggerJSDoc from "swagger-jsdoc";
 import * as swaggerUi from "swagger-ui-express";
 import { swaggerOptions } from "./swagger/configswagger.js";
-import { permiso, roles, usuarios } from "./apiservices/traspaso.js";
+import { permiso, roles, usuarios, autoguardarPermisos} from "./apiservices/traspaso.js";
 import routerStand from "./labellaModule/routes/router.js";
 
-//roles();
-//usuarios();
+roles();
+usuarios();
 //permiso();
 const app = express();
 
@@ -53,7 +53,7 @@ app.use("", google);
 app.use("", facebook);
 app.use("", contact);
 app.use("", webhoobs);
-
+autoguardarPermisos(app);
 //config swagger
 const specs = swaggerJSDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));

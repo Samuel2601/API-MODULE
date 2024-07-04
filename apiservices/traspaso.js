@@ -1,4 +1,7 @@
+import mongoose from "mongoose";
+import { SchemaModelOld } from "../labellaModule/models/Modelold.js";
 import { Model } from "../userModule/models/exporSchema.js";
+
 const permiso = async () => {
   try {
     let contador = 0; // Contador para los registros traspasados
@@ -29,7 +32,11 @@ const roles = async () => {
     let contador = 0; // Contador para los registros traspasados
 
     // Leer todos los registros del esquema antiguo
-    const rolesAntiguos = await Model.Rol_user.find({});
+    const rolesAntiguos = await consultAngiguo(
+      "buzon",
+      "rol_user",
+      SchemaModelOld.RolUserSchema
+    ); //Rol_user.find({});
 
     // Iterar sobre cada rol y crear un nuevo registro
     for (const rol of rolesAntiguos) {
@@ -66,13 +73,19 @@ const usuarios = async () => {
     let contador = 0; // Contador para los registros traspasados
 
     // Leer todos los registros del esquema antiguo
-    const usuariosAntiguos = await Model.Usuario.find({});
+    const usuariosAntiguos = await consultAngiguo(
+      "buzon",
+      "usuario",
+      SchemaModelOld.UsuarioSchema
+    );
 
     // Iterar sobre cada usuario y crear un nuevo registro si no existe
     for (const usuario of usuariosAntiguos) {
       // Verificar si el registro ya existe en el nuevo esquema por _id o email
       const usuarioExistentePorId = await Model.User.findById(usuario._id);
-      const usuarioExistentePorEmail = await Model.User.findOne({ email: usuario.correo });
+      const usuarioExistentePorEmail = await Model.User.findOne({
+        email: usuario.correo,
+      });
 
       if (!usuarioExistentePorId && !usuarioExistentePorEmail) {
         let nombresArray = usuario.nombres.split(" ");
@@ -137,5 +150,60 @@ const usuarios = async () => {
   }
 };
 
+const consultAngiguo = async (base, register, schema) => {
+  let conn = mongoose.connection.useDb(base); //labella //buzon
+  schema = conn.model(register, schema); // SchemaModelOld.UsuarioSchema
+  return await schema.find();
+};
 
-export { usuarios, roles, permiso };
+const autoguardarPermisos = async (app) => {
+  let routes = [];
+  let contador = 0;
+  let errores = [];
+
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      // Si es una ruta directa
+      const { path, methods } = middleware.route;
+      Object.keys(methods).forEach(method => {
+        routes.push({ path, method });
+      });
+    } else if (middleware.name === "router") {
+      // Si es un router
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          const { path, methods } = handler.route;
+          Object.keys(methods).forEach(method => {
+            routes.push({ path, method });
+          });
+        }
+      });
+    }
+  });
+
+  for (const route of routes) {
+    
+    try {
+      const permiso = new Model.Permiso({
+        name: route.path,
+        method: route.method.toLowerCase(),
+      });
+      await permiso.save();
+      contador++;
+    } catch (error) {
+      if (error.code === 11000) {
+        // Error de duplicado
+        errores.push(`Ruta duplicada: ${route.path} [${route.method.toLowerCase()}]`);
+      } else {
+        errores.push(`Error al guardar la ruta ${route.path} [${route.method.toLowerCase()}]: ${error.message}`);
+      }
+    }
+  }
+
+  console.log(`Permisos guardados: ${contador}`);
+  if (errores.length) {
+    console.error("Errores:", errores);
+  }
+};
+
+export { usuarios, roles, permiso, autoguardarPermisos };

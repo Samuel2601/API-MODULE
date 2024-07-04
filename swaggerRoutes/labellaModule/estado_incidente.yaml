@@ -1,0 +1,112 @@
+components:
+    schemas:
+      Estado_incidente:
+        type: object
+        properties:
+          field:
+            type: string
+            description: Description of the field.
+  
+tags:
+    - name: Estado_incidente
+      description: Estado_incidente managing API
+  
+paths:
+    /estado_incidente}:
+      get:
+        summary: Retrieve a list of Estado_incidente
+        tags:
+          - Estado_incidente
+        responses:
+          '200':
+            description: A list of Estado_incidente
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Estado_incidente'
+  
+      post:
+        summary: Create a new Estado_incidente
+        tags:
+          - Estado_incidente
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Estado_incidente'
+        responses:
+          '200':
+            description: The Estado_incidente was successfully created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Estado_incidente'
+  
+    /estado_incidente/{id}:
+      get:
+        summary: Get a Estado_incidente by ID
+        tags:
+          - Estado_incidente
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Estado_incidente ID
+        responses:
+          '200':
+            description: The Estado_incidente description by ID
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Estado_incidente'
+          '404':
+            description: The Estado_incidente was not found
+  
+      put:
+        summary: Update a Estado_incidente by ID
+        tags:
+          - Estado_incidente
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Estado_incidente ID
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Estado_incidente'
+        responses:
+          '200':
+            description: The Estado_incidente was successfully updated
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Estado_incidente'
+  
+      delete:
+        summary: Delete a Estado_incidente by ID
+        tags:
+          - Estado_incidente
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Estado_incidente ID
+        responses:
+          '200':
+            description: The Estado_incidente was successfully deleted
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Estado_incidente'

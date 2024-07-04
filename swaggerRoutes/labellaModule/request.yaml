@@ -1,0 +1,112 @@
+components:
+    schemas:
+      Request:
+        type: object
+        properties:
+          field:
+            type: string
+            description: Description of the field.
+  
+tags:
+    - name: Request
+      description: Request managing API
+  
+paths:
+    /request}:
+      get:
+        summary: Retrieve a list of Request
+        tags:
+          - Request
+        responses:
+          '200':
+            description: A list of Request
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Request'
+  
+      post:
+        summary: Create a new Request
+        tags:
+          - Request
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        responses:
+          '200':
+            description: The Request was successfully created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Request'
+  
+    /request/{id}:
+      get:
+        summary: Get a Request by ID
+        tags:
+          - Request
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Request ID
+        responses:
+          '200':
+            description: The Request description by ID
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Request'
+          '404':
+            description: The Request was not found
+  
+      put:
+        summary: Update a Request by ID
+        tags:
+          - Request
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Request ID
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        responses:
+          '200':
+            description: The Request was successfully updated
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Request'
+  
+      delete:
+        summary: Delete a Request by ID
+        tags:
+          - Request
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Request ID
+        responses:
+          '200':
+            description: The Request was successfully deleted
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Request'

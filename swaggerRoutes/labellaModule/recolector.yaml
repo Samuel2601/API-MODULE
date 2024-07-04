@@ -1,0 +1,112 @@
+components:
+    schemas:
+      Recolector:
+        type: object
+        properties:
+          field:
+            type: string
+            description: Description of the field.
+  
+tags:
+    - name: Recolector
+      description: Recolector managing API
+  
+paths:
+    /recolector}:
+      get:
+        summary: Retrieve a list of Recolector
+        tags:
+          - Recolector
+        responses:
+          '200':
+            description: A list of Recolector
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Recolector'
+  
+      post:
+        summary: Create a new Recolector
+        tags:
+          - Recolector
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recolector'
+        responses:
+          '200':
+            description: The Recolector was successfully created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Recolector'
+  
+    /recolector/{id}:
+      get:
+        summary: Get a Recolector by ID
+        tags:
+          - Recolector
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Recolector ID
+        responses:
+          '200':
+            description: The Recolector description by ID
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Recolector'
+          '404':
+            description: The Recolector was not found
+  
+      put:
+        summary: Update a Recolector by ID
+        tags:
+          - Recolector
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Recolector ID
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recolector'
+        responses:
+          '200':
+            description: The Recolector was successfully updated
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Recolector'
+  
+      delete:
+        summary: Delete a Recolector by ID
+        tags:
+          - Recolector
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Recolector ID
+        responses:
+          '200':
+            description: The Recolector was successfully deleted
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Recolector'

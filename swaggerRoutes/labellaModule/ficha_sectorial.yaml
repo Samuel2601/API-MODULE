@@ -1,0 +1,112 @@
+components:
+    schemas:
+      Ficha_sectorial:
+        type: object
+        properties:
+          field:
+            type: string
+            description: Description of the field.
+  
+tags:
+    - name: Ficha_sectorial
+      description: Ficha_sectorial managing API
+  
+paths:
+    /ficha_sectorial}:
+      get:
+        summary: Retrieve a list of Ficha_sectorial
+        tags:
+          - Ficha_sectorial
+        responses:
+          '200':
+            description: A list of Ficha_sectorial
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Ficha_sectorial'
+  
+      post:
+        summary: Create a new Ficha_sectorial
+        tags:
+          - Ficha_sectorial
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ficha_sectorial'
+        responses:
+          '200':
+            description: The Ficha_sectorial was successfully created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Ficha_sectorial'
+  
+    /ficha_sectorial/{id}:
+      get:
+        summary: Get a Ficha_sectorial by ID
+        tags:
+          - Ficha_sectorial
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Ficha_sectorial ID
+        responses:
+          '200':
+            description: The Ficha_sectorial description by ID
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Ficha_sectorial'
+          '404':
+            description: The Ficha_sectorial was not found
+  
+      put:
+        summary: Update a Ficha_sectorial by ID
+        tags:
+          - Ficha_sectorial
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Ficha_sectorial ID
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ficha_sectorial'
+        responses:
+          '200':
+            description: The Ficha_sectorial was successfully updated
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Ficha_sectorial'
+  
+      delete:
+        summary: Delete a Ficha_sectorial by ID
+        tags:
+          - Ficha_sectorial
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The Ficha_sectorial ID
+        responses:
+          '200':
+            description: The Ficha_sectorial was successfully deleted
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Ficha_sectorial'

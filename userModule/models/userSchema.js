@@ -54,5 +54,14 @@ const userSchema = new Schema({
 {
   timestamps: true,
 });
-
+userSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ]; // método 'post' libre
+  return protectedMethods.includes(method);
+};
 export { userSchema };

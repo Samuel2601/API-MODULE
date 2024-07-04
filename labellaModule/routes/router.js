@@ -1,9 +1,4 @@
-//import express from "express";
-//import { list, findById, create } from "../controllers/funciones_standart";
-//import models from "../models/Model";
-
 import express from "express";
-
 import { models } from "../models/Modelold.js";
 import multiparty from "connect-multiparty";
 import fs from "fs";
@@ -46,47 +41,12 @@ const validateAuth = (model, method) => {
   };
 };
 
-const routerStand = express.routerStand();
+const routerStand = express.Router();
 
 const generateRoutes = (modelName) => {
   const Model = models[modelName];
   const path = modelName.toLowerCase();
 
-  /**
-   * @swagger
-   * components:
-   *   schemas:
-   *     ${path}:
-   *       type: object
-   *       properties:
-   *         field:
-   *           type: string
-   *           description: Description of the field.
-   */
-
-  /**
-   * @swagger
-   * tags:
-   *   name: ${path}
-   *   description: ${path} managing API
-   */
-
-  /**
-   * @swagger
-   * /${path}:
-   *   get:
-   *     summary: Retrieve a list of ${path}
-   *     tags: [${path}]
-   *     responses:
-   *       200:
-   *         description: A list of ${path}
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/${path}'
-   */
   //curl -X GET "http://tu-servidor.com/usuario?name=Samuel&createAt[start]=2024-07-04&createAt[end]=2024-07-06&rol=Administrador&populate=rol,otraRelacion"
   routerStand.get(`/${path}`, validateAuth(Model, "get"), async (req, res) => {
     const populateFields = req.query.populate
@@ -96,29 +56,6 @@ const generateRoutes = (modelName) => {
     res.status(response.status).json(response);
   });
 
-  /**
-   * @swagger
-   * /${path}/{id}:
-   *   get:
-   *     summary: Get a ${path} by ID
-   *     tags: [${path}]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         schema:
-   *           type: string
-   *         required: true
-   *         description: The ${path} ID
-   *     responses:
-   *       200:
-   *         description: The ${path} description by ID
-   *         contents:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/${path}'
-   *       404:
-   *         description: The ${path} was not found
-   */
   //curl -X GET "http://tu-servidor.com/usuario/12345?populate=rol,otraRelacion"
   routerStand.get(
     `/${path}/:id`,
@@ -132,28 +69,6 @@ const generateRoutes = (modelName) => {
     }
   );
 
-  /**
-   * @swagger
-   * /${path}:
-   *   post:
-   *     summary: Create a new ${path}
-   *     tags: [${path}]
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/${path}'
-   *     responses:
-   *       200:
-   *         description: The ${path} was successfully created
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/${path}'
-   *       500:
-   *         description: Some server error
-   */
   routerStand.post(
     `/${path}`,
     validateAuth(Model, "post"),
@@ -163,35 +78,7 @@ const generateRoutes = (modelName) => {
       res.status(response.status).json(response);
     }
   );
-  /**
-   * @swagger
-   * /${path}/{id}:
-   *   put:
-   *     summary: Update a ${path} by ID
-   *     tags: [${path}]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         schema:
-   *           type: string
-   *         required: true
-   *         description: The ${path} ID
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/${path}'
-   *     responses:
-   *       200:
-   *         description: The ${path} was successfully updated
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/${path}'
-   *       500:
-   *         description: Some server error
-   */
+
   routerStand.put(
     `/${path}/:id`,
     validateAuth(Model, "put"),
@@ -206,29 +93,7 @@ const generateRoutes = (modelName) => {
       res.status(response.status).json(response);
     }
   );
-  /**
-   * @swagger
-   * /${path}/{id}:
-   *   delete:
-   *     summary: Delete a ${path} by ID
-   *     tags: [${path}]
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         schema:
-   *           type: string
-   *         required: true
-   *         description: The ${path} ID
-   *     responses:
-   *       200:
-   *         description: The ${path} was successfully deleted
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/${path}'
-   *       500:
-   *         description: Some server error
-   */
+
   routerStand.delete(
     `/${path}/:id`,
     validateAuth(Model, "delete"),
@@ -237,124 +102,157 @@ const generateRoutes = (modelName) => {
       res.status(response.status).json(response);
     }
   );
-  /**
-   * @swagger
-   * /createBatch/${path}:
-   *   post:
-   *     summary: Create multiple ${path} documents
-   *     tags: [${path}]
-   *     parameters:
-   *       - in: query
-   *         name: abortOnError
-   *         schema:
-   *           type: boolean
-   *         description: Flag to abort batch creation on error (default true)
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: array
-   *             items:
-   *               $ref: '#/components/schemas/${path}'
-   *     responses:
-   *       200:
-   *         description: Multiple ${path} documents created successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 status:
-   *                   type: number
-   *                   description: HTTP status code
-   *                 data:
-   *                   type: array
-   *                   items:
-   *                     $ref: '#/components/schemas/${path}'
-   *                 message:
-   *                   type: string
-   *                   description: Success message
-   *       500:
-   *         description: Some server error
-   */
   routerStand.post(
     `/createBatch/${path}`,
     validateAuth(Model, "createBatch"),
     pathfile(path),
     async (req, res) => {
       const abortOnError = req.query.abortOnError !== "false";
-
-      const response = await createBatch(
-        modelName,
-        req.body,
-        req.files,
-        abortOnError
-      );
+      const response = await createBatch(modelName, req.body, abortOnError);
       res.status(response.status).json(response);
     }
   );
-  /**
-   * @swagger
-   * /updateBatch/${path}:
-   *   put:
-   *     summary: Update multiple ${path} documents
-   *     tags: [${path}]
-   *     parameters:
-   *       - in: query
-   *         name: abortOnError
-   *         schema:
-   *           type: boolean
-   *         description: Flag to abort batch update on error (default true)
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: array
-   *             items:
-   *               type: object
-   *               properties:
-   *                 id:
-   *                   type: string
-   *                   description: The ID of the ${path} document to update
-   *                 data:
-   *                   $ref: '#/components/schemas/${path}'
-   *     responses:
-   *       200:
-   *         description: Multiple ${path} documents updated successfully
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 status:
-   *                   type: number
-   *                   description: HTTP status code
-   *                 data:
-   *                   type: array
-   *                   items:
-   *                     $ref: '#/components/schemas/${path}'
-   *                 message:
-   *                   type: string
-   *                   description: Success message
-   *       500:
-   *         description: Some server error
-   */
   routerStand.put(
     `/updateBatch/${path}`,
     validateAuth(Model, "updateBatch"),
+    pathfile(path),
     async (req, res) => {
       const abortOnError = req.query.abortOnError !== "false";
-
       const response = await updateBatch(modelName, req.body, abortOnError);
       res.status(response.status).json(response);
     }
   );
+  return `
+  components:
+    schemas:
+      ${modelName}:
+        type: object
+        properties:
+          field:
+            type: string
+            description: Description of the field.
+  
+tags:
+    - name: ${modelName}
+      description: ${modelName} managing API
+  
+paths:
+    /${path}}:
+      get:
+        summary: Retrieve a list of ${modelName}
+        tags:
+          - ${modelName}
+        responses:
+          '200':
+            description: A list of ${modelName}
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/${modelName}'
+  
+      post:
+        summary: Create a new ${modelName}
+        tags:
+          - ${modelName}
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/${modelName}'
+        responses:
+          '200':
+            description: The ${modelName} was successfully created
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/${modelName}'
+  
+    /${path}/{id}:
+      get:
+        summary: Get a ${modelName} by ID
+        tags:
+          - ${modelName}
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The ${modelName} ID
+        responses:
+          '200':
+            description: The ${modelName} description by ID
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/${modelName}'
+          '404':
+            description: The ${modelName} was not found
+  
+      put:
+        summary: Update a ${modelName} by ID
+        tags:
+          - ${modelName}
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The ${modelName} ID
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/${modelName}'
+        responses:
+          '200':
+            description: The ${modelName} was successfully updated
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/${modelName}'
+  
+      delete:
+        summary: Delete a ${modelName} by ID
+        tags:
+          - ${modelName}
+        parameters:
+          - in: path
+            name: id
+            schema:
+              type: string
+            required: true
+            description: The ${modelName} ID
+        responses:
+          '200':
+            description: The ${modelName} was successfully deleted
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/${modelName}'
+  `;
 };
+// Generar el contenido YAML para cada modelo
 
-// Generar rutas para todos los modelos
-Object.keys(models).forEach((modelName) => generateRoutes(modelName));
+Object.keys(models).forEach((modelName) => {
+  const swaggerContent = generateRoutes(modelName);
+  const swaggerDir = path.join("./swaggerRoutes/labellaModule"); //path.join(__dirname, "swagger");
+  if (!fs.existsSync(swaggerDir)) {
+    fs.mkdirSync(swaggerDir);
+  }
+  const swaggerFilePath = path.join(
+    swaggerDir,
+    `${modelName.toLowerCase()}.yaml`
+  );
+  fs.writeFileSync(swaggerFilePath, swaggerContent.trim(), "utf8");
+  console.log(
+    `Swagger specs generated for ${modelName} and saved to ${swaggerFilePath}`
+  );
+});
 
 export default routerStand;
-//module.exports = routerStand;
