@@ -52,7 +52,7 @@ const swaggerOptions = {
     },
     //security: [{ Authorization: [] }], // Aplica la seguridad globalmente a todas las operaciones
   },
-  apis: ['./userModule/routes/*.js', './swaggerRoutes/*yaml'], // Rutas donde están tus definiciones de Swagger
+  apis: ['./userModule/routes/*.js', './swaggerRoutes/*/*yaml'], // Rutas donde están tus definiciones de Swagger
 };
 
 export { swaggerOptions };

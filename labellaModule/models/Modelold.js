@@ -4,203 +4,521 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 // Definición del esquema para el modelo de Usuario
-const UsuarioSchema = new Schema({
-  cedula: { type: String, required: true, unique: true },
-  nombres: { type: String, required: true },
-  telefono: { type: String, required: true },
-  rol_user: { type: Schema.Types.ObjectId, ref: "rol_user"||"role", required: true },
-  correo: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  foto: { type: String },
-  estado: { type: String, default: "On" },
-  createdAt: { type: Date, default: Date.now, require: true },
-});
-UsuarioSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Rol_user
-const RolUserSchema = new Schema({
-  nombre: { type: String },
-  orden: { type: Number, unique: true },
-  createdAt: { type: Date, default: Date.now, require: true },
-});
-RolUserSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Ficha_sectorial
-//categoria: { type: Schema.Types.ObjectId, ref: 'categoria', required: true },
-const FichaSectorialSchema = new Schema({
-  descripcion: { type: String, required: true },
-  encargado: { type: Schema.Types.ObjectId, ref: "usuario"||"user", required: true },
-  direccion_geo: { type: String, require: true },
-  estado: { type: Schema.Types.ObjectId, ref: "estado_actividad_proyecto" },
-  actividad: { type: Schema.Types.ObjectId, ref: "actividad_proyecto" },
-  fecha_evento: { type: Date },
-  observacion: { type: String },
-  foto: [{ type: String }],
-  view: { type: Boolean, default: true },
-  view_id: { type: Schema.Types.ObjectId, ref: "usuario"||"user" },
-  view_date: { type: Date, default: Date.now },
-  createdAt: { type: Date, default: Date.now, require: true },
-});
-FichaSectorialSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Incidentes_denuncia
-const IncidentesDenunciaSchema = new Schema({
-  categoria: { type: Schema.Types.ObjectId, ref: "categoria", required: true },
-  subcategoria: {
-    type: Schema.Types.ObjectId,
-    ref: "subcategoria",
-    required: true,
-  },
-  direccion_geo: {
-    nombre: { type: String, required: true },
-    latitud: { type: Number, required: true },
-    longitud: { type: Number, required: true },
-  },
-  ciudadano: { type: Schema.Types.ObjectId, ref: "usuario"||"user", required: true },
-  estado: { type: Schema.Types.ObjectId, ref: "estado_incidente" },
-  foto: [{ type: String }],
-  descripcion: { type: String, required: true },
-  encargado: { type: Schema.Types.ObjectId, ref: "usuario"||"user" },
-  respuesta: { type: String },
-  evidencia: [{ type: String }],
-  view: { type: Boolean, default: true },
-  view_id: { type: Schema.Types.ObjectId, ref: "usuario"||"user" },
-  view_date: { type: Date, default: Date.now },
-  createdAt: { type: Date, default: Date.now, require: true },
-});
-IncidentesDenunciaSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Categoria
-const CategoriaSchema = new Schema({
-  nombre: { type: String, required: true },
-  descripcion: { type: String, required: true },
-  icono: { type: String },
-});
-CategoriaSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Subcategoria
-const SubcategoriaSchema = new Schema({
-  categoria: { type: Schema.Types.ObjectId, ref: "categoria", require: true },
-  nombre: { type: String, require: true },
-  descripcion: { type: String, require: true },
-  icono: { type: String },
-});
-SubcategoriaSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Encargado_categoria
-const EncargadoCategoriaSchema = new Schema({
-  encargado: [{ type: Schema.Types.ObjectId, ref: "usuario"||"user" }],
-  categoria: { type: Schema.Types.ObjectId, ref: "categoria" },
-  createdAt: { type: Date, default: Date.now, require: true },
-});
-EncargadoCategoriaSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Estado_incidente
-const EstadoIncidenteSchema = new Schema({
-  nombre: { type: String, unique: true },
-  orden: { type: Number, required: true },
-});
-EstadoIncidenteSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Estado_actividad_proyecto
-const EstadoActividadProyectoSchema = new Schema({
-  nombre: { type: String, unique: true },
-  orden: { type: Number, required: false },
-});
-EstadoActividadProyectoSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Actividad_proyecto
-const ActividadProyectoSchema = new Schema({
-  nombre: { type: String },
-  icono: { type: String },
-  createdAt: { type: Date, default: Date.now, require: true },
-});
-ActividadProyectoSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-// Definición del esquema para el modelo de Direccion_geo
-const DireccionGeoSchema = new Schema({
-  nombre: { type: String },
-  latitud: { type: Number },
-  longitud: { type: Number },
-});
-DireccionGeoSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-const permisosSchema = new Schema({
-  nombreComponente: {
-    type: String,
-    required: true,
-  },
-  rolesPermitidos: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "rol_user"||"role",
-      required: true,
-    },
-  ],
-});
-permisosSchema.statics.isProtected = function (method) {
-  const protectedMethods = ["get", "put", "delete", "post"]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-const RecolectoresSchema = new Schema({
-  id_api: { type: String },
-  nombre: { type: String },
-  comentarios: [
-    {
-      ciudadano: { type: Schema.Types.ObjectId, ref: "usuario"||"user" },
-      puntuacion: { type: Number },
-      descripcion: { type: String, required: true },
-    },
-  ],
-});
-RecolectoresSchema.statics.isProtected = function (method) {
-  const protectedMethods = [
-    "get",
-    "put",
-    "delete",
-    "createBatch",
-    "updateBatch",
-  ]; // método 'post' libre
-  return protectedMethods.includes(method);
-};
-const RequestSchema = new Schema(
+const UsuarioSchema = new Schema(
   {
-    dni: { type: String, required: true }, // Consider renaming to idNumber or similar
-    name: { type: String, required: true },
-    phone: { type: String, required: true },
-    address: { type: String, required: true },
-    email: { type: String, required: true },
-    issueDescription: { type: String, required: true },
-    assignees: { type: Schema.Types.ObjectId, ref: "usuario"||"user", required: true },
-    foto: [{ type: String }],
-    evidencia: [{ type: String }],
+    cedula: {
+      type: String,
+      required: true,
+      unique: true,
+      description: "Identification number",
+    },
+    nombres: { type: String, required: true, description: "Full name" },
+    telefono: { type: String, required: true, description: "Phone number" },
+    rol_user: {
+      type: Schema.Types.ObjectId,
+      ref: "rol_user" || "role",
+      required: true,
+      description: "User role",
+    },
+    correo: {
+      type: String,
+      required: true,
+      unique: true,
+      description: "Email address",
+    },
+    password: { type: String, required: true, description: "Password" },
+    foto: { type: String, description: "Profile picture" },
+    estado: { type: String, default: "On", description: "User account status" },
   },
   {
     timestamps: true,
   }
 );
+UsuarioSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+UsuarioSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de Rol_user
+const RolUserSchema = new Schema(
+  {
+    nombre: { type: String, description: "Role name" },
+    orden: { type: Number, unique: true, description: "Role order" },
+  },
+  {
+    timestamps: true,
+  }
+);
+RolUserSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+RolUserSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de Ficha_sectorial
+//categoria: { type: Schema.Types.ObjectId, ref: 'categoria', required: true },
+// Definición del esquema para el modelo de Ficha_sectorial
+const FichaSectorialSchema = new Schema(
+  {
+    descripcion: { type: String, required: true, description: "Description" },
+    encargado: {
+      type: Schema.Types.ObjectId,
+      ref: "usuario" || "user",
+      required: true,
+      description: "Responsible user",
+    },
+    direccion_geo: {
+      type: String,
+      require: true,
+      description: "Geographical address",
+    },
+    estado: {
+      type: Schema.Types.ObjectId,
+      ref: "estado_actividad_proyecto",
+      description: "Project activity status",
+    },
+    actividad: {
+      type: Schema.Types.ObjectId,
+      ref: "actividad_proyecto",
+      description: "Project activity",
+    },
+    fecha_evento: { type: Date, description: "Event date" },
+    observacion: { type: String, description: "Observation" },
+    foto: [{ type: String, description: "Photos" }],
+    view: { type: Boolean, default: true, description: "View status" },
+    view_id: {
+      type: Schema.Types.ObjectId,
+      ref: "usuario" || "user",
+      description: "Viewed by",
+    },
+    view_date: { type: Date, default: Date.now, description: "View date" },
+  },
+  {
+    timestamps: true,
+  }
+);
+FichaSectorialSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+FichaSectorialSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+
+// Definición del esquema para el modelo de Incidentes_denuncia
+const IncidentesDenunciaSchema = new Schema(
+  {
+    categoria: {
+      type: Schema.Types.ObjectId,
+      ref: "categoria",
+      required: true,
+      description: "Category",
+    },
+    subcategoria: {
+      type: Schema.Types.ObjectId,
+      ref: "subcategoria",
+      required: true,
+      description: "Subcategory",
+    },
+    direccion_geo: {
+      nombre: { type: String, required: true, description: "Location name" },
+      latitud: { type: Number, required: true, description: "Latitude" },
+      longitud: { type: Number, required: true, description: "Longitude" },
+    },
+    ciudadano: {
+      type: Schema.Types.ObjectId,
+      ref: "usuario" || "user",
+      required: true,
+      description: "Citizen reporting the incident",
+    },
+    estado: {
+      type: Schema.Types.ObjectId,
+      ref: "estado_incidente",
+      description: "Incident status",
+    },
+    foto: [{ type: String, description: "Photos" }],
+    descripcion: { type: String, required: true, description: "Description" },
+    encargado: {
+      type: Schema.Types.ObjectId,
+      ref: "usuario" || "user",
+      description: "Responsible user",
+    },
+    respuesta: { type: String, description: "Response" },
+    evidencia: [{ type: String, description: "Evidence" }],
+    view: { type: Boolean, default: true, description: "View status" },
+    view_id: {
+      type: Schema.Types.ObjectId,
+      ref: "usuario" || "user",
+      description: "Viewed by",
+    },
+    view_date: { type: Date, default: Date.now, description: "View date" },
+  },
+  {
+    timestamps: true,
+  }
+);
+IncidentesDenunciaSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+IncidentesDenunciaSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de Categoria
+const CategoriaSchema = new Schema(
+  {
+    nombre: { type: String, required: true, description: "Category name" },
+    descripcion: {
+      type: String,
+      required: true,
+      description: "Category description",
+    },
+    icono: { type: String, description: "Icon" },
+  },
+  {
+    timestamps: true,
+  }
+);
+CategoriaSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+CategoriaSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de Subcategoria
+const SubcategoriaSchema = new Schema(
+  {
+    categoria: {
+      type: Schema.Types.ObjectId,
+      ref: "categoria",
+      require: true,
+      description: "Category",
+    },
+    nombre: { type: String, require: true, description: "Subcategory name" },
+    descripcion: {
+      type: String,
+      require: true,
+      description: "Subcategory description",
+    },
+    icono: { type: String, description: "Icon" },
+  },
+  {
+    timestamps: true,
+  }
+);
+SubcategoriaSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+SubcategoriaSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de Encargado_categoria
+const EncargadoCategoriaSchema = new Schema(
+  {
+    encargado: [{ type: Schema.Types.ObjectId, ref: "usuario" || "user" }],
+    categoria: { type: Schema.Types.ObjectId, ref: "categoria" },
+  },
+  {
+    timestamps: true,
+  }
+);
+EncargadoCategoriaSchema.statics.isProtected = function (method) {
+  const protectedMethods = ["get", "post", "put", "delete"];
+  return protectedMethods.includes(method);
+};
+EncargadoCategoriaSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de Estado_incidente
+const EstadoIncidenteSchema = new Schema(
+  {
+    nombre: {
+      type: String,
+      unique: true,
+      description: "Incidente status name",
+    },
+    orden: { type: Number, required: true, description: "Orden" },
+  },
+  {
+    timestamps: true,
+  }
+);
+EstadoIncidenteSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+EstadoIncidenteSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de Estado_actividad_proyecto
+const EstadoActividadProyectoSchema = new Schema(
+  {
+    nombre: { type: String, unique: true, description: "Activity status name" },
+    orden: { type: Number, required: false, description: "Order" },
+  },
+  {
+    timestamps: true,
+  }
+);
+EstadoActividadProyectoSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+EstadoActividadProyectoSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de Actividad_proyecto
+const ActividadProyectoSchema = new Schema(
+  {
+    nombre: { type: String, description: "Activity name" },
+    icono: { type: String, description: "Icon" },
+  },
+  {
+    timestamps: true,
+  }
+);
+ActividadProyectoSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+ActividadProyectoSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de Direccion_geo
+const DireccionGeoSchema = new Schema(
+  {
+    nombre: { type: String, description: "Location name" },
+    latitud: { type: Number, description: "Latitude" },
+    longitud: { type: Number, description: "Longitude" },
+  },
+  {
+    timestamps: true,
+  }
+);
+DireccionGeoSchema.statics.isProtected = function (method) {
+  const protectedMethods = ["get", "post", "put", "delete"];
+  return protectedMethods.includes(method);
+};
+DireccionGeoSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+// Definición del esquema para el modelo de permisos
+// Definición del esquema para el modelo de permisos
+const permisosSchema = new Schema(
+  {
+    nombreComponente: {
+      type: String,
+      required: true,
+      description: "Component name",
+    },
+    rolesPermitidos: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "rol_user" || "role",
+        required: true,
+        description: "Allowed roles",
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
+permisosSchema.statics.isProtected = function (method) {
+  const protectedMethods = ["get", "post", "put", "delete"];
+  return protectedMethods.includes(method);
+};
+permisosSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+
+const RecolectoresSchema = new Schema(
+  {
+    id_api: {
+      type: String,
+      required: true,
+      description: "Collector ID API EXTERNAL",
+    },
+    nombre: {
+      type: String,
+      required: true,
+      description: "Collector name API EXTERNAL",
+    },
+    comentarios: [
+      {
+        ciudadano: {
+          type: Schema.Types.ObjectId,
+          ref: "usuario" || "user",
+          description: "User name",
+        },
+        puntuacion: {
+          type: Number,
+          required: true,
+          description: "Puntuación del recolector",
+        },
+        descripcion: {
+          type: String,
+          description: "Comentario de los usuarios al servicio",
+        },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
+RecolectoresSchema.statics.isProtected = function (method) {
+  const protectedMethods = [
+    "get",
+    "post",
+    "put",
+    "delete",
+    "createBatch",
+    "updateBatch",
+  ];
+  return protectedMethods.includes(method);
+};
+RecolectoresSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
+};
+
+const RequestSchema = new Schema(
+  {
+    dni: { type: String, required: true, description: "DNI of the requester" }, // Consider renaming to idNumber or similar
+    name: {
+      type: String,
+      required: true,
+      description: "Name of the requester",
+    },
+    phone: {
+      type: String,
+      required: true,
+      description: "Phone number of the requester",
+    },
+    address: {
+      type: String,
+      required: true,
+      description: "Address of the requester",
+    },
+    email: {
+      type: String,
+      required: true,
+      description: "Email of the requester",
+    },
+    issueDescription: {
+      type: String,
+      required: true,
+      description: "Description of the issue",
+    },
+    assignees: {
+      type: Schema.Types.ObjectId,
+      ref: "usuario" || "user",
+      required: true,
+      description: "Assignees for the request",
+    },
+    foto: {
+      type: [{ type: String }],
+      description: "Photo evidence related to the request",
+    },
+    evidencia: {
+      type: [{ type: String }],
+      description: "Additional evidence related to the request",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+//control de acceso a la ruta
 RequestSchema.statics.isProtected = function (method) {
   const protectedMethods = [
     "get",
@@ -210,6 +528,12 @@ RequestSchema.statics.isProtected = function (method) {
     "updateBatch",
   ]; // método 'post' libre
   return protectedMethods.includes(method);
+};
+
+//control de creación de ruta
+RequestSchema.statics.isAutogenerated = function (method) {
+  const autogeneratedMethods = ["get", "post", "put", "delete"];
+  return autogeneratedMethods.includes(method);
 };
 // Exportar los esquemas
 // Exportar los esquemas

@@ -2,10 +2,11 @@
 import { Schema } from "mongoose";
 
 const userSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, description: "Name User Module"},
   last_name: {
     type: String,
     // required: true
+    description: "LastName User Module"
   },
   dni: {
     type: String,
@@ -14,9 +15,11 @@ const userSchema = new Schema({
     //unique: true,
     lowercase: true,
     //index: { unique: true },
+    description: "Identification User Module"
   },
   telf: {
     type: String, //required: true
+    description: "Telf User Module"
   },
   email: {
     type: String,
@@ -25,10 +28,12 @@ const userSchema = new Schema({
     unique: true,
     lowercase: true,
     index: { unique: true },
+    description: "Email User Module"
   },
   password: {
     type: String,
     //required: true,
+    description: "Password no require for User Module [Facebook, Google]"
   },
   verificado: { type: Boolean, default: false },
   status: { type: Boolean, default: true, require: true },

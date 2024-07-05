@@ -77,6 +77,7 @@ router.get(
   "/auth/google/callback/",
   passport.authenticate("google", { session: false }),
   (req, res) => {
+    console.log(req);
     createToken(req.user,req.time,req.tipo).then((data) => {
       console.log(data);
       res.status(200).json({ message: "Bienvenido.", data });

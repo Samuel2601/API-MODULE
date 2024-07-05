@@ -13,6 +13,24 @@ export const validationResultExpress = (req, res, next) => {
   next();
 };
 
+export const validateAuth = (model, method, path) => {
+  return async (req, res, next) => {
+    const isProtected = model.isProtected(method);
+
+    if (isProtected) {
+      // Primero autenticar al usuario
+      await auth(req, res, async () => {
+        // Después de autenticar, verificar permisos
+        await permissUser(path, method)(req, res, next);
+      });
+    } else {
+      // Si no está protegido, pasar al siguiente middleware
+      next();
+    }
+  };
+};
+
+
 export const auth = (req, res, next) => {
   if (!req.headers.authorization) {
     return res.status(403).send({ message: "NoHeadersError" });
@@ -37,45 +55,48 @@ export const auth = (req, res, next) => {
   }
   next();
 };
+// Función centralizada para verificar permisos
+const checkPermission = async (path, method, user, rol) => {
+  let hasPermission = false;
 
-export const permissUser = (funcion) => async (req, res, next) => {
+  // Check permission based on user
+  const userPermission = await Model.Permiso.findOne({ name: path, user, method });
+  if (userPermission) {
+    hasPermission = true;
+  }
+
+  // If user has permission, no need to check role permission
+  if (hasPermission) {
+    return true;
+  }
+
+  // Check permission based on role
+  const rolePermission = await Model.Permiso.findOne({ name: path, method });
+  if (rolePermission) {
+    const role = await Model.Role.findOne({ _id: rol, permisos: rolePermission._id });
+    if (role) {
+      hasPermission = true;
+    }
+  }
+
+  return hasPermission;
+};
+
+// Middleware para verificar permisos de usuario y rol
+export const permissUser = (path, method) => async (req, res, next) => {
   if (!req.user) {
     return res.status(403).json({ message: "Algo salió mal." });
   }
-  if (
-    !(
-      (await checkPermiss({ user: req.user.sub, funcion })) ||
-      (await checkPermissRol({ rol: req.user.role, funcion }))
-    )
-  ) {
+
+  const hasPermission = await checkPermission(path, method, req.user.sub, req.user.role);
+
+  if (!hasPermission) {
     return res.status(404).json({ message: "Sin Permisos" });
   }
+
   next();
 };
 
-const checkPermissRol = async function (data) {
-  const { rol, funcion } = data;
-  const permiso = await Model.Permiso.findOne({ name: funcion });
-  if (!permiso) {
-    return false; // Si no se encuentra el permiso, retorna false
-  }
-
-  const role = await Model.Role.findOne({
-    _id: rol,
-    permisos: permiso._id,
-  });
-  return !!role; // Devuelve true si se encontró el rol con el permiso, de lo contrario false
-};
-
-const checkPermiss = async function (data) {
-  const { user, funcion } = data;
-  const permiso = await Model.Permiso.findOne({ name: funcion, user: user });
-  if (permiso) {
-    return true;
-  } else {
-    return false;
-  }
-};
 /**
  * Crea un token JWT
  *
@@ -126,9 +147,7 @@ export const createToken = async function (user, time, tipo) {
     email: user.email,
     role: user.role,
     iat: moment().unix(),
-    exp: moment()
-      .add(tiempoValido, tipoValido)
-      .unix(),
+    exp: moment().add(tiempoValido, tipoValido).unix(),
   };
 
   if (user.dni) {

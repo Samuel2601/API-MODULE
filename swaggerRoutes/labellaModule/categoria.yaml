@@ -1,112 +1,124 @@
 components:
-    schemas:
-      Categoria:
-        type: object
-        properties:
-          field:
-            type: string
-            description: Description of the field.
-  
+  schemas:
+    Categoria:
+      type: object
+      properties:
+        nombre: {"type":"string","description":"Category name"}
+        descripcion: {"type":"string","description":"Category description"}
+        icono: {"type":"string","description":"Icon"}
+        createdAt: {"type":"date","description":"createdAt field"}
+        updatedAt: {"type":"date","description":"updatedAt field"}
+
 tags:
-    - name: Categoria
-      description: Categoria managing API
-  
+  - name: Categoria
+    description: Categoria managing API
+
 paths:
-    /categoria}:
-      get:
-        summary: Retrieve a list of Categoria
-        tags:
-          - Categoria
-        responses:
-          '200':
-            description: A list of Categoria
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Categoria'
-  
-      post:
-        summary: Create a new Categoria
-        tags:
-          - Categoria
-        requestBody:
-          required: true
+  /api/categoria:
+    get:
+      summary: Retrieve a list of Categoria
+      tags:
+        - Categoria
+      security:
+       - Authorization: []
+      responses:
+        '200':
+          description: A list of Categoria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Categoria'
+
+    post:
+      summary: Create a new Categoria
+      tags:
+        - Categoria
+      security:
+       - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Categoria'
+      responses:
+        '200':
+          description: The Categoria was successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Categoria'
-        responses:
-          '200':
-            description: The Categoria was successfully created
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Categoria'
-  
-    /categoria/{id}:
-      get:
-        summary: Get a Categoria by ID
-        tags:
-          - Categoria
-        parameters:
-          - in: path
-            name: id
-            schema:
-              type: string
-            required: true
-            description: The Categoria ID
-        responses:
-          '200':
-            description: The Categoria description by ID
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Categoria'
-          '404':
-            description: The Categoria was not found
-  
-      put:
-        summary: Update a Categoria by ID
-        tags:
-          - Categoria
-        parameters:
-          - in: path
-            name: id
-            schema:
-              type: string
-            required: true
-            description: The Categoria ID
-        requestBody:
+
+  /api/categoria/{id}:
+    get:
+      summary: Get a Categoria by ID
+      tags:
+        - Categoria
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
           required: true
+          description: The Categoria ID
+      responses:
+        '200':
+          description: The Categoria description by ID
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Categoria'
-        responses:
-          '200':
-            description: The Categoria was successfully updated
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Categoria'
-  
-      delete:
-        summary: Delete a Categoria by ID
-        tags:
-          - Categoria
-        parameters:
-          - in: path
-            name: id
+        '404':
+          description: The Categoria was not found
+
+    put:
+      summary: Update a Categoria by ID
+      tags:
+        - Categoria
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Categoria ID
+      requestBody:
+        required: true
+        content:
+          application/json:
             schema:
-              type: string
-            required: true
-            description: The Categoria ID
-        responses:
-          '200':
-            description: The Categoria was successfully deleted
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Categoria'
+              $ref: '#/components/schemas/Categoria'
+      responses:
+        '200':
+          description: The Categoria was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categoria'
+
+    delete:
+      summary: Delete a Categoria by ID
+      tags:
+        - Categoria
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Categoria ID
+      responses:
+        '200':
+          description: The Categoria was successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Categoria'

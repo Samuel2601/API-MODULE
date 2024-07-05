@@ -1,112 +1,129 @@
 components:
-    schemas:
-      Usuario:
-        type: object
-        properties:
-          field:
-            type: string
-            description: Description of the field.
-  
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        cedula: {"type":"string","description":"Identification number"}
+        nombres: {"type":"string","description":"Full name"}
+        telefono: {"type":"string","description":"Phone number"}
+        rol_user: {"type":"objectid","description":"User role"}
+        correo: {"type":"string","description":"Email address"}
+        password: {"type":"string","description":"Password"}
+        foto: {"type":"string","description":"Profile picture"}
+        estado: {"type":"string","description":"User account status"}
+        createdAt: {"type":"date","description":"createdAt field"}
+        updatedAt: {"type":"date","description":"updatedAt field"}
+
 tags:
-    - name: Usuario
-      description: Usuario managing API
-  
+  - name: Usuario
+    description: Usuario managing API
+
 paths:
-    /usuario}:
-      get:
-        summary: Retrieve a list of Usuario
-        tags:
-          - Usuario
-        responses:
-          '200':
-            description: A list of Usuario
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Usuario'
-  
-      post:
-        summary: Create a new Usuario
-        tags:
-          - Usuario
-        requestBody:
-          required: true
+  /api/usuario:
+    get:
+      summary: Retrieve a list of Usuario
+      tags:
+        - Usuario
+      security:
+       - Authorization: []
+      responses:
+        '200':
+          description: A list of Usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Usuario'
+
+    post:
+      summary: Create a new Usuario
+      tags:
+        - Usuario
+      security:
+       - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '200':
+          description: The Usuario was successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Usuario'
-        responses:
-          '200':
-            description: The Usuario was successfully created
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Usuario'
-  
-    /usuario/{id}:
-      get:
-        summary: Get a Usuario by ID
-        tags:
-          - Usuario
-        parameters:
-          - in: path
-            name: id
-            schema:
-              type: string
-            required: true
-            description: The Usuario ID
-        responses:
-          '200':
-            description: The Usuario description by ID
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Usuario'
-          '404':
-            description: The Usuario was not found
-  
-      put:
-        summary: Update a Usuario by ID
-        tags:
-          - Usuario
-        parameters:
-          - in: path
-            name: id
-            schema:
-              type: string
-            required: true
-            description: The Usuario ID
-        requestBody:
+
+  /api/usuario/{id}:
+    get:
+      summary: Get a Usuario by ID
+      tags:
+        - Usuario
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
           required: true
+          description: The Usuario ID
+      responses:
+        '200':
+          description: The Usuario description by ID
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Usuario'
-        responses:
-          '200':
-            description: The Usuario was successfully updated
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Usuario'
-  
-      delete:
-        summary: Delete a Usuario by ID
-        tags:
-          - Usuario
-        parameters:
-          - in: path
-            name: id
+        '404':
+          description: The Usuario was not found
+
+    put:
+      summary: Update a Usuario by ID
+      tags:
+        - Usuario
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Usuario ID
+      requestBody:
+        required: true
+        content:
+          application/json:
             schema:
-              type: string
-            required: true
-            description: The Usuario ID
-        responses:
-          '200':
-            description: The Usuario was successfully deleted
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Usuario'
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '200':
+          description: The Usuario was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+
+    delete:
+      summary: Delete a Usuario by ID
+      tags:
+        - Usuario
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Usuario ID
+      responses:
+        '200':
+          description: The Usuario was successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'

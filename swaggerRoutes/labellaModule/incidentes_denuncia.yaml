@@ -1,112 +1,136 @@
 components:
-    schemas:
-      Incidentes_denuncia:
-        type: object
-        properties:
-          field:
-            type: string
-            description: Description of the field.
-  
+  schemas:
+    Incidentes_denuncia:
+      type: object
+      properties:
+        categoria: {"type":"objectid","description":"Category"}
+        subcategoria: {"type":"objectid","description":"Subcategory"}
+        direccion_geo.nombre: {"type":"string","description":"Location name"}
+        direccion_geo.latitud: {"type":"number","description":"Latitude"}
+        direccion_geo.longitud: {"type":"number","description":"Longitude"}
+        ciudadano: {"type":"objectid","description":"Citizen reporting the incident"}
+        estado: {"type":"objectid","description":"Incident status"}
+        foto: {"type":"array","items":{"type":"string"},"description":"foto field"}
+        descripcion: {"type":"string","description":"Description"}
+        encargado: {"type":"objectid","description":"Responsible user"}
+        respuesta: {"type":"string","description":"Response"}
+        evidencia: {"type":"array","items":{"type":"string"},"description":"evidencia field"}
+        view: {"type":"boolean","description":"View status"}
+        view_id: {"type":"objectid","description":"Viewed by"}
+        view_date: {"type":"date","description":"View date"}
+        createdAt: {"type":"date","description":"createdAt field"}
+        updatedAt: {"type":"date","description":"updatedAt field"}
+
 tags:
-    - name: Incidentes_denuncia
-      description: Incidentes_denuncia managing API
-  
+  - name: Incidentes_denuncia
+    description: Incidentes_denuncia managing API
+
 paths:
-    /incidentes_denuncia}:
-      get:
-        summary: Retrieve a list of Incidentes_denuncia
-        tags:
-          - Incidentes_denuncia
-        responses:
-          '200':
-            description: A list of Incidentes_denuncia
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Incidentes_denuncia'
-  
-      post:
-        summary: Create a new Incidentes_denuncia
-        tags:
-          - Incidentes_denuncia
-        requestBody:
-          required: true
+  /api/incidentes_denuncia:
+    get:
+      summary: Retrieve a list of Incidentes_denuncia
+      tags:
+        - Incidentes_denuncia
+      security:
+       - Authorization: []
+      responses:
+        '200':
+          description: A list of Incidentes_denuncia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Incidentes_denuncia'
+
+    post:
+      summary: Create a new Incidentes_denuncia
+      tags:
+        - Incidentes_denuncia
+      security:
+       - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Incidentes_denuncia'
+      responses:
+        '200':
+          description: The Incidentes_denuncia was successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Incidentes_denuncia'
-        responses:
-          '200':
-            description: The Incidentes_denuncia was successfully created
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Incidentes_denuncia'
-  
-    /incidentes_denuncia/{id}:
-      get:
-        summary: Get a Incidentes_denuncia by ID
-        tags:
-          - Incidentes_denuncia
-        parameters:
-          - in: path
-            name: id
-            schema:
-              type: string
-            required: true
-            description: The Incidentes_denuncia ID
-        responses:
-          '200':
-            description: The Incidentes_denuncia description by ID
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Incidentes_denuncia'
-          '404':
-            description: The Incidentes_denuncia was not found
-  
-      put:
-        summary: Update a Incidentes_denuncia by ID
-        tags:
-          - Incidentes_denuncia
-        parameters:
-          - in: path
-            name: id
-            schema:
-              type: string
-            required: true
-            description: The Incidentes_denuncia ID
-        requestBody:
+
+  /api/incidentes_denuncia/{id}:
+    get:
+      summary: Get a Incidentes_denuncia by ID
+      tags:
+        - Incidentes_denuncia
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
           required: true
+          description: The Incidentes_denuncia ID
+      responses:
+        '200':
+          description: The Incidentes_denuncia description by ID
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Incidentes_denuncia'
-        responses:
-          '200':
-            description: The Incidentes_denuncia was successfully updated
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Incidentes_denuncia'
-  
-      delete:
-        summary: Delete a Incidentes_denuncia by ID
-        tags:
-          - Incidentes_denuncia
-        parameters:
-          - in: path
-            name: id
+        '404':
+          description: The Incidentes_denuncia was not found
+
+    put:
+      summary: Update a Incidentes_denuncia by ID
+      tags:
+        - Incidentes_denuncia
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Incidentes_denuncia ID
+      requestBody:
+        required: true
+        content:
+          application/json:
             schema:
-              type: string
-            required: true
-            description: The Incidentes_denuncia ID
-        responses:
-          '200':
-            description: The Incidentes_denuncia was successfully deleted
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Incidentes_denuncia'
+              $ref: '#/components/schemas/Incidentes_denuncia'
+      responses:
+        '200':
+          description: The Incidentes_denuncia was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incidentes_denuncia'
+
+    delete:
+      summary: Delete a Incidentes_denuncia by ID
+      tags:
+        - Incidentes_denuncia
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Incidentes_denuncia ID
+      responses:
+        '200':
+          description: The Incidentes_denuncia was successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incidentes_denuncia'

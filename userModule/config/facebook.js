@@ -30,12 +30,14 @@ passport.use(
       datauser.email = profile.emails[0].value;
       datauser.facebookId = profile.id;
       datauser.photo = profile.photos[0].value;
+      datauser.verificado = true;
       const { status, message, data, error } = await register(datauser, true);
       if (status === 409) {
         let existingUser = await Model.User.findOne({ email: datauser.email });
 
         if (existingUser && !existingUser.facebookId) {
           existingUser.facebookId = datauser.facebookId;
+          existingUser.verificado = true;
           await existingUser.save();
           return done(null, existingUser);
         }

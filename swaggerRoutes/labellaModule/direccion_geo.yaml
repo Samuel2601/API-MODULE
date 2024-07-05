@@ -1,112 +1,124 @@
 components:
-    schemas:
-      Direccion_geo:
-        type: object
-        properties:
-          field:
-            type: string
-            description: Description of the field.
-  
+  schemas:
+    Direccion_geo:
+      type: object
+      properties:
+        nombre: {"type":"string","description":"Location name"}
+        latitud: {"type":"number","description":"Latitude"}
+        longitud: {"type":"number","description":"Longitude"}
+        createdAt: {"type":"date","description":"createdAt field"}
+        updatedAt: {"type":"date","description":"updatedAt field"}
+
 tags:
-    - name: Direccion_geo
-      description: Direccion_geo managing API
-  
+  - name: Direccion_geo
+    description: Direccion_geo managing API
+
 paths:
-    /direccion_geo}:
-      get:
-        summary: Retrieve a list of Direccion_geo
-        tags:
-          - Direccion_geo
-        responses:
-          '200':
-            description: A list of Direccion_geo
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Direccion_geo'
-  
-      post:
-        summary: Create a new Direccion_geo
-        tags:
-          - Direccion_geo
-        requestBody:
-          required: true
+  /api/direccion_geo:
+    get:
+      summary: Retrieve a list of Direccion_geo
+      tags:
+        - Direccion_geo
+      security:
+       - Authorization: []
+      responses:
+        '200':
+          description: A list of Direccion_geo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Direccion_geo'
+
+    post:
+      summary: Create a new Direccion_geo
+      tags:
+        - Direccion_geo
+      security:
+       - Authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Direccion_geo'
+      responses:
+        '200':
+          description: The Direccion_geo was successfully created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Direccion_geo'
-        responses:
-          '200':
-            description: The Direccion_geo was successfully created
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Direccion_geo'
-  
-    /direccion_geo/{id}:
-      get:
-        summary: Get a Direccion_geo by ID
-        tags:
-          - Direccion_geo
-        parameters:
-          - in: path
-            name: id
-            schema:
-              type: string
-            required: true
-            description: The Direccion_geo ID
-        responses:
-          '200':
-            description: The Direccion_geo description by ID
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Direccion_geo'
-          '404':
-            description: The Direccion_geo was not found
-  
-      put:
-        summary: Update a Direccion_geo by ID
-        tags:
-          - Direccion_geo
-        parameters:
-          - in: path
-            name: id
-            schema:
-              type: string
-            required: true
-            description: The Direccion_geo ID
-        requestBody:
+
+  /api/direccion_geo/{id}:
+    get:
+      summary: Get a Direccion_geo by ID
+      tags:
+        - Direccion_geo
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
           required: true
+          description: The Direccion_geo ID
+      responses:
+        '200':
+          description: The Direccion_geo description by ID
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Direccion_geo'
-        responses:
-          '200':
-            description: The Direccion_geo was successfully updated
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Direccion_geo'
-  
-      delete:
-        summary: Delete a Direccion_geo by ID
-        tags:
-          - Direccion_geo
-        parameters:
-          - in: path
-            name: id
+        '404':
+          description: The Direccion_geo was not found
+
+    put:
+      summary: Update a Direccion_geo by ID
+      tags:
+        - Direccion_geo
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Direccion_geo ID
+      requestBody:
+        required: true
+        content:
+          application/json:
             schema:
-              type: string
-            required: true
-            description: The Direccion_geo ID
-        responses:
-          '200':
-            description: The Direccion_geo was successfully deleted
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Direccion_geo'
+              $ref: '#/components/schemas/Direccion_geo'
+      responses:
+        '200':
+          description: The Direccion_geo was successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Direccion_geo'
+
+    delete:
+      summary: Delete a Direccion_geo by ID
+      tags:
+        - Direccion_geo
+      security:
+       - Authorization: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Direccion_geo ID
+      responses:
+        '200':
+          description: The Direccion_geo was successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Direccion_geo'

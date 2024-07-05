@@ -28,12 +28,14 @@ passport.use(
       datauser.email = profile.emails[0].value;
       datauser.googleId = profile.id;
       datauser.photo = profile.photos[0].value;
+      datauser.verificado = true;
       const { status, message, data, error } = await register(datauser, true);
       if (status === 409) {
         let existingUser = await Model.User.findOne({ email: datauser.email });
 
         if (existingUser && !existingUser.googleId) {
           existingUser.googleId = datauser.googleId;
+          existingUser.verificado = true;
           await existingUser.save();
           return done(null, existingUser);
         }
