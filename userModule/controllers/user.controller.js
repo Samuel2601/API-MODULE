@@ -101,6 +101,13 @@ const login = async function (data) {
               null, //createToken(admin_arr, data.time || null, data.tipo || null),
               null
             );
+          }else{
+            return apiResponse(
+              200,
+              "Bienvenido.",
+              createToken(usuario, data.time || null, data.tipo || null),
+              null
+            );
           }
          
         } else {
@@ -120,9 +127,7 @@ const login = async function (data) {
 
 const validarCodigo = async function (data) {
   try {
-    console.log(data);
     const usuario = await Model.User.findOne({ email: data.email });
-    console.log(usuario.verificationCode);
     if (usuario) {
       // Aquí puedes comparar el código de verificación recibido con el que tienes en la base de datos
       if (data.codigo === usuario.verificationCode) {

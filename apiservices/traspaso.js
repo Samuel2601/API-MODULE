@@ -181,6 +181,13 @@ const autoguardarPermisos = async (app) => {
     }
   });
 
+  // Verificar si existe el rol de administrador
+  const adminRole = await Model.Role.findOne({ name: { $in: ['Administrador', 'Admin'] } });
+  if (!adminRole) {
+    console.error('No se encontró el rol de Administrador o Admin');
+    return;
+  }
+
   for (const route of routes) {
     
     try {
@@ -190,6 +197,13 @@ const autoguardarPermisos = async (app) => {
       });
       await permiso.save();
       contador++;
+      
+      // Actualiza el rol de administrador con el nuevo permiso
+      await Model.Role.updateOne(
+        { _id: adminRole._id }, // Usar el ID del rol de administrador encontrado
+        { $addToSet: { permisos: permiso._id } } // Añade el permiso si no está ya presente
+      );
+
     } catch (error) {
       if (error.code === 11000) {
         // Error de duplicado

@@ -2,7 +2,7 @@
 import { Schema } from "mongoose";
 
 // Definir el esquema de permiso
-const permisoSchema = new Schema(
+const permissionSchema = new Schema(
   {
     name: {
       type: String,
@@ -20,16 +20,16 @@ const permisoSchema = new Schema(
 );
 
 // Middleware para convertir a minúsculas antes de guardar
-permisoSchema.pre('save', function (next) {
+permissionSchema.pre('save', function (next) {
   this.name = this.name.toLowerCase();
   this.method = this.method.toLowerCase();
   next();
 });
 
 // Índice compuesto para asegurar que la combinación de name y method sea única
-permisoSchema.index({ name: 1, method: 1 }, { unique: true });
+permissionSchema.index({ name: 1, method: 1 }, { unique: true });
 
-permisoSchema.statics.isProtected = function (method) {
+permissionSchema.statics.isProtected = function (method) {
   const protectedMethods = [
     "get",
     "post",
@@ -42,4 +42,4 @@ permisoSchema.statics.isProtected = function (method) {
   return protectedMethods.includes(method);
 };
 // Exportar el modelo de permiso
-export default permisoSchema;
+export default permissionSchema;

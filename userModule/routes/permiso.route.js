@@ -23,7 +23,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/obtenerPermisosPorCriterio:
+ * /api/obtenerPermisosPorCriterio:
  *   post:
  *     summary: Listar Permisos por Criterio.
  *     description: Lista los usuarios que coinciden con un criterio específico.
@@ -56,11 +56,11 @@ const router = express.Router();
  *         description: Error interno del servidor.
  */
 router.post(
-  "/obtenerPermisosPorCriterio",
+  "/obtenerpermisosporcriterio",
   //criterioValidations,
   //validationResultExpress,
   auth,
-  permissUser("obtenerPermisosPorCriterio"),
+  permissUser("/obtenerpermisosporcriterio","post"),
   async (req, res) => {
     try {      
       const { status, message, data, error } = await obtenerPermisosPorCriterio(
@@ -75,7 +75,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/v1/obtenerPermiso:
+ * /api/obtenerPermiso:
  *   get:
  *     summary: Obtener permiso por ID
  *     description: Obtiene un permiso por su ID.
@@ -102,11 +102,11 @@ router.post(
  *         description: Error interno en el servidor.
  */
 router.get(
-  "/obtenerPermiso",
+  "/obtenerpermiso",
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("obtenerPermiso"),
+  permissUser("/obtenerpermiso","get"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -120,7 +120,7 @@ router.get(
 );
 /**
  * @swagger
- * /api/v1/registrarPermisosMasivo:
+ * /api/registrarPermisosMasivo:
  *   post:
  *     summary: Registrar permisos masivamente
  *     description: Registra varios permisos en la base de datos.
@@ -163,11 +163,11 @@ router.get(
  */
 
 router.post(
-  "/registrarPermisosMasivo",
+  "/registrarpermisosmasivo",
   permisoValidator,
   validationResultExpress,
   auth,
-  permissUser("registrarPermisosMasivo"),
+  permissUser("registrarpermisosmasivo","post"),
   async (req, res) => {
     try {
       const { status, message, data, error } = await registrarPermisosMasivo(
@@ -182,7 +182,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/v1/eliminarPermiso:
+ * /api/eliminarPermiso:
  *   delete:
  *     summary: Eliminar permiso por ID
  *     description: Eliminar un permiso por su ID.
@@ -209,11 +209,11 @@ router.post(
  *         description: Error interno en el servidor.
  */
 router.delete(
-  "/eliminarPermiso",
+  "/eliminarpermiso",
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("eliminarPermiso"),
+  permissUser("eliminarpermiso","delete"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -227,7 +227,7 @@ router.delete(
 );
 /**
  * @swagger
- * /api/v1/actualizarPermiso:
+ * /api/actualizarPermiso:
  *   put:
  *     summary: Actualización de usuario
  *     description: Actualización un usuario en el sistema.
@@ -275,12 +275,12 @@ router.delete(
  *            example: []
  */
 router.put(
-  "/actualizarPermiso",
+  "/actualizarpermiso",
   idValidations,
   putpermisoValidations,
   validationResultExpress,
   auth,
-  permissUser("actualizarPermiso"),
+  permissUser("actualizarpermiso","put"),
   async (req, res) => {
     try {
       const id = req.query["id"];

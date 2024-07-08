@@ -15,6 +15,7 @@ connectDB();
 
 import session from "express-session";
 
+import authRoute from "./userModule/routes/auth.route.js"
 import userRoute from "./userModule/routes/user.route.js";
 import roleRoute from "./userModule/routes/role.route.js";
 import permisoRoute from "./userModule/routes/permiso.route.js";
@@ -45,15 +46,19 @@ app.use(session({ secret: secret, resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 
 app.use(express.json());
-app.use("/api/v1", userRoute);
-app.use("/api/v1", roleRoute);
-app.use("/api/v1", permisoRoute);
 app.use("/api",routerStand);
+app.use("/api", permisoRoute);
+app.use("/api", userRoute);
+app.use("/api", roleRoute);
+autoguardarPermisos(app);
+
+app.use("/api", authRoute);
+
 app.use("", google);
 app.use("", facebook);
 app.use("", contact);
 app.use("", webhoobs);
-autoguardarPermisos(app);
+
 //config swagger
 const specs = swaggerJSDoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));

@@ -1,6 +1,7 @@
 
 
 // services.js
+import { criterioFormat } from "../../userModule/validations/validations.js";
 import { models } from "../models/Modelold.js";
 //const models = require("../models/Model");
 
@@ -20,55 +21,40 @@ function cloneResponse() {
   return { ...response };
 }
 
-function isFieldType(model, field, type) {
-  const schema = models[model].schema.paths;
-  return schema[field] && schema[field].instance === type;
-}
+const getPopulateFields = (model, userPopulateFields) => {
+  const modelSchema = models[model].schema.paths;
+  const allPopulateFields = Object.keys(modelSchema).filter(
+    (field) => modelSchema[field].options && modelSchema[field].options.ref
+  );
+
+  // Si se manda 'populate all', retornar todos los campos que tienen referencia
+  if (userPopulateFields.includes('all')) {
+    return allPopulateFields;
+  }
+
+  // Caso contrario, retornar los campos especificados por el usuario
+  return userPopulateFields;
+};
 
 // List function
 async function list(model, params, userPopulateFields = []) {
   let response = cloneResponse();
   try {
     const { populate, ...filterParams } = params;
-    const filter = { ...filterParams };
-
-    // Preparar parámetros de búsqueda para campos de fecha
-    for (const [field, value] of Object.entries(params)) {
-      if (isFieldType(model, field, "Date")) {
-        if (
-          value &&
-          typeof value === "object" &&
-          ("start" in value || "end" in value)
-        ) {
-          const startDate = value.start ? new Date(value.start) : new Date();
-          const endDate = value.end ? new Date(value.end) : new Date();
-
-          if (value.start && value.end) {
-            filter[field] = { $gte: startDate, $lte: endDate };
-          } else if (value.start) {
-            filter[field] = { $gte: startDate };
-          } else if (value.end) {
-            filter[field] = { $lte: endDate };
-          }
-        } else if (value && typeof value === "string") {
-          const date = new Date(value);
-          filter[field] = { $gte: date, $lte: new Date() };
-        } else {
-          delete filter[field];
-        }
-      }
-    }
+    let aux = { ...filterParams }
+    const filter = criterioFormat(models[model],aux)
 
     // Obtener los campos a populados
     const modelSchema = models[model].schema.paths;
-    const populateFields =
-      userPopulateFields.length > 0
+    const populateFields = getPopulateFields(model,userPopulateFields);
+    /*  userPopulateFields.length > 0
         ? userPopulateFields
         : Object.keys(modelSchema).filter(
             (field) =>
               modelSchema[field].options && modelSchema[field].options.ref
-          );
-    console.log(populateFields, filter);
+          );*/
+    //console.log(populateFields, filter);
+
     // Crear la consulta con populate si es necesario
     let query = models[model].find(filter);
     populateFields.forEach((field) => {

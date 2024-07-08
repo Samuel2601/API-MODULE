@@ -22,7 +22,7 @@ import {
 const router = express.Router();
 /**
  * @swagger
- * /api/v1/obtenerRolesPorCriterio:
+ * /api/obtenerRolesPorCriterio:
  *   post:
  *     summary: Listar Usuarios por Criterio.
  *     description: Lista los usuarios que coinciden con un criterio específico.
@@ -55,11 +55,11 @@ const router = express.Router();
  *         description: Error interno del servidor.
  */
 router.post(
-  "/obtenerRolesPorCriterio",
-  criterioValidations,
-  validationResultExpress,
+  "/obtenerrolesporcriterio",
+  //criterioValidations,
+  //validationResultExpress,
   auth,
-  permissUser("obtenerRolesPorCriterio"),
+  permissUser("/obtenerrolesporcriterio","post"),
   async (req, res) => {
     try {
       const { status, message, data, error } = await obtenerRolesPorCriterio(
@@ -74,7 +74,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/v1/obtenerRole:
+ * /api/obtenerRole:
  *   get:
  *     summary: Obtener usuario por ID
  *     description: Obtiene un usuario por su ID.
@@ -101,11 +101,11 @@ router.post(
  *         description: Error interno en el servidor.
  */
 router.get(
-  "/obtenerRole",
+  "/obtenerrole",
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("obtenerRole"),
+  permissUser("/obtenerrole","get"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -119,7 +119,7 @@ router.get(
 );
 /**
  * @swagger
- * /api/v1/registrarRolesMasivo:
+ * /api/registrarRolesMasivo:
  *   post:
  *     summary: Registrar roles masivamente
  *     description: Registra varios roles en la base de datos.
@@ -162,10 +162,10 @@ router.get(
  */
 
 router.post(
-  "/registrarRolesMasivo",
+  "/registrarrolesmasivo",
   roleValidator,
   validationResultExpress,
-  permissUser("registrarRolesMasivo"),
+  permissUser("/registrarrolesmasivo","post"),
   auth,
   async (req, res) => {
     try {
@@ -183,7 +183,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/eliminarRole:
+ * /api/eliminarRole:
  *   delete:
  *     summary: Eliminar rol por ID
  *     description: Eliminar un rol por su ID.
@@ -210,11 +210,11 @@ router.post(
  *         description: Error interno en el servidor.
  */
 router.delete(
-  "/eliminarRole",
+  "/eliminarrole",
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("eliminarRole"),
+  permissUser("/eliminarrole","delete"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -228,7 +228,7 @@ router.delete(
 );
 /**
  * @swagger
- * /api/v1/actualizarRole:
+ * /api/actualizarRole:
  *   put:
  *     summary: Actualización de usuario
  *     description: Actualización un usuario en el sistema.
@@ -276,12 +276,12 @@ router.delete(
  *            example: []
  */
 router.put(
-  "/actualizarRole",
+  "/actualizarrole",
   idValidations,
   putroleValidations,
   validationResultExpress,
   auth,
-  permissUser("actualizarRole"),
+  permissUser("/actualizarrole","put"),
   async (req, res) => {
     try {
       const id = req.query["id"];

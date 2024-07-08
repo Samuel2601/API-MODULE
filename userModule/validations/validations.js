@@ -62,7 +62,7 @@ export const WhatsAppValidations = [
 
 const isJSON = (value) => {
   try {
-    return (typeof value === 'object');
+    return typeof value === "object";
   } catch (error) {
     return false;
   }
@@ -81,13 +81,13 @@ export const WhatsAppOriginValidations = [
     .optional()
     .isArray()
     .custom((value) => {
-      value.forEach(element => {
+      value.forEach((element) => {
         if (!isJSON(element)) {
           throw new Error(
             "Los valores de la plantilla deben ser un objeto JSON válido."
           );
         }
-      });      
+      });
       return true;
     }),
 ];
@@ -111,39 +111,41 @@ function esCampoCriterio(modelo, campo, criterio) {
   const schema = modelo.schema.paths;
   return schema[campo] && schema[campo].instance === criterio;
 }
+function isFieldType(model, field, type) {
+  const schema = model.schema.paths;
+  return schema[field] && schema[field].instance === type;
+}
 
-export function criterioFormat(modelo,criterios){
-  const filtro = { ...criterios };
+export function criterioFormat(model, params) {
+  const filter = { ...params };
+  console.log(filter);
+  // Preparar parámetros de búsqueda para campos de fecha
+  for (const [field, value] of Object.entries(params)) {
+    if (isFieldType(model, field, "Date")) {
+      if (
+        value &&
+        typeof value === "object" &&
+        ("start" in value || "end" in value)
+      ) {
+        const startDate = value.start ? new Date(value.start) : new Date();
+        const endDate = value.end ? new Date(value.end) : new Date();
 
-      // Preparar los parámetros de búsqueda para campos de fecha
-      for (const [campo, valor] of Object.entries(criterios)) {
-        if (esCampoCriterio(modelo, campo, "Date")) {
-          if (
-            valor &&
-            typeof valor === "object" &&
-            ("inicio" in valor || "fin" in valor)
-          ) {
-            const fechaInicio = valor.inicio
-              ? new Date(valor.inicio)
-              : new Date();
-            const fechaFin = valor.fin ? new Date(valor.fin) : new Date();
-
-            if (valor.inicio && valor.fin) {
-              filtro[campo] = { $gte: fechaInicio, $lte: fechaFin };
-            } else if (valor.inicio) {
-              filtro[campo] = { $gte: fechaInicio };
-            } else if (valor.fin) {
-              filtro[campo] = { $lte: fechaFin };
-            }
-          } else if (valor && typeof valor === "string") {
-            const fecha = new Date(valor);
-            filtro[campo] = { $gte: fecha, $lte: new Date() };
-          } else {
-            delete filtro[campo];
-          }
+        if (value.start && value.end) {
+          filter[field] = { $gte: startDate, $lte: endDate };
+        } else if (value.start) {
+          filter[field] = { $gte: startDate };
+        } else if (value.end) {
+          filter[field] = { $lte: endDate };
         }
+      } else if (value && typeof value === "string") {
+        const date = new Date(value);
+        filter[field] = { $gte: date, $lte: new Date() };
+      } else {
+        delete filter[field];
       }
-      return filtro;
+    }
+  }
+  return filter;
 }
 
 export const idValidations = [

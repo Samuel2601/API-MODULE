@@ -1,14 +1,12 @@
 import express from "express";
 
 import {
-  login,
   register,
   actualizarUser,
   eliminarUser,
   obtenerUser,
   obtenerUserPorCriterio,
   registrarMasivoUser,
-  validarCodigo,
 } from "../controllers/user.controller.js";
 import {
   validationResultExpress,
@@ -29,7 +27,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/v1/register:
+ * /api/register:
  *   post:
  *     summary: Registro de usuario
  *     description: Registra un nuevo usuario en el sistema.
@@ -109,99 +107,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/v1/login:
- *   post:
- *     summary: Iniciar sesión
- *     description: Permite a un usuario iniciar sesión en el sistema.
- *     tags: [USER]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: Correo electrónico del usuario.
- *                 example: saamare99@gmail.com
- *               password:
- *                 type: string
- *                 description: Contraseña del usuario.
- *                 example: 123456789
- *     responses:
- *       '200':
- *         description: Inicio de sesión exitoso.
- *       '400':
- *         description: Error en la solicitud debido a validaciones fallidas.
- *       '500':
- *         description: Error interno en el servidor.
- */
-
-router.post(
-  "/login",
-  loginValidations,
-  validationResultExpress,
-  async (req, res) => {
-    try {
-      const { status, message, data, error } = await login(req.body);
-      res.status(status).json({ message, data, error });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "ERROR", error: error });
-    }
-  }
-);
-/**
- * @swagger
- * /api/v1/validcode:
- *   post:
- *     summary: Iniciar sesión
- *     description: Permite a un usuario iniciar sesión en el sistema.
- *     tags: [USER]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: Correo electrónico del usuario.
- *                 example: saamare99@gmail.com
- *               codigo:
- *                 type: string
- *                 description: Código enviado al correo del usuario.
- *                 example: 1234
- *     responses:
- *       '200':
- *         description: Inicio de sesión exitoso.
- *       '400':
- *         description: Error en la solicitud debido a validaciones fallidas.
- *       '500':
- *         description: Error interno en el servidor.
- */
-router.post(
-  "/validcode",
-  validcodeValidations,
-  validationResultExpress,
-  async (req, res) => {
-    try {
-      const { status, message, data, error } = await validarCodigo(req.body);
-      res.status(status).json({ message, data, error });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "ERROR", error: error });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/v1/obtenerUserPorCriterio:
+ * /api/obtenerUserPorCriterio:
  *   post:
  *     summary: Listar Usuarios por Criterio.
  *     description: Lista los usuarios que coinciden con un criterio específico.
@@ -234,11 +140,11 @@ router.post(
  *         description: Error interno del servidor.
  */
 router.post(
-  "/obtenerUserPorCriterio",
-  criterioValidations,
-  validationResultExpress,
+  "/obteneruserporcriterio",
+  //criterioValidations,
+  //validationResultExpress,
   auth,
-  permissUser("obtenerUserPorCriterio"),
+  permissUser("/obteneruserporcriterio","post"),
   async (req, res) => {
     try {
       const { status, message, data, error } = await obtenerUserPorCriterio(
@@ -253,7 +159,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/v1/obtenerUser:
+ * /api/obtenerUser:
  *   get:
  *     summary: Obtener usuario por ID
  *     description: Obtiene un usuario por su ID.
@@ -280,11 +186,11 @@ router.post(
  *         description: Error interno en el servidor.
  */
 router.get(
-  "/obtenerUser",
+  "/obteneruser",
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("obtenerUser"),
+  permissUser("/obteneruser","get"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -299,7 +205,7 @@ router.get(
 
 /**
  * @swagger
- * /api/v1/registrarMasivoUser:
+ * /api/registrarMasivoUser:
  *   post:
  *     summary: Registrar usuarios masivamente
  *     description: Registra varios usuarios en la base de datos.
@@ -413,7 +319,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/v1/eliminarUser:
+ * /api/eliminarUser:
  *   delete:
  *     summary: Eliminar usuario por ID
  *     description: Eliminar un usuario por su ID.
@@ -440,11 +346,11 @@ router.post(
  *         description: Error interno en el servidor.
  */
 router.delete(
-  "/eliminarUser",
+  "/eliminaruser",
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("eliminarUser"),
+  permissUser("/eliminaruser","delete"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -459,7 +365,7 @@ router.delete(
 
 /**
  * @swagger
- * /api/v1/actualizarUser:
+ * /api/actualizarUser:
  *   put:
  *     summary: Actualización de usuario
  *     description: Actualización un usuario en el sistema.
@@ -537,12 +443,12 @@ router.delete(
  *           example: 662feebb0993e219e7db8bfa
  */
 router.put(
-  "/actualizarUser",
+  "/actualizaruser",
   idValidations,
   putuserValidations,
   validationResultExpress,
   auth,
-  permissUser("actualizarUser"),
+  permissUser("/actualizaruser","put"),
   async (req, res) => {
     try {
       const id = req.query["id"];

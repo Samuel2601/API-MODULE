@@ -8,7 +8,7 @@ const roleuserSchema = new Schema({
     required: true,
     unique: true
   },
-  permisos: [{ type: Schema.Types.ObjectId, ref: 'permiso' }],
+  permisos: [{ type: Schema.Types.ObjectId, ref: 'permission' }],
   orden: { type: Number,unique: true}
 },
 {
