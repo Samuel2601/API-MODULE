@@ -84,7 +84,7 @@ router.get(
   (req, res) => {
     createToken(req.user, 6, "days")
       .then((data) => {
-        const token = data.token; // Asume que `data` contiene el token
+        const token = data; // Asume que `data` contiene el token
         const redirectWithTokenUrl = `${redirectUrl}?token=${token}`;
         res.redirect(redirectWithTokenUrl);
       })

@@ -30,7 +30,6 @@ export const validateAuth = (model, method, path) => {
   };
 };
 
-
 export const auth = (req, res, next) => {
   if (!req.headers.authorization) {
     return res.status(403).send({ message: "NoHeadersError" });
@@ -60,7 +59,11 @@ const checkPermission = async (path, method, user, rol) => {
   let hasPermission = false;
 
   // Check permission based on user
-  const userPermission = await Model.Permiso.findOne({ name: path, user, method });
+  const userPermission = await Model.Permiso.findOne({
+    name: path,
+    user,
+    method,
+  });
   if (userPermission) {
     hasPermission = true;
   }
@@ -73,7 +76,10 @@ const checkPermission = async (path, method, user, rol) => {
   // Check permission based on role
   const rolePermission = await Model.Permiso.findOne({ name: path, method });
   if (rolePermission) {
-    const role = await Model.Role.findOne({ _id: rol, permisos: rolePermission._id });
+    const role = await Model.Role.findOne({
+      _id: rol,
+      permisos: rolePermission._id,
+    });
     if (role) {
       hasPermission = true;
     }
@@ -88,7 +94,12 @@ export const permissUser = (path, method) => async (req, res, next) => {
     return res.status(403).json({ message: "Algo salió mal." });
   }
 
-  const hasPermission = await checkPermission(path, method, req.user.sub, req.user.role);
+  const hasPermission = await checkPermission(
+    path,
+    method,
+    req.user.sub,
+    req.user.role
+  );
 
   if (!hasPermission) {
     return res.status(404).json({ message: "Sin Permisos" });
@@ -142,19 +153,27 @@ export const createToken = async function (user, time, tipo) {
   const tiempoValido = time || 3;
   const tipoValido = tipo || "hours";
   console.log(user);
-  var payload = {
-    sub: user._id,
-    email: user.email,
-    role: user.role,
-    iat: moment().unix(),
-    exp: moment().add(tiempoValido, tipoValido).unix(),
-  };
-
-  if (user.dni) {
-    payload.dni = user.dni;
+  if(user.status){
+    var payload = {
+      sub: user._id,
+      name: user.name.toUpperCase(),
+      last_name: user.last_name.toUpperCase(),
+      photo: user.photo,
+      correo: user.email,
+      role: user.role,
+      iat: moment().unix(),
+      exp: moment().add(tiempoValido, tipoValido).unix(),
+    };
+  
+    if (user.dni) {
+      payload.dni = user.dni;
+    }
+  
+    console.log("Payload creado:", payload);
+  
+    return pkg.encode(payload, secret);
+  }else{
+    return {message:'Usuario deshabilitado'}
   }
-
-  console.log("Payload creado:", payload);
-
-  return pkg.encode(payload, secret);
+ 
 };
