@@ -4,9 +4,10 @@ import {
   auth,
   createToken,
 } from "../../middlewares/validationResultExpress.js";
-const redirectUrl = process.env.NODE_ENV === 'production'
-  ? 'https://geoapi.esmeraldas.gob.ec/auth/login'
-  : 'http://localhost:4200';
+const redirectUrl =
+  process.env.NODE_ENV === "production"
+    ? "https://geoapi.esmeraldas.gob.ec/auth/login"
+    : "http://localhost:4200";
 
 const router = express.Router();
 /**
@@ -20,22 +21,22 @@ const router = express.Router();
  * @swagger
  * /auth/google:
  *   get:
- *     summary: Iniciar autenticación de Google
+ *     summary: Iniciar autenticaciï¿½n de Google
  *     tags: [GoogleAuth]
  *     responses:
  *       200:
- *         description: Redirección a la página de autenticación de Google
+ *         description: Redirecciï¿½n a la pï¿½gina de autenticaciï¿½n de Google
  */
 
 /**
  * @swagger
  * /auth/google/callback/:
  *   get:
- *     summary: Callback de autenticación de Google
+ *     summary: Callback de autenticaciï¿½n de Google
  *     tags: [GoogleAuth]
  *     responses:
  *       200:
- *         description: Autenticación exitosa
+ *         description: Autenticaciï¿½n exitosa
  */
 
 /**
@@ -48,23 +49,23 @@ const router = express.Router();
  *       - Authorization: []
  *     responses:
  *       200:
- *         description: Token válido
+ *         description: Token vï¿½lido
  *       403:
- *         description: Token inválido
+ *         description: Token invï¿½lido
  */
 /**
  * @swagger
  * /logout:
  *   get:
- *     summary: Cerrar Sesión
+ *     summary: Cerrar Sesiï¿½n
  *     tags: [GoogleAuth]
  *     security:
  *       - Authorization: []
  *     responses:
  *       200:
- *         description: Token válido
+ *         description: Token vï¿½lido
  *       403:
- *         description: Token inválido
+ *         description: Token invï¿½lido
  */
 router.get(
   "/auth/google",
@@ -81,13 +82,15 @@ router.get(
   "/auth/google/callback/",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    createToken(req.user, req.time, req.tipo).then((data) => {
-      const token = data.token; // Asume que `data` contiene el token
-      const redirectWithTokenUrl  = `${redirectUrl}?token=${token}`;
-      res.redirect(redirectWithTokenUrl );
-    }).catch(error => {
-      res.status(500).json({ message: "Error creating token", error });
-    });
+    createToken(req.user, 6, "days")
+      .then((data) => {
+        const token = data.token; // Asume que `data` contiene el token
+        const redirectWithTokenUrl = `${redirectUrl}?token=${token}`;
+        res.redirect(redirectWithTokenUrl);
+      })
+      .catch((error) => {
+        res.status(500).json({ message: "Error creating token", error });
+      });
   }
 );
 
@@ -105,7 +108,7 @@ router.get("/logout", auth, (req, res) => {
   console.log("ABIERTO:", req.user);
   req.session.destroy(function (err) {
     res.status(200).json({ message: "Cerrado" });
-    //res.redirect('/'); //Inside a callback… bulletproof!
+    //res.redirect('/'); //Inside a callbackï¿½ bulletproof!
   });
 });
 
