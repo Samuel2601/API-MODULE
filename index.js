@@ -8,6 +8,7 @@ const secret = uuidv4();
 // import
 import "dotenv/config";
 import connectDB from './database/connect.js';
+import bodyParser from "body-parser";
 // Conectar a la base de datos por defecto
 connectDB();
 
@@ -65,4 +66,14 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 const PORT = process.env.PORT || 2000;
 app.listen(PORT, () => {
   console.log("Server running at http://localhost:" + PORT);
+});
+app.use(bodyParser.urlencoded({limit: '200mb',extended:true}));
+app.use(bodyParser.json({limit: '200mb', extended: true}));
+
+app.use((req,res,next)=>{
+    res.header('Access-Control-Allow-Origin','*'); 
+    res.header('Access-Control-Allow-Headers','Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Access-Control-Allow-Request-Method');
+    res.header('Access-Control-Allow-Methods','GET, PUT, POST, DELETE, OPTIONS');
+    res.header('Allow','GET, PUT, POST, DELETE, OPTIONS');
+    next();
 });
