@@ -27,7 +27,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/register:
+ * /new/register:
  *   post:
  *     summary: Registro de usuario
  *     description: Registra un nuevo usuario en el sistema.
@@ -107,7 +107,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/obtenerUserPorCriterio:
+ * /new/obtenerUserPorCriterio:
  *   post:
  *     summary: Listar Usuarios por Criterio.
  *     description: Lista los usuarios que coinciden con un criterio específico.
@@ -159,7 +159,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/obtenerUser:
+ * /new/obtenerUser:
  *   get:
  *     summary: Obtener usuario por ID
  *     description: Obtiene un usuario por su ID.
@@ -205,7 +205,7 @@ router.get(
 
 /**
  * @swagger
- * /api/registrarMasivoUser:
+ * /new/registrarMasivoUser:
  *   post:
  *     summary: Registrar usuarios masivamente
  *     description: Registra varios usuarios en la base de datos.
@@ -319,7 +319,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/eliminarUser:
+ * /new/eliminarUser:
  *   delete:
  *     summary: Eliminar usuario por ID
  *     description: Eliminar un usuario por su ID.
@@ -365,7 +365,7 @@ router.delete(
 
 /**
  * @swagger
- * /api/actualizarUser:
+ * /new/actualizarUser:
  *   put:
  *     summary: Actualización de usuario
  *     description: Actualización un usuario en el sistema.

@@ -23,7 +23,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/obtenerPermisosPorCriterio:
+ * /new/obtenerPermisosPorCriterio:
  *   post:
  *     summary: Listar Permisos por Criterio.
  *     description: Lista los usuarios que coinciden con un criterio específico.
@@ -75,7 +75,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/obtenerPermiso:
+ * /new/obtenerPermiso:
  *   get:
  *     summary: Obtener permiso por ID
  *     description: Obtiene un permiso por su ID.
@@ -120,7 +120,7 @@ router.get(
 );
 /**
  * @swagger
- * /api/registrarPermisosMasivo:
+ * /new/registrarPermisosMasivo:
  *   post:
  *     summary: Registrar permisos masivamente
  *     description: Registra varios permisos en la base de datos.
@@ -182,7 +182,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/eliminarPermiso:
+ * /new/eliminarPermiso:
  *   delete:
  *     summary: Eliminar permiso por ID
  *     description: Eliminar un permiso por su ID.
@@ -227,7 +227,7 @@ router.delete(
 );
 /**
  * @swagger
- * /api/actualizarPermiso:
+ * /new/actualizarPermiso:
  *   put:
  *     summary: Actualización de usuario
  *     description: Actualización un usuario en el sistema.

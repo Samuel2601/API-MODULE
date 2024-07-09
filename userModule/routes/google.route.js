@@ -19,7 +19,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /auth/google:
+ * /new/auth/google:
  *   get:
  *     summary: Iniciar autenticaci�n de Google
  *     tags: [GoogleAuth]
@@ -30,7 +30,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /auth/google/callback/:
+ * /new/auth/google/callback/:
  *   get:
  *     summary: Callback de autenticaci�n de Google
  *     tags: [GoogleAuth]
@@ -55,7 +55,7 @@ const router = express.Router();
  */
 /**
  * @swagger
- * /logout:
+ * /new/logout:
  *   get:
  *     summary: Cerrar Sesi�n
  *     tags: [GoogleAuth]

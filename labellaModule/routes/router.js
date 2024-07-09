@@ -178,7 +178,7 @@ tags:
     description: ${modelName} managing API
 
 paths:
-  /new/${path}:
+  /${path}:
     get:
       summary: Retrieve a list of ${modelName}
       tags:
@@ -215,7 +215,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/${modelName}'
 
-  /new/${path}/{id}:
+  /${path}/{id}:
     get:
       summary: Get a ${modelName} by ID
       tags:

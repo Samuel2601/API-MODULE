@@ -13,7 +13,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/login:
+ * /login:
  *   post:
  *     summary: Iniciar sesión
  *     description: Permite a un usuario iniciar sesión en el sistema.
@@ -59,7 +59,7 @@ router.post(
 );
 /**
  * @swagger
- * /api/validcode:
+ * /validcode:
  *   post:
  *     summary: Iniciar sesión
  *     description: Permite a un usuario iniciar sesión en el sistema.

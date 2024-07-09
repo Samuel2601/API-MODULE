@@ -55,14 +55,14 @@ autoguardarPermisos(app);
 
 app.use("/new", authRoute);
 
-app.use("", google);
-app.use("", facebook);
-app.use("", contact);
-app.use("", webhoobs);
+app.use("/new", google);
+app.use("/new", facebook);
+app.use("/new", contact);
+app.use("/new", webhoobs);
 
 //config swagger
 const specs = swaggerJSDoc(swaggerOptions);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/new/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 const PORT = process.env.PORT || 2000;
 app.listen(PORT, () => {
   console.log("Server running at http://localhost:" + PORT);
