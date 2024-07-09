@@ -13,7 +13,7 @@ tags:
     description: Actividad_proyecto managing API
 
 paths:
-  /api/actividad_proyecto:
+  /actividad_proyecto:
     get:
       summary: Retrieve a list of Actividad_proyecto
       tags:
@@ -50,7 +50,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Actividad_proyecto'
 
-  /api/actividad_proyecto/{id}:
+  /actividad_proyecto/{id}:
     get:
       summary: Get a Actividad_proyecto by ID
       tags:

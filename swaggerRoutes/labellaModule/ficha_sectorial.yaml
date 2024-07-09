@@ -22,7 +22,7 @@ tags:
     description: Ficha_sectorial managing API
 
 paths:
-  /api/ficha_sectorial:
+  /ficha_sectorial:
     get:
       summary: Retrieve a list of Ficha_sectorial
       tags:
@@ -59,7 +59,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Ficha_sectorial'
 
-  /api/ficha_sectorial/{id}:
+  /ficha_sectorial/{id}:
     get:
       summary: Get a Ficha_sectorial by ID
       tags:

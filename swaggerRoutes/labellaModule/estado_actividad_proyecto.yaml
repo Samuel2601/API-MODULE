@@ -13,7 +13,7 @@ tags:
     description: Estado_actividad_proyecto managing API
 
 paths:
-  /api/estado_actividad_proyecto:
+  /estado_actividad_proyecto:
     get:
       summary: Retrieve a list of Estado_actividad_proyecto
       tags:
@@ -50,7 +50,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Estado_actividad_proyecto'
 
-  /api/estado_actividad_proyecto/{id}:
+  /estado_actividad_proyecto/{id}:
     get:
       summary: Get a Estado_actividad_proyecto by ID
       tags:

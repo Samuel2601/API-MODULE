@@ -14,7 +14,7 @@ tags:
     description: Categoria managing API
 
 paths:
-  /api/categoria:
+  /categoria:
     get:
       summary: Retrieve a list of Categoria
       tags:
@@ -51,7 +51,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Categoria'
 
-  /api/categoria/{id}:
+  /categoria/{id}:
     get:
       summary: Get a Categoria by ID
       tags:

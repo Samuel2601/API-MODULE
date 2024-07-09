@@ -13,7 +13,7 @@ tags:
     description: Permiso managing API
 
 paths:
-  /api/permiso:
+  /permiso:
     get:
       summary: Retrieve a list of Permiso
       tags:
@@ -50,7 +50,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Permiso'
 
-  /api/permiso/{id}:
+  /permiso/{id}:
     get:
       summary: Get a Permiso by ID
       tags:

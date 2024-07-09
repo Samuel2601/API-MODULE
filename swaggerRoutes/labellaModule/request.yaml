@@ -20,7 +20,7 @@ tags:
     description: Request managing API
 
 paths:
-  /api/request:
+  /request:
     get:
       summary: Retrieve a list of Request
       tags:
@@ -57,7 +57,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Request'
 
-  /api/request/{id}:
+  /request/{id}:
     get:
       summary: Get a Request by ID
       tags:

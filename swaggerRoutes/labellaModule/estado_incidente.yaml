@@ -13,7 +13,7 @@ tags:
     description: Estado_incidente managing API
 
 paths:
-  /api/estado_incidente:
+  /estado_incidente:
     get:
       summary: Retrieve a list of Estado_incidente
       tags:
@@ -50,7 +50,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Estado_incidente'
 
-  /api/estado_incidente/{id}:
+  /estado_incidente/{id}:
     get:
       summary: Get a Estado_incidente by ID
       tags:

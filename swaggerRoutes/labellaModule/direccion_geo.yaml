@@ -14,7 +14,7 @@ tags:
     description: Direccion_geo managing API
 
 paths:
-  /api/direccion_geo:
+  /direccion_geo:
     get:
       summary: Retrieve a list of Direccion_geo
       tags:
@@ -51,7 +51,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Direccion_geo'
 
-  /api/direccion_geo/{id}:
+  /direccion_geo/{id}:
     get:
       summary: Get a Direccion_geo by ID
       tags:

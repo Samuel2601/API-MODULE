@@ -15,7 +15,7 @@ tags:
     description: Subcategoria managing API
 
 paths:
-  /api/subcategoria:
+  /subcategoria:
     get:
       summary: Retrieve a list of Subcategoria
       tags:
@@ -52,7 +52,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Subcategoria'
 
-  /api/subcategoria/{id}:
+  /subcategoria/{id}:
     get:
       summary: Get a Subcategoria by ID
       tags:

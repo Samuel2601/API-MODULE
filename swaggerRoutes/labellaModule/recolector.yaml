@@ -14,7 +14,7 @@ tags:
     description: Recolector managing API
 
 paths:
-  /api/recolector:
+  /recolector:
     get:
       summary: Retrieve a list of Recolector
       tags:
@@ -51,7 +51,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Recolector'
 
-  /api/recolector/{id}:
+  /recolector/{id}:
     get:
       summary: Get a Recolector by ID
       tags:
