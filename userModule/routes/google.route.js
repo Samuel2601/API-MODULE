@@ -20,22 +20,22 @@ const router = express.Router();
  * @swagger
  * /auth/google:
  *   get:
- *     summary: Iniciar autenticaciÃ³n de Google
+ *     summary: Iniciar autenticación de Google
  *     tags: [GoogleAuth]
  *     responses:
  *       200:
- *         description: RedirecciÃ³n a la pÃ¡gina de autenticaciÃ³n de Google
+ *         description: Redirección a la página de autenticación de Google
  */
 
 /**
  * @swagger
  * /auth/google/callback/:
  *   get:
- *     summary: Callback de autenticaciÃ³n de Google
+ *     summary: Callback de autenticación de Google
  *     tags: [GoogleAuth]
  *     responses:
  *       200:
- *         description: AutenticaciÃ³n exitosa
+ *         description: Autenticación exitosa
  */
 
 /**
@@ -48,23 +48,23 @@ const router = express.Router();
  *       - Authorization: []
  *     responses:
  *       200:
- *         description: Token vÃ¡lido
+ *         description: Token válido
  *       403:
- *         description: Token invÃ¡lido
+ *         description: Token inválido
  */
 /**
  * @swagger
  * /logout:
  *   get:
- *     summary: Cerrar SesiÃ³n
+ *     summary: Cerrar Sesión
  *     tags: [GoogleAuth]
  *     security:
  *       - Authorization: []
  *     responses:
  *       200:
- *         description: Token vÃ¡lido
+ *         description: Token válido
  *       403:
- *         description: Token invÃ¡lido
+ *         description: Token inválido
  */
 router.get(
   "/auth/google",
@@ -105,7 +105,7 @@ router.get("/logout", auth, (req, res) => {
   console.log("ABIERTO:", req.user);
   req.session.destroy(function (err) {
     res.status(200).json({ message: "Cerrado" });
-    //res.redirect('/'); //Inside a callbackâ€¦ bulletproof!
+    //res.redirect('/'); //Inside a callback… bulletproof!
   });
 });
 
