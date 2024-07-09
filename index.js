@@ -47,13 +47,13 @@ app.use(session({ secret: secret, resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 
 app.use(express.json());
-app.use("/api",routerStand);
-app.use("/api", permisoRoute);
-app.use("/api", userRoute);
-app.use("/api", roleRoute);
+app.use("/new",routerStand);
+app.use("/new", permisoRoute);
+app.use("/new", userRoute);
+app.use("/new", roleRoute);
 autoguardarPermisos(app);
 
-app.use("/api", authRoute);
+app.use("/new", authRoute);
 
 app.use("", google);
 app.use("", facebook);
