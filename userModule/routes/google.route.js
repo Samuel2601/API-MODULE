@@ -7,7 +7,7 @@ import {
 const redirectUrl =
   process.env.NODE_ENV === "production"
     ? "https://geoapi.esmeraldas.gob.ec/auth/login"
-    : "http://localhost:4200";
+    : "http://localhost:4200/auth/login";
 
 const router = express.Router();
 /**
