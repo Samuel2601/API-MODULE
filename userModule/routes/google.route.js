@@ -4,6 +4,10 @@ import {
   auth,
   createToken,
 } from "../../middlewares/validationResultExpress.js";
+const redirectUrl = process.env.NODE_ENV === 'production'
+  ? 'https://geoapi.esmeraldas.gob.ec/auth/login'
+  : 'http://localhost:4200';
+
 const router = express.Router();
 /**
  * @swagger
@@ -77,10 +81,12 @@ router.get(
   "/auth/google/callback/",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    console.log(req);
-    createToken(req.user,req.time,req.tipo).then((data) => {
-      console.log(data);
-      res.status(200).json({ message: "Bienvenido.", data });
+    createToken(req.user, req.time, req.tipo).then((data) => {
+      const token = data.token; // Asume que `data` contiene el token
+      const redirectWithTokenUrl  = `${redirectUrl}?token=${token}`;
+      res.redirect(redirectWithTokenUrl );
+    }).catch(error => {
+      res.status(500).json({ message: "Error creating token", error });
     });
   }
 );
