@@ -30,7 +30,7 @@ export async function recoverPassword(req, res) {
   };
 
   const { email, recaptcha } = req.body;
-
+  console.log("Correo ha recuperar:", email);
   const recaptchaSecretKey = "6LcXafYpAAAAAIrSo77FKAYJQA8TorXzbF94DUN9";
   const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecretKey}&response=${recaptcha}`;
 
@@ -44,48 +44,50 @@ export async function recoverPassword(req, res) {
     }
 
     const usuario = await Model.User.findOne({ email: email });
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
 
-    if (usuario) {
-      const temporaryPassword = Math.random().toString(36).slice(-8);
-      usuario.password_temp = await hashPassword(temporaryPassword);
-      await usuario.save();
-      readHTMLFile(
-        '../mails/email_password.html',
-        //path.resolve(process.cwd(), "mails", "email_password.html"),
-        (err, html) => {
-          const rest_html = ejs.render(html, {
-            numverf: temporaryPassword,
-            usuario: usuario,
-          });
+    const temporaryPassword = Math.random().toString(36).slice(-8);
+    usuario.password_temp = await hashPassword(temporaryPassword);
+    await usuario.save();
 
-          const template = handlebars.compile(rest_html);
-          const htmlToSend = template({ op: true });
+    readHTMLFile('../mails/email_password.html', (err, html) => {
+      if (err) {
+        console.error("Error al leer el archivo HTML:", err);
+        return res.status(500).json({ message: "Error interno del servidor" });
+      }
 
-          const mailOptions = {
-            from: "aplicaciones@esmeraldas.gob.ec",
-            to: correo,
-            subject: "Recuperación de contraseña",
-            priority: "high",
-            text: `Tu clave temporal es: ${temporaryPassword}`,
-            html: htmlToSend,
-          };
+      const rest_html = ejs.render(html, {
+        numverf: temporaryPassword,
+        usuario: usuario,
+      });
 
-          transporter.sendMail(mailOptions, function (error, info) {
-            if (!error) {
-              console.log("Email sent: " + info.response);
+      const template = handlebars.compile(rest_html);
+      const htmlToSend = template({ op: true });
 
-              res.status(200).json({
-                message:
-                  "Revisa tu correo, te hemos enviado un código de validación.",
-              });
-            } else {
-              console.error(error);
-              res.status(500).json({ message: "Algo salió mal" });
-            }
+      const mailOptions = {
+        from: "aplicaciones@esmeraldas.gob.ec",
+        to: correo,
+        subject: "Recuperación de contraseña",
+        priority: "high",
+        text: `Tu clave temporal es: ${temporaryPassword}`,
+        html: htmlToSend,
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.error("Error al enviar el correo:", error);
+          return res.status(500).json({ message: "Algo salió mal" });
+        } else {
+          console.log("Email sent: " + info.response);
+          res.status(200).json({
+            message:
+              "Revisa tu correo, te hemos enviado un código de validación.",
           });
         }
-      );
-    }
+      });
+    });
   } catch (error) {
     console.error(
       "Error en la verificación de reCAPTCHA o en el envío del correo:",
