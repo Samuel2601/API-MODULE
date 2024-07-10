@@ -5,6 +5,21 @@ import "dotenv/config";
 import { v4 as uuidv4 } from "uuid";
 const secret = uuidv4();
 
+import * as io from "socket.io";
+
+io.on('connection', (socket) => {
+  console.log('New client connected');
+  
+  socket.on('join', (data) => {
+    const { userId } = data;
+    socket.join(userId);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
 // Importar dependencias y módulos
 import "dotenv/config";
 import connectDB from './database/connect.js';
@@ -28,6 +43,7 @@ import * as passportSetupF from "./userModule/config/facebook.js";
 import { swaggerOptions } from "./swagger/configswagger.js";
 import { permiso, roles, usuarios, autoguardarPermisos } from "./apiservices/traspaso.js";
 import routerStand from "./labellaModule/routes/router.js";
+import { Socket } from "socket.io";
 
 // Conectar a la base de datos por defecto
 connectDB();

@@ -3,6 +3,7 @@
 import { Model } from "../models/exporSchema.js";
 import apiResponse from "../../helpers/sendstatus.js";
 import { criterioFormat } from "../validations/validations.js";
+import notifyPermissionChange from "./socket.io.controller.js";
 
 //FUNCTION ROLUSERSCHEMA
 const obtenerRole = async function (id) {
@@ -35,16 +36,49 @@ const obtenerRolesPorCriterio = async function (criterios) {
 };
 const actualizarRole = async function (id, data) {
   try {
-    const role = await Model.Role.findByIdAndUpdate(id, data, { new: true });
-    if (!role) {
+    // Obtener el rol actual antes de la actualización
+    const rolActual = await Model.Role.findById(id).populate('permisos');
+    if (!rolActual) {
       return apiResponse(404, "Rol no encontrado.", null, null);
     }
-    return apiResponse(200, "Rol actualizado con éxito.", role, null);
+
+    const permisosActuales = rolActual.permisos.map(permiso => permiso._id.toString());
+
+    // Actualizar el rol
+    const rolActualizado = await Model.Role.findByIdAndUpdate(id, data, {
+      new: true,
+    }).populate('permisos');
+
+    if (!rolActualizado) {
+      return apiResponse(404, "Rol no encontrado.", null, null);
+    }
+
+    const permisosActualizados = rolActualizado.permisos.map(permiso => permiso._id.toString());
+
+    // Determinar los cambios en los permisos
+    const permisosRemovidos = permisosActuales.filter(permisoId => !permisosActualizados.includes(permisoId));
+    const permisosAgregados = permisosActualizados.filter(permisoId => !permisosActuales.includes(permisoId));
+
+    // Obtener los usuarios que tienen este rol
+    const usuarios = await Model.User.find({ role: id });
+
+    // Notificar a los usuarios afectados
+    usuarios.forEach(usuario => {
+      permisosRemovidos.forEach(permisoId => {
+        notifyPermissionChange(usuario._id, 'PERMISSION_REMOVED', permisoId);
+      });
+      permisosAgregados.forEach(permisoId => {
+        notifyPermissionChange(usuario._id, 'PERMISSION_ADDED', permisoId);
+      });
+    });
+
+    return apiResponse(200, "Rol actualizado con éxito.", rolActualizado, null);
   } catch (error) {
     console.error(error);
     return apiResponse(500, "ERROR", null, error);
   }
 };
+
 const eliminarRole = async function (id) {
   try {
     const role = await Model.Role.findByIdAndDelete(id);

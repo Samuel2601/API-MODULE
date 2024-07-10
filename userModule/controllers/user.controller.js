@@ -6,6 +6,7 @@ import apiResponse from "../../helpers/sendstatus.js";
 import * as bcrypt from "bcrypt-nodejs";
 import { mail_confirmar_session } from "../contacModule/controllers/mail.controller.js";
 import { criterioFormat } from "../validations/validations.js";
+import { notifyRoleChange } from "./socket.io.controller.js";
 
 //FUNCTION USERSCHEMA
 const register = async function (data, ret) {
@@ -220,6 +221,22 @@ const obtenerUserPorCriterio = async function (criterios) {
 };
 const actualizarUser = async function (id, data) {
   try {
+    let roleChanged = false;
+    let oldRole = null;
+
+    // Obtener el usuario actual antes de la actualización
+    const user = await Model.User.findById(id).populate('role');
+    if (!user) {
+      return apiResponse(404, "Usuario no encontrado.", null, null);
+    }
+
+    // Verificar si el rol ha cambiado
+    if (data.role && user.role._id.toString() !== data.role) {
+      roleChanged = true;
+      oldRole = user.role._id.toString();
+    }
+
+    // Hash de la nueva contraseña si se proporciona
     if (data.password) {
       const hash = await new Promise((resolve, reject) => {
         bcrypt.hash(data.password, null, null, (err, result) => {
@@ -230,13 +247,25 @@ const actualizarUser = async function (id, data) {
           }
         });
       });
+      data.password = hash;
     }
-    const registro = await Model.User.findByIdAndUpdate(id, data, {
-      new: true,
-    });
+
+    // Actualizar el usuario
+    const registro = await Model.User.findByIdAndUpdate(id, data, { new: true }).populate('role');
     if (!registro) {
       return apiResponse(404, "Registro no encontrado.", null, null);
     }
+
+    // Si el rol ha cambiado, notificar al usuario
+    if (roleChanged) {
+      // Notificar que el usuario ha sido eliminado del rol anterior
+      if (oldRole) {
+        notifyRoleChange(id, 'ROLE_REMOVED', oldRole);
+      }
+      // Notificar que el usuario ha sido agregado al nuevo rol
+      notifyRoleChange(id, 'ROLE_ADDED', registro.role._id.toString());
+    }
+
     return apiResponse(200, "Registro actualizado con éxito.", registro, null);
   } catch (error) {
     console.error(error);

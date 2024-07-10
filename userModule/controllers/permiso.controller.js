@@ -3,6 +3,7 @@
 import { Model } from "../models/exporSchema.js";
 import apiResponse from "../../helpers/sendstatus.js";
 import { criterioFormat } from "../validations/validations.js";
+import notifyPermissionChange from "./socket.io.controller.js";
 
 //FUNCTION PERMISOSCHEMA
 const obtenerPermiso = async function (id) {
@@ -36,18 +37,46 @@ const obtenerPermisosPorCriterio = async function (criterios) {
 };
 const actualizarPermiso = async function (id, data) {
   try {
-    const permiso = await Model.Permiso.findByIdAndUpdate(id, data, {
-      new: true,
-    });
-    if (!permiso) {
+    const permisoActual = await Model.Permiso.findById(id).populate('user');
+    if (!permisoActual) {
       return apiResponse(404, "Permiso no encontrado.", null, null);
     }
-    return apiResponse(200, "Permiso actualizado con éxito.", permiso, null);
+
+    const permisoActualUsers = permisoActual.user.map(user => user._id.toString());
+
+    const permisoActualizado = await Model.Permiso.findByIdAndUpdate(id, data, {
+      new: true,
+    }).populate('user');
+
+    if (!permisoActualizado) {
+      return apiResponse(404, "Permiso no encontrado.", null, null);
+    }
+
+    const permisoActualizadoUsers = permisoActualizado.user.map(user => user._id.toString());
+
+    // Usuarios que perdieron el permiso
+    const usuariosPerdieronPermiso = permisoActualUsers.filter(userId => !permisoActualizadoUsers.includes(userId));
+    
+    // Usuarios que ganaron el permiso
+    const usuariosGanaronPermiso = permisoActualizadoUsers.filter(userId => !permisoActualUsers.includes(userId));
+
+    // Notificar a los usuarios que perdieron el permiso
+    usuariosPerdieronPermiso.forEach(userId => {
+      notifyPermissionChange(userId, 'PERMISSION_REMOVED', permisoActualizado);
+    });
+
+    // Notificar a los usuarios que ganaron el permiso
+    usuariosGanaronPermiso.forEach(userId => {
+      notifyPermissionChange(userId, 'PERMISSION_ADDED', permisoActualizado);
+    });
+
+    return apiResponse(200, "Permiso actualizado con éxito.", permisoActualizado, null);
   } catch (error) {
     console.error(error);
     return apiResponse(500, "ERROR", null, error);
   }
 };
+
 const eliminarPermiso = async function (id) {
   try {
     const permiso = await Model.Permiso.findByIdAndDelete(id);
