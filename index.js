@@ -1,27 +1,10 @@
 "use strict";
 import express from "express";
 import "dotenv/config";
-
 import { v4 as uuidv4 } from "uuid";
-const secret = uuidv4();
-
-import * as io from "socket.io";
-
-io.on('connection', (socket) => {
-  console.log('New client connected');
-  
-  socket.on('join', (data) => {
-    const { userId } = data;
-    socket.join(userId);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
-});
+import http from "http"; // Importar http para crear el servidor
 
 // Importar dependencias y módulos
-import "dotenv/config";
 import connectDB from './database/connect.js';
 import bodyParser from "body-parser";
 import session from "express-session";
@@ -43,13 +26,22 @@ import * as passportSetupF from "./userModule/config/facebook.js";
 import { swaggerOptions } from "./swagger/configswagger.js";
 import { permiso, roles, usuarios, autoguardarPermisos } from "./apiservices/traspaso.js";
 import routerStand from "./labellaModule/routes/router.js";
-import { Socket } from "socket.io";
+
+import { initializeSocket } from "./userModule/controllers/socket.io.controller.js";
+
+const secret = uuidv4();
 
 // Conectar a la base de datos por defecto
 connectDB();
 
 // Inicializar la aplicación Express
 const app = express();
+
+// Crear el servidor HTTP
+const server = http.createServer(app);
+
+// Inicializar Socket.IO después de crear el servidor
+initializeSocket(server);
 
 // Configuración de sesión
 app.use(session({ secret: secret, resave: true, saveUninitialized: true }));
@@ -90,6 +82,6 @@ app.use("/new/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 2000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log("Server running at http://localhost:" + PORT);
 });
