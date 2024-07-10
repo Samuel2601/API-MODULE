@@ -64,7 +64,8 @@ export async function recoverPassword(req, res) {
     const temporaryPassword = Math.random().toString(36).slice(-8);
     usuario.password_temp = await hashPassword(temporaryPassword);
     await usuario.save();
-
+    
+    console.log(process.cwd() + "/userModule/contacModule/mails/email_password.html");
     readHTMLFile(process.cwd() + "/userModule/contacModule/mails/email_password.html", (err, html) => {
       if (err) {
         console.error("Error al leer el archivo HTML:", err);
