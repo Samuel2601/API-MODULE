@@ -3,7 +3,7 @@ import { validationResult } from "express-validator";
 import pkg from "jwt-simple";
 import moment from "moment";
 import { Model } from "../userModule/models/exporSchema.js";
-var secret = "examplekey";
+var secret = "labella";
 
 export const validationResultExpress = (req, res, next) => {
   const errors = validationResult(req);
