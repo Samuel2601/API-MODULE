@@ -101,6 +101,13 @@ const login = async function (data) {
               null, //createToken(admin_arr, data.time || null, data.tipo || null),
               null
             );
+          }else{
+            return apiResponse(
+              200,
+              "Bienvenido.",
+              createToken(usuario, data.time || null, data.tipo || null),
+              null
+            );
           }
          
         } else {
@@ -136,7 +143,7 @@ const validarCodigo = async function (data) {
         return apiResponse(
           200,
           "Bienvenido.",
-          await createToken(usuario, data.time || null, data.tipo || null),
+          createToken(usuario, data.time || null, data.tipo || null),
           null
         );
       } else {
