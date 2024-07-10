@@ -64,7 +64,7 @@ export async function recoverPassword(req, res) {
     const temporaryPassword = Math.random().toString(36).slice(-8);
     usuario.password_temp = await hashPassword(temporaryPassword);
     await usuario.save();
-    
+
     console.log(process.cwd() + "/userModule/contacModule/mails/email_password.html");
     readHTMLFile(process.cwd() + "/userModule/contacModule/mails/email_password.html", (err, html) => {
       if (err) {
@@ -82,7 +82,7 @@ export async function recoverPassword(req, res) {
 
       const mailOptions = {
         from: "aplicaciones@esmeraldas.gob.ec",
-        to: correo,
+        to: email,
         subject: "Recuperación de contraseña",
         priority: "high",
         text: `Tu clave temporal es: ${temporaryPassword}`,
@@ -91,20 +91,20 @@ export async function recoverPassword(req, res) {
 
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
-          console.error("Error al enviar el correo:", error);
+          console.error("Error al enviar el email:", error);
           return res.status(500).json({ message: "Algo salió mal" });
         } else {
           console.log("Email sent: " + info.response);
           res.status(200).json({
             message:
-              "Revisa tu correo, te hemos enviado un código de validación.",
+              "Revisa tu email, te hemos enviado un código de validación.",
           });
         }
       });
     });
   } catch (error) {
     console.error(
-      "Error en la verificación de reCAPTCHA o en el envío del correo:",
+      "Error en la verificación de reCAPTCHA o en el envío del email:",
       error
     );
     res.status(500).json({ message: "Error interno del servidor" });
