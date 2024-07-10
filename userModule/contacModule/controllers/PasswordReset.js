@@ -65,7 +65,7 @@ export async function recoverPassword(req, res) {
     usuario.password_temp = await hashPassword(temporaryPassword);
     await usuario.save();
 
-    readHTMLFile('../mails/email_password.html', (err, html) => {
+    readHTMLFile(process.cwd() + "/mails/email_password.html", (err, html) => {
       if (err) {
         console.error("Error al leer el archivo HTML:", err);
         return res.status(500).json({ message: "Error interno del servidor" });
