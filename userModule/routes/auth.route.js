@@ -8,6 +8,7 @@ import {
   loginValidations,
   validcodeValidations,
 } from "../validations/validations.js";
+import { recoverPassword } from "../contacModule/controllers/PasswordReset.js";
 
 const router = express.Router();
 
@@ -102,5 +103,33 @@ router.post(
     }
   }
 );
+/**
+ * @swagger
+ * /recover-password:
+ *   post:
+ *     summary: Iniciar sesión
+ *     description: Permite a un usuario recuperar acceso a su cuenta con una clave temporal de un unico acceso.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Correo electrónico del usuario.
+ *                 example: saamare99@gmail.com
+ *     responses:
+ *       '200':
+ *         description: Inicio de sesión exitoso.
+ *       '400':
+ *         description: Error en la solicitud debido a validaciones fallidas.
+ *       '500':
+ *         description: Error interno en el servidor.
+ */
+router.post('/recover-password', recoverPassword);
 
 export default router;
