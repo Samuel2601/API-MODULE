@@ -17,6 +17,19 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+async function hashPassword(password) {
+  return await new Promise((resolve, reject) => {
+    bcrypt.hash(password, null, null, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
+
 export async function recoverPassword(req, res) {
   const readHTMLFile = function (path, callback) {
     fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
@@ -97,14 +110,3 @@ export async function recoverPassword(req, res) {
   }
 }
 
-async function hashPassword(password) {
-  return await new Promise((resolve, reject) => {
-    bcrypt.hash(password, null, null, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-}
