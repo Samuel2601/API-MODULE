@@ -5,6 +5,7 @@ import fs from "fs";
 import ejs from "ejs";
 import path from "path";
 import { Model } from "../../models/exporSchema.js";
+import * as bcrypt from "bcrypt-nodejs";
 
 const transporter = nodemailer.createTransport({
   host: "mail.esmeraldas.gob.ec",
@@ -46,7 +47,7 @@ export async function recoverPassword(req, res) {
 
     if (usuario) {
       const temporaryPassword = Math.random().toString(36).slice(-8);
-      usuario.password_temp = temporaryPassword;
+      usuario.password_temp = await hashPassword(temporaryPassword);
       await usuario.save();
       readHTMLFile(
         '../mails/email_password.html',
@@ -92,4 +93,16 @@ export async function recoverPassword(req, res) {
     );
     res.status(500).json({ message: "Error interno del servidor" });
   }
+}
+
+async function hashPassword(password) {
+  return await new Promise((resolve, reject) => {
+    bcrypt.hash(password, null, null, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
 }

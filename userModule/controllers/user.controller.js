@@ -75,43 +75,63 @@ async function hashPassword(password) {
 
 const login = async function (data) {
   try {
-    const admin_arr = await Model.User.findOne({ email: data.email });
-    if (admin_arr) {
-      if (admin_arr.status) {
-        // Wrap bcrypt.compare() in a promise
-        const checkPassword = new Promise((resolve, reject) => {
-          bcrypt.compare(data.password, admin_arr.password, (error, result) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(result);
-            }
+    const user = await Model.User.findOne({ email: data.email });
+    if (user) {
+      if (user.status) {
+        let passwordMatch = false;
+        let passwordChange=false;
+        // Primero verifica la contraseña temporal si existe
+        if (user.password_temp) {
+          passwordMatch = await new Promise((resolve, reject) => {
+            bcrypt.compare(data.password, user.password_temp, (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result);
+              }
+            });
           });
-        });
 
-        // Wait for the promise to resolve
-        const check = await checkPassword;
+          if (passwordMatch) {
+            // Si la contraseña temporal coincide, elimínala y actualiza el usuario
+            user.password_temp = null;
+            passwordChange=true;
+            await user.save();
+          }
+        }
 
-        if (check) {
-          if(admin_arr.verificado){
+        // Si no hay contraseña temporal o no coincide, verifica la contraseña normal
+        if (!passwordMatch) {
+          passwordMatch = await new Promise((resolve, reject) => {
+            bcrypt.compare(data.password, user.password, (error, result) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(result);
+              }
+            });
+          });
+        }
+
+        if (passwordMatch) {
+          if (user.verificado) {
             return apiResponse(
               200,
               (await mail_confirmar_session(data.email)) ||
-                "El Código de un solo uso será enviado pronto", //"Bienvenido.",
-              null, //createToken(admin_arr, data.time || null, data.tipo || null),
+                "El Código de un solo uso será enviado pronto",
+              null,
               null
             );
-          }else{
+          } else {
             return apiResponse(
               200,
               "Bienvenido.",
-              createToken(usuario, data.time || null, data.tipo || null),
+              {token:createToken(user, data.time || null, data.tipo || null),passwordChange:passwordChange},
               null
             );
           }
-         
         } else {
-          return apiResponse(400, "Sin Coincidencia.", null, error);
+          return apiResponse(400, "Sin Coincidencia.", null, null);
         }
       } else {
         return apiResponse(401, "Credenciales Deshabilitadas.", null, null);
@@ -124,6 +144,7 @@ const login = async function (data) {
     return apiResponse(500, "ERROR", null, error);
   }
 };
+
 
 const validarCodigo = async function (data) {
   try {
@@ -143,7 +164,7 @@ const validarCodigo = async function (data) {
         return apiResponse(
           200,
           "Bienvenido.",
-          createToken(usuario, data.time || null, data.tipo || null),
+          {token:createToken(usuario, data.time || null, data.tipo || null)},
           null
         );
       } else {
