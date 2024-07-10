@@ -108,14 +108,6 @@ export const permissUser = (path, method) => async (req, res, next) => {
   next();
 };
 
-/**
- * Crea un token JWT
- *
- * @param {Object} user - El usuario para el cual se crea el token
- * @param {Number} time - El tiempo de expiración del token
- * @param {String} tipo - La unidad de tiempo para la expiración del token
- * @returns {String} - El token JWT creado
- */
 export const createToken = async function (user, time, tipo) {
   const validTimeUnits = [
     "year",
@@ -144,36 +136,40 @@ export const createToken = async function (user, time, tipo) {
     "ms",
   ];
 
-  // Verifica que la unidad de tiempo sea válida
-  if (tipo && !validTimeUnits.includes(tipo)) {
-    throw new Error("Unidad de tiempo inválida");
-  }
-
-  // Establece valores predeterminados si no se proporcionan
-  const tiempoValido = time || 3;
-  const tipoValido = tipo || "hours";
-  console.log(user);
-  if(user.status){
-    var payload = {
-      sub: user._id,
-      name: user.name.toUpperCase(),
-      last_name: user.last_name.toUpperCase(),
-      photo: user.photo,
-      correo: user.email,
-      role: user.role,
-      iat: moment().unix(),
-      exp: moment().add(tiempoValido, tipoValido).unix(),
-    };
-  
-    if (user.dni) {
-      payload.dni = user.dni;
+  try {
+    // Verifica que la unidad de tiempo sea válida
+    if (tipo && !validTimeUnits.includes(tipo)) {
+      throw new Error("Unidad de tiempo inválida");
     }
-  
-    console.log("Payload creado:", payload);
-  
-    return pkg.encode(payload, secret);
-  }else{
-    return {message:'Usuario deshabilitado'}
+
+    // Establece valores predeterminados si no se proporcionan
+    const tiempoValido = time || 3;
+    const tipoValido = tipo || "hours";
+    console.log(user);
+    if (user.status) {
+      var payload = {
+        sub: user._id,
+        name: user.name.toUpperCase(),
+        last_name: user.last_name.toUpperCase(),
+        photo: user.photo,
+        correo: user.email,
+        role: user.role,
+        iat: moment().unix(),
+        exp: moment().add(tiempoValido, tipoValido).unix(),
+      };
+
+      if (user.dni) {
+        payload.dni = user.dni;
+      }
+
+      console.log("Payload creado:", payload);
+
+      return pkg.encode(payload, secret);
+    } else {
+      return { message: "Usuario deshabilitado" };
+    }
+  } catch (error) {
+    console.error("Error crear TOKEN:", error);
+    return { message: "ERROR interno del Servidor" };
   }
- 
 };

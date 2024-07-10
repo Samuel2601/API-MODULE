@@ -123,10 +123,11 @@ const login = async function (data) {
               null
             );
           } else {
+            const token = await createToken(usuario, data.time || null, data.tipo || null);
             return apiResponse(
               200,
               "Bienvenido.",
-              {token:createToken(user, data.time || null, data.tipo || null),passwordChange:passwordChange},
+              {token,passwordChange},
               null
             );
           }
@@ -160,11 +161,11 @@ const validarCodigo = async function (data) {
         }
         usuario.verificationCode = null;
         await usuario.save();
-
+        const token = await createToken(usuario, data.time || null, data.tipo || null);
         return apiResponse(
           200,
           "Bienvenido.",
-          {token:createToken(usuario, data.time || null, data.tipo || null)},
+          {token},
           null
         );
       } else {
