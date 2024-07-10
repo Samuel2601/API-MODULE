@@ -29,7 +29,7 @@ export async function recoverPassword(req, res) {
     });
   };
 
-  const { correo, recaptcha } = req.body;
+  const { email, recaptcha } = req.body;
 
   const recaptchaSecretKey = "6LcXafYpAAAAAIrSo77FKAYJQA8TorXzbF94DUN9";
   const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecretKey}&response=${recaptcha}`;
@@ -43,7 +43,7 @@ export async function recoverPassword(req, res) {
         .json({ message: "Falló la verificación de reCAPTCHA" });
     }
 
-    const usuario = await Model.User.findOne({ email: correo });
+    const usuario = await Model.User.findOne({ email: email });
 
     if (usuario) {
       const temporaryPassword = Math.random().toString(36).slice(-8);
