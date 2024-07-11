@@ -38,6 +38,8 @@ connectDB(); // Conectar a la base de datos por defecto
 const app = express(); // Inicializar la aplicación Express
 const server = http.createServer(app); // Crear el servidor HTTP
 
+let userSockets = {}; // Define userSockets como un objeto vacío al inicio del archivo
+
 // Inicializar Socket.IO después de crear el servidor
 const io = new Server(server, {
   cors: {
@@ -52,16 +54,16 @@ io.on("connection", (socket) => {
 
   // Emitir un mensaje de bienvenida
   socket.emit("welcome", "Welcome to the server!");
-  
+
   // Escuchar evento para asociar el socket con el ID de usuario
   socket.on("set-user-id", (userId) => {
     console.log(`User ${userId} connected with socket ${socket.id}`);
-    userSockets.set(userId, socket); // Asociar el socket con el ID de usuario
+    userSockets[userId] = socket;
   });
 
   // Ejemplo de cómo enviar un evento a un usuario específico
   socket.on("notify-user", ({ userId, data }) => {
-    const userSocket = userSockets.get(userId);
+    const userSocket = userSockets[userId];
     if (userSocket) {
       userSocket.emit("notification", data); // Emitir evento al usuario específico
     } else {
