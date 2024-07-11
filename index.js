@@ -102,7 +102,7 @@ app.use("/new", contactRoute);
 app.use("/new", webhoobs);
 
 // Endpoint para verificar el estado de Socket.IO
-app.get('/socket-status', (req, res) => {
+app.get('/new/socket-status', (req, res) => {
   if (io) {
     res.status(200).send({
       message: 'Socket.IO server is running',
