@@ -3,7 +3,7 @@
 import { Model } from "../models/exporSchema.js";
 import apiResponse from "../../helpers/sendstatus.js";
 import { criterioFormat } from "../validations/validations.js";
-import {notifyPermissionChange} from "./socket.io.controller.js";
+import { notifyPermissionChange } from "../../index.js";
 
 //FUNCTION PERMISOSCHEMA
 const obtenerPermiso = async function (id) {

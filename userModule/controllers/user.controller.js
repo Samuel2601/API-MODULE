@@ -6,7 +6,7 @@ import apiResponse from "../../helpers/sendstatus.js";
 import * as bcrypt from "bcrypt-nodejs";
 import { mail_confirmar_session } from "../contacModule/controllers/mail.controller.js";
 import { criterioFormat } from "../validations/validations.js";
-import { notifyRoleChange } from "./socket.io.controller.js";
+import { notifyRoleChange } from "../../index.js";
 
 //FUNCTION USERSCHEMA
 const register = async function (data, ret) {
