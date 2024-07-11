@@ -12,7 +12,7 @@ import * as swaggerUi from "swagger-ui-express";
 import { Server } from "socket.io";
 
 // Importar dependencias y módulos personalizados
-import connectDB from './database/connect.js';
+import connectDB from "./database/connect.js";
 import authRoute from "./userModule/routes/auth.route.js";
 import userRoute from "./userModule/routes/user.route.js";
 import roleRoute from "./userModule/routes/role.route.js";
@@ -22,7 +22,12 @@ import facebookRoute from "./userModule/routes/facebook.route.js";
 import contactRoute from "./userModule/routes/contac.route.js";
 import webhoobs from "./userModule/contacModule/webhoobs/whatsapps.config.js";
 import { swaggerOptions } from "./swagger/configswagger.js";
-import { permiso, roles, usuarios, autoguardarPermisos } from "./apiservices/traspaso.js";
+import {
+  permiso,
+  roles,
+  usuarios,
+  autoguardarPermisos,
+} from "./apiservices/traspaso.js";
 import routerStand from "./labellaModule/routes/router.js";
 import * as passportSetupG from "./userModule/config/google.js";
 import * as passportSetupF from "./userModule/config/facebook.js";
@@ -47,6 +52,22 @@ io.on("connection", (socket) => {
 
   // Emitir un mensaje de bienvenida
   socket.emit("welcome", "Welcome to the server!");
+  
+  // Escuchar evento para asociar el socket con el ID de usuario
+  socket.on("set-user-id", (userId) => {
+    console.log(`User ${userId} connected with socket ${socket.id}`);
+    userSockets.set(userId, socket); // Asociar el socket con el ID de usuario
+  });
+
+  // Ejemplo de cómo enviar un evento a un usuario específico
+  socket.on("notify-user", ({ userId, data }) => {
+    const userSocket = userSockets.get(userId);
+    if (userSocket) {
+      userSocket.emit("notification", data); // Emitir evento al usuario específico
+    } else {
+      console.log(`User ${userId} not connected.`);
+    }
+  });
 
   // Manejar la desconexión del usuario
   socket.on("disconnect", () => {
@@ -75,15 +96,18 @@ app.use(passport.initialize());
 app.use(passport.session()); // Esto es necesario para mantener la sesión de autenticación
 
 // Configuración de body-parser
-app.use(bodyParser.urlencoded({ limit: '200mb', extended: true }));
-app.use(bodyParser.json({ limit: '200mb', extended: true }));
+app.use(bodyParser.urlencoded({ limit: "200mb", extended: true }));
+app.use(bodyParser.json({ limit: "200mb", extended: true }));
 
 // Configuración de CORS
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Access-Control-Allow-Request-Method');
-  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-  res.header('Allow', 'GET, PUT, POST, DELETE, OPTIONS');
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Access-Control-Allow-Request-Method"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
+  res.header("Allow", "GET, PUT, POST, DELETE, OPTIONS");
   next();
 });
 
@@ -102,16 +126,16 @@ app.use("/new", contactRoute);
 app.use("/new", webhoobs);
 
 // Endpoint para verificar el estado de Socket.IO
-app.get('/new/socket-status', (req, res) => {
+app.get("/new/socket-status", (req, res) => {
   if (io) {
     res.status(200).send({
-      message: 'Socket.IO server is running',
+      message: "Socket.IO server is running",
       path: io.path(),
-      connections: io.engine.clientsCount
+      connections: io.engine.clientsCount,
     });
   } else {
     res.status(500).send({
-      message: 'Socket.IO server is not initialized'
+      message: "Socket.IO server is not initialized",
     });
   }
 });
@@ -123,7 +147,7 @@ app.use("/new/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 // Manejo de errores
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  res.status(500).send("Something broke!");
 });
 
 // Iniciar el servidor
