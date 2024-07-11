@@ -4,11 +4,13 @@ import { Server } from "socket.io";
 let io;
 
 export const initializeSocket = (server) => {
+  console.log(server);
   io = new Server(server, {
       cors: {
           origin: "*",
-          methods: ["GET", "POST"]
-      }
+          methods: ["GET", "POST"],
+      },
+      path: '/new/socket.io' // Aquí especificas la ruta para los sockets
   });
 
   io.on('connection', (socket) => {
