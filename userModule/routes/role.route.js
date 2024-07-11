@@ -22,7 +22,7 @@ import {
 const router = express.Router();
 /**
  * @swagger
- * /new/obtenerRolesPorCriterio:
+ * /obtenerRolesPorCriterio:
  *   post:
  *     summary: Listar Usuarios por Criterio.
  *     description: Lista los usuarios que coinciden con un criterio específico.
@@ -74,7 +74,7 @@ router.post(
 );
 /**
  * @swagger
- * /new/obtenerRole:
+ * /obtenerRole:
  *   get:
  *     summary: Obtener usuario por ID
  *     description: Obtiene un usuario por su ID.
@@ -119,7 +119,7 @@ router.get(
 );
 /**
  * @swagger
- * /new/registrarRolesMasivo:
+ * /registrarRolesMasivo:
  *   post:
  *     summary: Registrar roles masivamente
  *     description: Registra varios roles en la base de datos.
@@ -183,7 +183,7 @@ router.post(
 
 /**
  * @swagger
- * /new/eliminarRole:
+ * /eliminarRole:
  *   delete:
  *     summary: Eliminar rol por ID
  *     description: Eliminar un rol por su ID.
@@ -228,7 +228,7 @@ router.delete(
 );
 /**
  * @swagger
- * /new/actualizarRole:
+ * /actualizarRole:
  *   put:
  *     summary: Actualización de usuario
  *     description: Actualización un usuario en el sistema.
