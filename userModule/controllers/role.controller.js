@@ -8,7 +8,7 @@ import {notifyPermissionChange} from "./socket.io.controller.js";
 //FUNCTION ROLUSERSCHEMA
 const obtenerRole = async function (id) {
   try {
-    const role = await Model.Role.findById(id);
+    const role = await Model.Role.findById(id).populate("permisos");
     if (!role) {
       return apiResponse(404, "Rol no encontrado.", null, null);
     }
