@@ -1,8 +1,17 @@
 import express from "express";
 
-import { login, validarCodigo } from "../controllers/user.controller.js";
+import {
+  login,
+  obtenerUser,
+  validarCodigo,
+} from "../controllers/user.controller.js";
 
-import { validationResultExpress } from "../../middlewares/validationResultExpress.js";
+import {
+  auth,
+  createToken,
+  idtokenUser,
+  validationResultExpress,
+} from "../../middlewares/validationResultExpress.js";
 
 import {
   loginValidations,
@@ -130,6 +139,76 @@ router.post(
  *       '500':
  *         description: Error interno en el servidor.
  */
-router.post('/recover-password', recoverPassword);
-
+router.post("/recover-password", recoverPassword);
+/**
+ * @swagger
+ * /refreshtoken:
+ *   post:
+ *     summary: Refresh token endpoint
+ *     description: Refreshes user token based on provided ID.
+ *     tags: [Auth]
+ *     security:
+ *       - Authorization: []
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID to refresh token for.
+ *     responses:
+ *       '200':
+ *         description: Token refreshed successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Success message.
+ *                 token:
+ *                   type: string
+ *                   description: New JWT token.
+ *                 error:
+ *                   type: string
+ *                   description: Error message, if any.
+ *       '403':
+ *         description: Invalid token or unauthorized access.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *       '500':
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                 error:
+ *                   type: string
+ *                   description: Internal error details.
+ */
+router.post("/refreshtoken", idtokenUser, async (req, res) => {
+  try {
+    const id = req.query["id"];
+    const { status, message, data, error } = await obtenerUser(id);
+    let token;
+    if (data) {
+      token = await createToken(data);
+    }
+    res.status(status).json({ message, token, error });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "ERROR", error: error });
+  }
+});
 export default router;

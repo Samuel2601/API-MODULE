@@ -152,7 +152,7 @@ export const createToken = async function (user, time, tipo) {
         name: user.name.toUpperCase(),
         last_name: user.last_name.toUpperCase(),
         photo: user.photo,
-        correo: user.email,
+        email: user.email,
         role: user.role,
         iat: moment().unix(),
         exp: moment().add(tiempoValido, tipoValido).unix(),
@@ -172,4 +172,24 @@ export const createToken = async function (user, time, tipo) {
     console.error("Error crear TOKEN:", error);
     return { message: "ERROR interno del Servidor" };
   }
+};
+
+export const idtokenUser = async function (req, res, next) {
+  try {
+    const token = req.headers.authorization?.replace(/^Bearer\s/, "")?.replace(/['"]+/g, "");
+    if (!token) {
+      return res.status(403).send({ message: "TokenMissing" });
+    }
+
+    const payload = pkg.decode(token, secret); // Asegúrate de tener 'secret' definido correctamente
+    const id = req.query["id"];
+
+    if (payload.sub !== id) {
+      return res.status(403).send({ message: "InvalidToken" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(403).send({ message: "InvalidToken" });
+  }
+  next();
 };
