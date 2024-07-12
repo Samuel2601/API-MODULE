@@ -125,7 +125,6 @@ const FichaSectorialSchema = new Schema(
 );
 FichaSectorialSchema.statics.isProtected = function (method) {
   const protectedMethods = [
-    "get",
     "post",
     "put",
     "delete",
