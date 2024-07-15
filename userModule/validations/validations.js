@@ -282,25 +282,33 @@ function validateAgainstSchema(data, schema) {
 }
 
 export const putpermisoValidations = [
-  body(
-    "name",
-    "No puede ser vacio, debe contener solo caracteres alfabéticos..."
-  )
+  body("name", "No puede ser vacío y debe ser una cadena de texto.")
     .trim()
     .notEmpty()
-    .isAlpha(),
-  body("user").isArray().withMessage("Permisos debe ser un array."),
+    .isString()
+    .withMessage("El nombre debe ser una cadena de texto."),
+  body("method", "El método no puede ser vacío.")
+    .trim()
+    .notEmpty()
+    .isString()
+    .withMessage("El método debe ser una cadena de texto."),
+  body("user")
+    .isArray()
+    .withMessage("Permisos debe ser un array."),
+  body("user.*").isMongoId().withMessage("Cada permiso debe ser un ID válido."),
 ];
 
 export const putroleValidations = [
-  body(
-    "name",
-    "No puede ser vacio, debe contener solo caracteres alfabéticos..."
-  )
+  body("name", "No puede ser vacío y debe ser una cadena de texto.")
     .trim()
     .notEmpty()
-    .isAlpha(),
+    .isString()
+    .withMessage("El nombre debe ser una cadena de texto."),
   body("permisos").isArray().withMessage("Permisos debe ser un array."),
+  body("permisos.*").isMongoId().withMessage("Cada permiso debe ser un ID válido."),
+  body("orden")
+    .isInt({ min: 1 })
+    .withMessage("El orden debe ser un número entero positivo.")
 ];
 
 export const putuserValidations = [
