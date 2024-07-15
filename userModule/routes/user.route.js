@@ -108,27 +108,31 @@ router.post(
 /**
  * @swagger
  * /obtenerUserPorCriterio:
- *   post:
+ *   get:
  *     summary: Listar Usuarios por Criterio.
  *     description: Lista los usuarios que coinciden con un criterio específico.
  *     tags: [USER]
  *     security:
  *       - Authorization: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               campo:
- *                 type: string
- *                 description: Campo por el cual filtrar la búsqueda de usuarios.
- *                 example: name
- *               valor:
- *                 type: string
- *                 description: Valor del campo por el cual filtrar la búsqueda de usuarios.
- *                 example: Samuel
+ *     parameters:
+ *       - in: query
+ *         name: campo
+ *         schema:
+ *           type: string
+ *         description: Campo por el cual filtrar la búsqueda de usuarios.
+ *         example: name
+ *       - in: query
+ *         name: valor
+ *         schema:
+ *           type: string
+ *         description: Valor del campo por el cual filtrar la búsqueda de usuarios.
+ *         example: Samuel
+ *       - in: query
+ *         name: populate
+ *         schema:
+ *           type: string
+ *         description: Campos a poblar en el resultado separados por comas.
+ *         example: campo1,campo2
  *     responses:
  *       '200':
  *         description: Operación exitosa.
@@ -141,8 +145,6 @@ router.post(
  */
 router.get(
   "/obteneruserporcriterio",
-  //criterioValidations,
-  //validationResultExpress,
   auth,
   permissUser("/obteneruserporcriterio","get"),
   async (req, res) => {
