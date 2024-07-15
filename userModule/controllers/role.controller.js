@@ -2,7 +2,7 @@
 
 import { Model } from "../models/exporSchema.js";
 import apiResponse from "../../helpers/sendstatus.js";
-import { criterioFormat } from "../validations/validations.js";
+import { criterioFormat, getPopulateFields } from "../validations/validations.js";
 import { notifyPermissionChange } from "../../index.js";
 
 //FUNCTION ROLUSERSCHEMA
@@ -18,17 +18,23 @@ const obtenerRole = async function (id) {
     return apiResponse(500, "ERROR", null, error);
   }
 };
-const obtenerRolesPorCriterio = async function (criterios) {
+const obtenerRolesPorCriterio = async function (
+  params,
+  userPopulateFields = []
+) {
   try {
-    let roles = [];
-    if (criterios) {
-      const filtro = criterioFormat(Model.Role, criterios);
-      console.log(filtro);
-      roles = await Model.Role.find(filtro);
-    } else {
-      roles = await Model.Role.find();
-    }
-    return apiResponse(200, null, roles, null);
+    const { populate, ...filterParams } = params;
+    let aux = { ...filterParams };
+    const filter = criterioFormat(Model.Role, aux);
+    // Obtener los campos a populados
+    const populateFields = getPopulateFields(Model.Role, userPopulateFields);
+    // Crear la consulta con populate si es necesario
+    let query = Model.Role.find(filter).sort({ createdAt: -1 });
+    populateFields.forEach((field) => {
+      query = query.populate(field);
+    });
+    const data = await query;
+    return apiResponse(200, null, data.length > 0 ? data : null, null);
   } catch (error) {
     console.error(error);
     return apiResponse(500, "ERROR", null, error);
@@ -37,38 +43,46 @@ const obtenerRolesPorCriterio = async function (criterios) {
 const actualizarRole = async function (id, data) {
   try {
     // Obtener el rol actual antes de la actualización
-    const rolActual = await Model.Role.findById(id).populate('permisos');
+    const rolActual = await Model.Role.findById(id).populate("permisos");
     if (!rolActual) {
       return apiResponse(404, "Rol no encontrado.", null, null);
     }
 
-    const permisosActuales = rolActual.permisos.map(permiso => permiso._id.toString());
+    const permisosActuales = rolActual.permisos.map((permiso) =>
+      permiso._id.toString()
+    );
 
     // Actualizar el rol
     const rolActualizado = await Model.Role.findByIdAndUpdate(id, data, {
       new: true,
-    }).populate('permisos');
+    }).populate("permisos");
 
     if (!rolActualizado) {
       return apiResponse(404, "Rol no encontrado.", null, null);
     }
 
-    const permisosActualizados = rolActualizado.permisos.map(permiso => permiso._id.toString());
+    const permisosActualizados = rolActualizado.permisos.map((permiso) =>
+      permiso._id.toString()
+    );
 
     // Determinar los cambios en los permisos
-    const permisosRemovidos = permisosActuales.filter(permisoId => !permisosActualizados.includes(permisoId));
-    const permisosAgregados = permisosActualizados.filter(permisoId => !permisosActuales.includes(permisoId));
+    const permisosRemovidos = permisosActuales.filter(
+      (permisoId) => !permisosActualizados.includes(permisoId)
+    );
+    const permisosAgregados = permisosActualizados.filter(
+      (permisoId) => !permisosActuales.includes(permisoId)
+    );
 
     // Obtener los usuarios que tienen este rol
     const usuarios = await Model.User.find({ role: id });
 
     // Notificar a los usuarios afectados
-    usuarios.forEach(usuario => {
-      permisosRemovidos.forEach(permisoId => {
-        notifyPermissionChange(usuario._id, 'PERMISSION_REMOVED', permisoId);
+    usuarios.forEach((usuario) => {
+      permisosRemovidos.forEach((permisoId) => {
+        notifyPermissionChange(usuario._id, "PERMISSION_REMOVED", permisoId);
       });
-      permisosAgregados.forEach(permisoId => {
-        notifyPermissionChange(usuario._id, 'PERMISSION_ADDED', permisoId);
+      permisosAgregados.forEach((permisoId) => {
+        notifyPermissionChange(usuario._id, "PERMISSION_ADDED", permisoId);
       });
     });
 

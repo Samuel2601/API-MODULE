@@ -115,6 +115,20 @@ function isFieldType(model, field, type) {
   const schema = model.schema.paths;
   return schema[field] && schema[field].instance === type;
 }
+export function getPopulateFields(model, userPopulateFields) {
+  const modelSchema = model.schema.paths;
+  const allPopulateFields = Object.keys(modelSchema).filter(
+    (field) => modelSchema[field].options && modelSchema[field].options.ref
+  );
+
+  // Si se manda 'populate all', retornar todos los campos que tienen referencia
+  if (userPopulateFields.includes('all')) {
+    return allPopulateFields;
+  }
+
+  // Caso contrario, retornar los campos especificados por el usuario
+  return userPopulateFields;
+};
 
 export function criterioFormat(model, params) {
   const filter = { ...params };

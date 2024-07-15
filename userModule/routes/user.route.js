@@ -139,17 +139,18 @@ router.post(
  *       '500':
  *         description: Error interno del servidor.
  */
-router.post(
+router.get(
   "/obteneruserporcriterio",
   //criterioValidations,
   //validationResultExpress,
   auth,
-  permissUser("/obteneruserporcriterio","post"),
+  permissUser("/obteneruserporcriterio","get"),
   async (req, res) => {
     try {
-      const { status, message, data, error } = await obtenerUserPorCriterio(
-        req.body
-      );
+      const populateFields = req.query.populate
+          ? req.query.populate.split(",")
+          : [];
+      const { status, message, data, error } = await obtenerUserPorCriterio(req.query, populateFields);
       res.status(status).json({ message, data, error });
     } catch (error) {
       console.error(error);

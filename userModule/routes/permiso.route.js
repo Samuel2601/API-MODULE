@@ -55,16 +55,19 @@ const router = express.Router();
  *       '500':
  *         description: Error interno del servidor.
  */
-router.post(
+router.get(
   "/obtenerpermisosporcriterio",
   //criterioValidations,
   //validationResultExpress,
   auth,
-  permissUser("/obtenerpermisosporcriterio","post"),
+  permissUser("/obtenerpermisosporcriterio","get"),
   async (req, res) => {
     try {      
+      const populateFields = req.query.populate
+          ? req.query.populate.split(",")
+          : [];
       const { status, message, data, error } = await obtenerPermisosPorCriterio(
-        req.body
+        req.query, populateFields
       );
       res.status(status).json({ message, data, error });
     } catch (error) {

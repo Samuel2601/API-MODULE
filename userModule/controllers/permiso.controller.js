@@ -19,17 +19,23 @@ const obtenerPermiso = async function (id) {
   }
 };
 
-const obtenerPermisosPorCriterio = async function (criterios) {
+const obtenerPermisosPorCriterio = async function (
+  params,
+  userPopulateFields = []
+) {
   try {
-    let permisos = [];
-    if (criterios) {
-      const filtro = criterioFormat(Model.Permiso, criterios);
-      console.log(filtro);
-      permisos = await Model.Permiso.find(filtro);
-    } else {
-      permisos = await Model.Permiso.find();
-    }
-    return apiResponse(200, null, permisos, null);
+    const { populate, ...filterParams } = params;
+    let aux = { ...filterParams };
+    const filter = criterioFormat(Model.Permiso, aux);
+    // Obtener los campos a populados
+    const populateFields = getPopulateFields(Model.Permiso, userPopulateFields);
+    // Crear la consulta con populate si es necesario
+    let query = Model.Permiso.find(filter).sort({ createdAt: -1 });
+    populateFields.forEach((field) => {
+      query = query.populate(field);
+    });
+    const data = await query;
+    return apiResponse(200, null, data.length > 0 ? data : null, null);
   } catch (error) {
     console.error(error);
     return apiResponse(500, "ERROR", null, error);
@@ -37,40 +43,53 @@ const obtenerPermisosPorCriterio = async function (criterios) {
 };
 const actualizarPermiso = async function (id, data) {
   try {
-    const permisoActual = await Model.Permiso.findById(id).populate('user');
+    const permisoActual = await Model.Permiso.findById(id).populate("user");
     if (!permisoActual) {
       return apiResponse(404, "Permiso no encontrado.", null, null);
     }
 
-    const permisoActualUsers = permisoActual.user.map(user => user._id.toString());
+    const permisoActualUsers = permisoActual.user.map((user) =>
+      user._id.toString()
+    );
 
     const permisoActualizado = await Model.Permiso.findByIdAndUpdate(id, data, {
       new: true,
-    }).populate('user');
+    }).populate("user");
 
     if (!permisoActualizado) {
       return apiResponse(404, "Permiso no encontrado.", null, null);
     }
 
-    const permisoActualizadoUsers = permisoActualizado.user.map(user => user._id.toString());
+    const permisoActualizadoUsers = permisoActualizado.user.map((user) =>
+      user._id.toString()
+    );
 
     // Usuarios que perdieron el permiso
-    const usuariosPerdieronPermiso = permisoActualUsers.filter(userId => !permisoActualizadoUsers.includes(userId));
-    
+    const usuariosPerdieronPermiso = permisoActualUsers.filter(
+      (userId) => !permisoActualizadoUsers.includes(userId)
+    );
+
     // Usuarios que ganaron el permiso
-    const usuariosGanaronPermiso = permisoActualizadoUsers.filter(userId => !permisoActualUsers.includes(userId));
+    const usuariosGanaronPermiso = permisoActualizadoUsers.filter(
+      (userId) => !permisoActualUsers.includes(userId)
+    );
 
     // Notificar a los usuarios que perdieron el permiso
-    usuariosPerdieronPermiso.forEach(userId => {
-      notifyPermissionChange(userId, 'PERMISSION_REMOVED', permisoActualizado);
+    usuariosPerdieronPermiso.forEach((userId) => {
+      notifyPermissionChange(userId, "PERMISSION_REMOVED", permisoActualizado);
     });
 
     // Notificar a los usuarios que ganaron el permiso
-    usuariosGanaronPermiso.forEach(userId => {
-      notifyPermissionChange(userId, 'PERMISSION_ADDED', permisoActualizado);
+    usuariosGanaronPermiso.forEach((userId) => {
+      notifyPermissionChange(userId, "PERMISSION_ADDED", permisoActualizado);
     });
 
-    return apiResponse(200, "Permiso actualizado con éxito.", permisoActualizado, null);
+    return apiResponse(
+      200,
+      "Permiso actualizado con éxito.",
+      permisoActualizado,
+      null
+    );
   } catch (error) {
     console.error(error);
     return apiResponse(500, "ERROR", null, error);

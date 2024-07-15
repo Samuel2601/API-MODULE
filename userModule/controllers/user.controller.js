@@ -5,7 +5,7 @@ import { Model } from "../models/exporSchema.js";
 import apiResponse from "../../helpers/sendstatus.js";
 import * as bcrypt from "bcrypt-nodejs";
 import { mail_confirmar_session } from "../contacModule/controllers/mail.controller.js";
-import { criterioFormat } from "../validations/validations.js";
+import { criterioFormat, getPopulateFields } from "../validations/validations.js";
 import { notifyRoleChange } from "../../index.js";
 
 //FUNCTION USERSCHEMA
@@ -80,23 +80,27 @@ const login = async function (data) {
     if (user) {
       if (user.status) {
         let passwordMatch = false;
-        let passwordChange=false;
+        let passwordChange = false;
         // Primero verifica la contraseña temporal si existe
         if (user.password_temp) {
           passwordMatch = await new Promise((resolve, reject) => {
-            bcrypt.compare(data.password, user.password_temp, (error, result) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(result);
+            bcrypt.compare(
+              data.password,
+              user.password_temp,
+              (error, result) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve(result);
+                }
               }
-            });
+            );
           });
 
           if (passwordMatch) {
             // Si la contraseña temporal coincide, elimínala y actualiza el usuario
             user.password_temp = null;
-            passwordChange=true;
+            passwordChange = true;
             await user.save();
           }
         }
@@ -124,11 +128,15 @@ const login = async function (data) {
               null
             );
           } else {
-            const token = await createToken(usuario, data.time || null, data.tipo || null);
+            const token = await createToken(
+              usuario,
+              data.time || null,
+              data.tipo || null
+            );
             return apiResponse(
               200,
               "Bienvenido.",
-              {token,passwordChange},
+              { token, passwordChange },
               null
             );
           }
@@ -147,7 +155,6 @@ const login = async function (data) {
   }
 };
 
-
 const validarCodigo = async function (data) {
   try {
     console.log(data);
@@ -162,13 +169,12 @@ const validarCodigo = async function (data) {
         }
         usuario.verificationCode = null;
         await usuario.save();
-        const token = await createToken(usuario, data.time || null, data.tipo || null);
-        return apiResponse(
-          200,
-          "Bienvenido.",
-          {token},
-          null
+        const token = await createToken(
+          usuario,
+          data.time || null,
+          data.tipo || null
         );
+        return apiResponse(200, "Bienvenido.", { token }, null);
       } else {
         return apiResponse(
           400,
@@ -203,17 +209,23 @@ const obtenerUser = async function (id) {
     return apiResponse(500, "ERROR", null, error);
   }
 };
-const obtenerUserPorCriterio = async function (criterios) {
+const obtenerUserPorCriterio = async function (
+  params,
+  userPopulateFields = []
+) {
   try {
-    let registros = [];
-    if (criterios) {
-      const filtro = criterioFormat(Model.User, criterios);
-      console.log(filtro);
-      registros = await Model.User.find(filtro);
-    } else {
-      registros = await Model.User.find();
-    }
-    return apiResponse(200, null, registros, null);
+    const { populate, ...filterParams } = params;
+    let aux = { ...filterParams };
+    const filter = criterioFormat(Model.User, aux);
+    // Obtener los campos a populados    
+    const populateFields = getPopulateFields(Model.User,userPopulateFields);
+    // Crear la consulta con populate si es necesario
+    let query = Model.User.find(filter).sort({ createdAt: -1 });
+    populateFields.forEach((field) => {
+      query = query.populate(field);
+    });
+    const data = await query;
+    return apiResponse(200, null, data.length > 0 ? data : null, null);
   } catch (error) {
     console.error(error);
     return apiResponse(500, "ERROR", null, error);
@@ -225,7 +237,7 @@ const actualizarUser = async function (id, data) {
     let oldRole = null;
 
     // Obtener el usuario actual antes de la actualización
-    const user = await Model.User.findById(id).populate('role');
+    const user = await Model.User.findById(id).populate("role");
     if (!user) {
       return apiResponse(404, "Usuario no encontrado.", null, null);
     }
@@ -251,7 +263,9 @@ const actualizarUser = async function (id, data) {
     }
 
     // Actualizar el usuario
-    const registro = await Model.User.findByIdAndUpdate(id, data, { new: true }).populate('role');
+    const registro = await Model.User.findByIdAndUpdate(id, data, {
+      new: true,
+    }).populate("role");
     if (!registro) {
       return apiResponse(404, "Registro no encontrado.", null, null);
     }
@@ -260,10 +274,10 @@ const actualizarUser = async function (id, data) {
     if (roleChanged) {
       // Notificar que el usuario ha sido eliminado del rol anterior
       if (oldRole) {
-        notifyRoleChange(id, 'ROLE_REMOVED', oldRole);
+        notifyRoleChange(id, "ROLE_REMOVED", oldRole);
       }
       // Notificar que el usuario ha sido agregado al nuevo rol
-      notifyRoleChange(id, 'ROLE_ADDED', registro.role._id.toString());
+      notifyRoleChange(id, "ROLE_ADDED", registro.role._id.toString());
     }
 
     return apiResponse(200, "Registro actualizado con éxito.", registro, null);
