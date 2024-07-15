@@ -225,7 +225,7 @@ const obtenerUserPorCriterio = async function (
       query = query.populate(field);
     });
     const data = await query;
-    return apiResponse(200, null, data.length > 0 ? data : null, null);
+    return apiResponse(200, null, data.length > 0 ? data : [], null);
   } catch (error) {
     console.error(error);
     return apiResponse(500, "ERROR", null, error);

@@ -49,7 +49,7 @@ async function list(model, params, userPopulateFields = []) {
     const data = await query;
     //console.log(data[0]);
     response.status = SUCCESS_CODE;
-    response.data = data.length > 0 ? data : null;
+    response.data = data.length > 0 ? data : [];
     response.message = "Data retrieved successfully";
   } catch (error) {
     console.error(`Error listing documents for model ${model}:`, error);
