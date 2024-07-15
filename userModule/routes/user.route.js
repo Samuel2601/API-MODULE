@@ -334,6 +334,7 @@ router.post(
   userArrayValidator,
   validationResultExpress,
   auth,
+  permissUser("/registrarMasivoUser", "post"),
   async (req, res) => {
     try {
       const { status, message, data, error } = await registrarMasivoUser(

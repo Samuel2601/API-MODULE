@@ -174,7 +174,7 @@ router.post(
   permisoValidator,
   validationResultExpress,
   auth,
-  permissUser("registrarpermisosmasivo","post"),
+  permissUser("/registrarpermisosmasivo","post"),
   async (req, res) => {
     try {
       const { status, message, data, error } = await registrarPermisosMasivo(
@@ -220,7 +220,7 @@ router.delete(
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("eliminarpermiso","delete"),
+  permissUser("/eliminarpermiso","delete"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -287,7 +287,7 @@ router.put(
   putpermisoValidations,
   validationResultExpress,
   auth,
-  permissUser("actualizarpermiso","put"),
+  permissUser("/actualizarpermiso","put"),
   async (req, res) => {
     try {
       const id = req.query["id"];
