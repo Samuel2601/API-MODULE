@@ -56,7 +56,7 @@ async function list(model, params, userPopulateFields = []) {
     //console.log(populateFields, filter);
 
     // Crear la consulta con populate si es necesario
-    let query = models[model].find(filter);
+    let query = models[model].find(filter).sort({ createdAt: -1 });
     populateFields.forEach((field) => {
       query = query.populate(field);
     });
