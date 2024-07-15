@@ -24,27 +24,31 @@ const router = express.Router();
 /**
  * @swagger
  * /obtenerPermisosPorCriterio:
- *   post:
+ *   get:
  *     summary: Listar Permisos por Criterio.
  *     description: Lista los usuarios que coinciden con un criterio específico.
  *     tags: [PERMISO]
  *     security:
  *       - Authorization: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               campo:
- *                 type: string
- *                 description: Campo por el cual filtrar la búsqueda de usuarios.
- *                 example: name
- *               valor:
- *                 type: string
- *                 description: Valor del campo por el cual filtrar la búsqueda de usuarios.
- *                 example: Samuel
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Campo por el cual filtrar la búsqueda de roles.
+ *         example: Administrador
+ *       - in: query
+ *         name: method
+ *         schema:
+ *           type: string
+ *         description: Orden de los resultados.
+ *         example: get
+ *       - in: query
+ *         name: populate
+ *         schema:
+ *           type: string
+ *         description: Campos a poblar en el resultado separados por comas.
+ *         example: campo1,campo2
  *     responses:
  *       '200':
  *         description: Operación exitosa.

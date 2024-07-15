@@ -116,17 +116,41 @@ router.post(
  *       - Authorization: []
  *     parameters:
  *       - in: query
- *         name: campo
- *         schema:
- *           type: string
- *         description: Campo por el cual filtrar la búsqueda de usuarios.
- *         example: name
- *       - in: query
- *         name: valor
+ *         name: name
  *         schema:
  *           type: string
  *         description: Valor del campo por el cual filtrar la búsqueda de usuarios.
  *         example: Samuel
+ *       - in: query
+ *         name: last_name
+ *         schema:
+ *           type: string
+ *         description: Valor del campo por el cual filtrar la búsqueda de usuarios.
+ *         example: Arevalo
+ *       - in: query
+ *         name: dni
+ *         schema:
+ *           type: string
+ *         description: Valor del campo por el cual filtrar la búsqueda de usuarios.
+ *         example: dni
+ *       - in: query
+ *         name: telf
+ *         schema:
+ *           type: string
+ *         description: Valor del campo por el cual filtrar la búsqueda de usuarios.
+ *         example: telf
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: Valor del campo por el cual filtrar la búsqueda de usuarios.
+ *         example: email
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Valor del campo por el cual filtrar la búsqueda de usuarios.
+ *         example: status
  *       - in: query
  *         name: populate
  *         schema:
@@ -146,13 +170,16 @@ router.post(
 router.get(
   "/obteneruserporcriterio",
   auth,
-  permissUser("/obteneruserporcriterio","get"),
+  permissUser("/obteneruserporcriterio", "get"),
   async (req, res) => {
     try {
       const populateFields = req.query.populate
-          ? req.query.populate.split(",")
-          : [];
-      const { status, message, data, error } = await obtenerUserPorCriterio(req.query, populateFields);
+        ? req.query.populate.split(",")
+        : [];
+      const { status, message, data, error } = await obtenerUserPorCriterio(
+        req.query,
+        populateFields
+      );
       res.status(status).json({ message, data, error });
     } catch (error) {
       console.error(error);
@@ -193,7 +220,7 @@ router.get(
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("/obteneruser","get"),
+  permissUser("/obteneruser", "get"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -353,7 +380,7 @@ router.delete(
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("/eliminaruser","delete"),
+  permissUser("/eliminaruser", "delete"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -451,7 +478,7 @@ router.put(
   putuserValidations,
   validationResultExpress,
   auth,
-  permissUser("/actualizaruser","put"),
+  permissUser("/actualizaruser", "put"),
   async (req, res) => {
     try {
       const id = req.query["id"];
