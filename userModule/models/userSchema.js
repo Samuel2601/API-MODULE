@@ -59,6 +59,13 @@ const userSchema = new Schema({
 {
   timestamps: true,
 });
+// Middleware para convertir a minúsculas antes de guardar
+userSchema.pre('save', function (next) {
+  this.name = this.name.toUpperCase();
+  this.last_name = this.last_name.toUpperCase();
+  next();
+});
+
 userSchema.statics.isProtected = function (method) {
   const protectedMethods = [
     "get",
