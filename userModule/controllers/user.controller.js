@@ -198,7 +198,7 @@ const validarCodigo = async function (data) {
 
 const obtenerUser = async function (id) {
   try {
-    const registro = await Model.User.findById(id);
+    const registro = await Model.User.findById(id).populate('role');
     if (!registro) {
       return apiResponse(404, "Usuario no encontrado.", null, null);
     }
