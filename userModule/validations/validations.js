@@ -311,8 +311,9 @@ export const putroleValidations = [
     .withMessage("El orden debe ser un número entero positivo.")
 ];
 
-export const putuserValidations = [
+export const putUserValidations = [
   body("name", "El nombre debe contener solo letras y no puede estar vacío...")
+    .optional({ nullable: true }) // Permite que el campo sea opcional si no se envía
     .trim()
     .isAlpha("es-ES", { ignore: " " })
     .notEmpty(),
@@ -320,34 +321,39 @@ export const putuserValidations = [
     "last_name",
     "El apellido debe contener solo letras y no puede estar vacío..."
   )
+    .optional({ nullable: true }) // Permite que el campo sea opcional si no se envía
     .isAlpha("es-ES", { ignore: " " })
     .trim()
     .notEmpty(),
   body("email", "Formato de correo electrónico incorrecto...")
+    .optional({ nullable: true }) // Permite que el campo sea opcional si no se envía
     .trim()
     .isEmail()
     .normalizeEmail(),
   body("password", "Formato de contraseña incorrecto...")
+    .optional() // Permite que el campo sea opcional si no se envía
     .trim()
     .isLength({ min: 5 }),
-  body("passwordConfirmation", "Las contraseñas no coinciden...").custom(
-    (value, { req }) => {
-      return value === req.body.password;
-    }
-  ),
+  body("passwordConfirmation", "Las contraseñas no coinciden...").optional(
+    { nullable: true }
+  ).custom((value, { req }) => {
+    return value === req.body.password;
+  }),
   body(
     "telf",
     "El número de teléfono debe contener solo números y tener una longitud de 10 dígitos..."
   )
+    .optional({ nullable: true }) // Permite que el campo sea opcional si no se envía
     .trim()
     .isNumeric()
     .isLength({ min: 10, max: 10 }),
   body(
     "dni",
-    "El dni contener solo números y tener una longitud de 10 dígitos..."
+    "El dni debe contener solo números y tener una longitud de 10 dígitos..."
   )
+    .optional({ nullable: true }) // Permite que el campo sea opcional si no se envía
     .trim()
     .isNumeric()
     .isLength({ min: 10, max: 10 }),
-  body("role", "Rol no puede estar vacío...").trim().notEmpty(),
+  body("role", "El rol no puede estar vacío...").trim().notEmpty(),
 ];
