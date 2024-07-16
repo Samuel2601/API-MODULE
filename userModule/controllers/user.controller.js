@@ -33,7 +33,6 @@ const register = async function (data, ret) {
     return apiResponse(201, "Registrado con éxito.", newUser, null);
   } catch (error) {
     console.error(error);
-    console.error(error);
     return apiResponse(500, "Algo salió mal.", null, error);
   }
 };
@@ -44,7 +43,7 @@ async function createDefaultRoleAndPermission(data) {
     permiso = await Model.Permiso.create({ name: "registrarPermisosMasivo" });
   }
 
-  let role = await Model.Role.findOne().sort({ createdAt: -1 });
+  let role = await Model.Role.findOne({name:'Ciudadano'}).sort({ createdAt: -1 });
   if (!role) {
     role = await Model.Role.create({ name: "Admin", permisos: [permiso._id] });
   }
