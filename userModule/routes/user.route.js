@@ -15,12 +15,9 @@ import {
 } from "../../middlewares/validationResultExpress.js";
 import {
   registrationValidations,
-  loginValidations,
-  criterioValidations,
   idValidations,
   userArrayValidator,
-  putuserValidations,
-  validcodeValidations,
+  putUserValidations,
 } from "../validations/validations.js";
 
 const router = express.Router();
@@ -476,7 +473,7 @@ router.delete(
 router.put(
   "/actualizaruser",
   idValidations,
-  putuserValidations,
+  putUserValidations,
   validationResultExpress,
   auth,
   permissUser("/actualizaruser", "put"),
