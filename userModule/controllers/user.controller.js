@@ -128,7 +128,7 @@ const login = async function (data) {
             );
           } else {
             const token = await createToken(
-              usuario,
+              user,
               data.time || null,
               data.tipo || null
             );
