@@ -120,7 +120,7 @@ export function getPopulateFields(model, userPopulateFields) {
   const allPopulateFields = Object.keys(modelSchema).filter(
     (field) => modelSchema[field].options && modelSchema[field].options.ref
   );
-
+  console.log("Todos los populates",allPopulateFields);
   // Si se manda 'populate all', retornar todos los campos que tienen referencia
   if (userPopulateFields.includes('all')) {
     return allPopulateFields;
