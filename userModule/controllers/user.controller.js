@@ -231,6 +231,7 @@ const obtenerUserPorCriterio = async function (
   }
 };
 const actualizarUser = async function (id, data) {
+  console.log(id,data);
   try {
     let roleChanged = false;
     let oldRole = null;
