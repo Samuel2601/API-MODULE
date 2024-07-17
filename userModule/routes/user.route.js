@@ -473,13 +473,14 @@ router.delete(
 router.put(
   "/actualizaruser",
   idValidations,
-  putUserValidations,
+  //putUserValidations,
   validationResultExpress,
   auth,
   permissUser("/actualizaruser", "put"),
   async (req, res) => {
     try {
       const id = req.query["id"];
+      console.log(req.body);
       const { status, message, data, error } = await actualizarUser(
         id,
         req.body
