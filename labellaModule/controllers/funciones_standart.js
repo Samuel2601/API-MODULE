@@ -4,6 +4,7 @@ import {
   getPopulateFields,
 } from "../../userModule/validations/validations.js";
 import { models } from "../models/Modelold.js";
+import path from 'path';
 //const models = require("../models/Model");
 
 const SUCCESS_CODE = 200;
@@ -121,9 +122,13 @@ async function create(model, data, files) {
     // Asignar los archivos a los campos correspondientes en el esquema
     if (files && Object.keys(files).length > 0) {
       fileFields.forEach((field) => {
-        const matchingFiles = Object.keys(files).filter(fileField => fileField.startsWith(field));
+        const matchingFiles = Object.keys(files).filter((fileField) =>
+          fileField.startsWith(field)
+        );
         if (matchingFiles.length > 0) {
-          data[field] = matchingFiles.map((fileField) => files[fileField].path);
+          data[field] = matchingFiles.map((fileField) =>
+            path.basename(files[fileField].path)
+          );
         }
       });
     }
