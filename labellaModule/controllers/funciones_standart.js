@@ -4,7 +4,7 @@ import {
   getPopulateFields,
 } from "../../userModule/validations/validations.js";
 import { models } from "../models/Modelold.js";
-import path from 'path';
+import path from "path";
 //const models = require("../models/Model");
 
 const SUCCESS_CODE = 200;
@@ -154,25 +154,26 @@ async function update(model, id, data, files) {
   try {
     // Obtener el esquema del modelo para identificar campos de tipo array de String
     const modelSchema = models[model].schema.paths;
+    if (files) {
+      // Identificar los campos que deben almacenar archivos
+      const fileFields = Object.keys(modelSchema).filter(
+        (field) =>
+          modelSchema[field].instance === "Array" &&
+          modelSchema[field].caster.instance === "String"
+      );
 
-    // Identificar los campos que deben almacenar archivos
-    const fileFields = Object.keys(modelSchema).filter(
-      (field) =>
-        modelSchema[field].instance === "Array" &&
-        modelSchema[field].caster.instance === "String"
-    );
-
-    // Asignar los archivos a los campos correspondientes en el esquema
-    if (files && Object.keys(files).length > 0) {
-      fileFields.forEach((field) => {
-        if (files[field]) {
-          if (Array.isArray(files[field])) {
-            data[field] = files[field].map((file) => file.path);
-          } else {
-            data[field] = files[field].path; // Si es un solo archivo
+      // Asignar los archivos a los campos correspondientes en el esquema
+      if (files && Object.keys(files).length > 0) {
+        fileFields.forEach((field) => {
+          if (files[field]) {
+            if (Array.isArray(files[field])) {
+              data[field] = files[field].map((file) => file.path);
+            } else {
+              data[field] = files[field].path; // Si es un solo archivo
+            }
           }
-        }
-      });
+        });
+      }
     }
 
     const res = await models[model].findByIdAndUpdate(id, data, { new: true });
