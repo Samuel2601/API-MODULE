@@ -80,15 +80,15 @@ io.on("connection", (socket) => {
 // Funciones de notificación
 export const notifyPermissionChange = (userId, action, permiso) => {
   if (io) {
-    io.to(userId).emit("permissions-updated", { action, permiso });
-    console.log("Se notifico a ",userId,"del cambio de permiso:",permiso," para:",action);
+    io.to(userSockets[userId]).emit("permissions-updated", { action, permiso });
+    console.log("Se notifico a usuario",userId,"con dispositivo conectado en: ",userSockets[userId],"del cambio de permiso:",permiso," para:",action);
   }
 };
 
 export const notifyRoleChange = (userId, action, roleId) => {
   if (io) {
-    io.to(userId).emit("role-updated", { action, roleId });
-    console.log("Se notifico a ",userId,"del cambio de rol:",roleId," para:",action);
+    io.to(userSockets[userId]).emit("role-updated", { action, roleId });
+    console.log("Se notifico a ",userId,"con dispositivo conectado en: ",userSockets[userId],"del cambio de rol:",roleId," para:",action);
   }
 };
 
