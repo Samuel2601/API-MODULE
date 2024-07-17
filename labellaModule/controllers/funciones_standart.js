@@ -1,7 +1,8 @@
-
-
 // services.js
-import { criterioFormat, getPopulateFields } from "../../userModule/validations/validations.js";
+import {
+  criterioFormat,
+  getPopulateFields,
+} from "../../userModule/validations/validations.js";
 import { models } from "../models/Modelold.js";
 //const models = require("../models/Model");
 
@@ -22,29 +23,31 @@ function cloneResponse() {
 }
 
 // List function
-    /*  userPopulateFields.length > 0
+/*  userPopulateFields.length > 0
         ? userPopulateFields
         : Object.keys(modelSchema).filter(
             (field) =>
               modelSchema[field].options && modelSchema[field].options.ref
           );*/
-    //console.log(populateFields, filter);
+//console.log(populateFields, filter);
 //const modelSchema = models[model].schema.paths;
 async function list(model, params, userPopulateFields = []) {
   let response = cloneResponse();
   try {
     const { populate, ...filterParams } = params;
-    let aux = { ...filterParams }
-    const filter = criterioFormat(models[model],aux);
-    
-    // Obtener los campos a populados    
-    const populateFields = getPopulateFields(models[model],userPopulateFields);
+    let aux = { ...filterParams };
+    const filter = criterioFormat(models[model], aux);
+
+    // Obtener los campos a populados
+    const populateFields = getPopulateFields(models[model], userPopulateFields);
 
     // Crear la consulta con populate si es necesario
     let query = models[model].find(filter).sort({ createdAt: -1 });
-    populateFields.forEach((field) => {
-      query = query.populate(field);
-    });
+    if (populateFields) {
+      populateFields.forEach((field) => {
+        query = query.populate(field);
+      });
+    }
 
     const data = await query;
     //console.log(data[0]);
@@ -66,20 +69,16 @@ async function findById(model, id, userPopulateFields = []) {
   let response = cloneResponse();
   try {
     // Obtener los campos a populados
-    const modelSchema = models[model].schema.paths;
-    const populateFields =
-      userPopulateFields.length > 0
-        ? userPopulateFields
-        : Object.keys(modelSchema).filter(
-            (field) =>
-              modelSchema[field].options && modelSchema[field].options.ref
-          );
+    const populateFields = getPopulateFields(models[model], userPopulateFields);
 
     // Crear la consulta con populate si es necesario
     let query = models[model].findById(id);
-    populateFields.forEach((field) => {
-      query = query.populate(field);
-    });
+    
+    if (populateFields) {
+      populateFields.forEach((field) => {
+        query = query.populate(field);
+      });
+    }
 
     const data = await query;
     if (!data) {
