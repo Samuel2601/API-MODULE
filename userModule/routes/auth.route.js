@@ -197,7 +197,7 @@ router.post("/recover-password", recoverPassword);
  *                   type: string
  *                   description: Internal error details.
  */
-router.post("/refreshtoken", idtokenUser, async (req, res) => {
+router.put("/refreshtoken", idtokenUser, async (req, res) => {
   try {
     const id = req.query["id"];
     const { status, message, data, error } = await obtenerUser(id);
