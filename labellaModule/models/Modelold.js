@@ -89,7 +89,7 @@ const FichaSectorialSchema = new Schema(
     descripcion: { type: String, required: true, description: "Description" },
     encargado: {
       type: Schema.Types.ObjectId,
-      ref: "usuario" || "user",
+      ref: "user",
       required: true,
       description: "Responsible user",
     },
@@ -114,7 +114,7 @@ const FichaSectorialSchema = new Schema(
     view: { type: Boolean, default: true, description: "View status" },
     view_id: {
       type: Schema.Types.ObjectId,
-      ref: "usuario" || "user",
+      ref: "user",
       description: "Viewed by",
     },
     view_date: { type: Date, default: Date.now, description: "View date" },
@@ -160,7 +160,7 @@ const IncidentesDenunciaSchema = new Schema(
     },
     ciudadano: {
       type: Schema.Types.ObjectId,
-      ref: "usuario" || "user",
+      ref:  "user",
       required: true,
       description: "Citizen reporting the incident",
     },
@@ -173,7 +173,7 @@ const IncidentesDenunciaSchema = new Schema(
     descripcion: { type: String, required: true, description: "Description" },
     encargado: {
       type: Schema.Types.ObjectId,
-      ref: "usuario" || "user",
+      ref:  "user",
       description: "Responsible user",
     },
     respuesta: { type: String, description: "Response" },
@@ -181,7 +181,7 @@ const IncidentesDenunciaSchema = new Schema(
     view: { type: Boolean, default: true, description: "View status" },
     view_id: {
       type: Schema.Types.ObjectId,
-      ref: "usuario" || "user",
+      ref: "user",
       description: "Viewed by",
     },
     view_date: { type: Date, default: Date.now, description: "View date" },
