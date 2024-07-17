@@ -66,6 +66,7 @@ async function list(model, params, userPopulateFields = []) {
 
 // findById function
 async function findById(model, id, userPopulateFields = []) {
+  console.log("entro a findbyid");
   let response = cloneResponse();
   try {
     // Obtener los campos a populados
