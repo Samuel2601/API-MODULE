@@ -185,6 +185,10 @@ const IncidentesDenunciaSchema = new Schema(
       description: "Viewed by",
     },
     view_date: { type: Date, default: Date.now, description: "View date" },
+    // Nuevos campos para artículos y marcadores en mapa
+    es_articulo: { type: Boolean, default: false, description: "Is an article" },
+    mostrar_en_mapa: { type: Boolean, default: false, description: "Show on map" },
+    icono_marcador: { type: String, default: "default-icon.png", description: "Marker icon" },  
   },
   {
     timestamps: true,
