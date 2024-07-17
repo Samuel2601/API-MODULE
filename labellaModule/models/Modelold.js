@@ -102,6 +102,7 @@ const FichaSectorialSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "estado_actividad_proyecto",
       description: "Project activity status",
+      required: true,
     },
     actividad: {
       type: Schema.Types.ObjectId,
@@ -168,6 +169,7 @@ const IncidentesDenunciaSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "estado_incidente",
       description: "Incident status",
+      required: true,
     },
     foto: [{ type: String, description: "Photos" }],
     descripcion: { type: String, required: true, description: "Description" },
