@@ -10,6 +10,7 @@ import {
   auth,
   createToken,
   idtokenUser,
+  obtenerImagen,
   validationResultExpress,
 } from "../../middlewares/validationResultExpress.js";
 
@@ -20,6 +21,10 @@ import {
 import { recoverPassword } from "../contacModule/controllers/PasswordReset.js";
 
 const router = express.Router();
+
+
+router.get('/obtener_imagen/:carpeta/:img', obtenerImagen);
+
 
 /**
  * @swagger

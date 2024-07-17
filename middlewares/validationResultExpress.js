@@ -193,3 +193,25 @@ export const idtokenUser = async function (req, res, next) {
   }
   next();
 };
+
+export const obtenerImagen = async function (req, res) {
+  const carpeta = req.params['carpeta'];
+  const img = req.params['img'];
+
+  // Validar que la carpeta y el archivo no contengan rutas maliciosas
+  if (carpeta.includes('..') || img.includes('..')) {
+    return res.status(400).send('Solicitud inválida');
+  }
+
+  const basePath = './uploads';
+  const imgPath = path.join(basePath, carpeta, img);
+
+  fs.stat(imgPath, function (err) {
+    if (!err) {
+      res.status(200).sendFile(path.resolve(imgPath));
+    } else {
+      const defaultImgPath = path.join(basePath, 'default.jpg');
+      res.status(200).sendFile(path.resolve(defaultImgPath));
+    }
+  });
+};

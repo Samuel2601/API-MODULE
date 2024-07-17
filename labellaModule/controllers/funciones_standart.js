@@ -121,12 +121,9 @@ async function create(model, data, files) {
     // Asignar los archivos a los campos correspondientes en el esquema
     if (files && Object.keys(files).length > 0) {
       fileFields.forEach((field) => {
-        if (files[field]) {
-          if (Array.isArray(files[field])) {
-            data[field] = files[field].map((file) => file.path);
-          } else {
-            data[field] = files[field].path; // Si es un solo archivo
-          }
+        const matchingFiles = Object.keys(files).filter(fileField => fileField.startsWith(field));
+        if (matchingFiles.length > 0) {
+          data[field] = matchingFiles.map((fileField) => files[fileField].path);
         }
       });
     }
