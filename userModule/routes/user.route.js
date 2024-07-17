@@ -480,7 +480,6 @@ router.put(
   async (req, res) => {
     try {
       const id = req.query["id"];
-      console.log(req.body);
       const { status, message, data, error } = await actualizarUser(
         id,
         req.body
