@@ -105,7 +105,7 @@ async function create(model, data, files) {
   let response = cloneResponse();
   try {
     // Convertir 'direccion_geo' de JSON a objeto si es una cadena JSON
-    if (typeof data.direccion_geo === "string") {
+    if (data.direccion_geo && typeof data.direccion_geo === "string") {
       data.direccion_geo = JSON.parse(data.direccion_geo);
     }
     // Obtener el esquema del modelo para identificar campos de tipo array de String
