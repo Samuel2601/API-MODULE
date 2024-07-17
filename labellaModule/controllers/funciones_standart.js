@@ -74,7 +74,7 @@ async function findById(model, id, userPopulateFields = []) {
 
     // Crear la consulta con populate si es necesario
     let query = models[model].findById(id);
-    
+
     if (populateFields) {
       populateFields.forEach((field) => {
         query = query.populate(field);
@@ -104,6 +104,10 @@ async function findById(model, id, userPopulateFields = []) {
 async function create(model, data, files) {
   let response = cloneResponse();
   try {
+    // Convertir 'direccion_geo' de JSON a objeto si es una cadena JSON
+    if (typeof data.direccion_geo === "string") {
+      data.direccion_geo = JSON.parse(data.direccion_geo);
+    }
     // Obtener el esquema del modelo para identificar campos de tipo array de String
     const modelSchema = models[model].schema.paths;
 
