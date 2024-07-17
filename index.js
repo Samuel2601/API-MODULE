@@ -79,17 +79,35 @@ io.on("connection", (socket) => {
 
 // Funciones de notificación
 export const notifyPermissionChange = (userId, action, permiso) => {
-  if (io) {
-    io.to(userSockets[userId]).emit("permissions-updated", { action, permiso });
-    console.log("Se notifico a usuario",userId,"con dispositivo conectado en: ",userSockets[userId],"del cambio de permiso:",permiso," para:",action);
-  }
+  try {
+    if (io) {
+      const userSocket = userSockets[userId];
+      if (userSocket) {
+        userSocket.emit("permissions-updated", { action, permiso });
+        console.log("Se notifico a usuario",userId,"con dispositivo conectado en: ",userSockets[userId],"del cambio de permiso:",permiso," para:",action);
+      } else {
+        console.log(`User ${userId} not connected.`);
+      }    
+    }
+  } catch (error) {
+    console.error("Algo salio mal:", error);
+  } 
 };
 
 export const notifyRoleChange = (userId, action, roleId) => {
-  if (io) {
-    io.to(userSockets[userId]).emit("role-updated", { action, roleId });
-    console.log("Se notifico a ",userId,"con dispositivo conectado en: ",userSockets[userId],"del cambio de rol:",roleId," para:",action);
-  }
+  try {
+    if (io) {
+      const userSocket = userSockets[userId];
+      if (userSocket) {
+        userSocket.emit("role-updated", { action, roleId });
+        console.log("Se notifico a ",userId,"con dispositivo conectado en: ",userSockets[userId],"del cambio de rol:",roleId," para:",action);
+      } else {
+        console.log(`User ${userId} not connected.`);
+      }    
+    }
+  } catch (error) {
+    console.error("Algo salio mal:", error);
+  } 
 };
 
 // Configuración de sesión
