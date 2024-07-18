@@ -94,9 +94,9 @@ const FichaSectorialSchema = new Schema(
       description: "Responsible user",
     },
     direccion_geo: {
-      type: String,
-      require: true,
-      description: "Geographical address",
+      nombre: { type: String, required: true, description: "Location name" },
+      latitud: { type: Number, required: true, description: "Latitude" },
+      longitud: { type: Number, required: true, description: "Longitude" },
     },
     estado: {
       type: Schema.Types.ObjectId,
