@@ -36,9 +36,12 @@ async function list(model, params, userPopulateFields = []) {
   let response = cloneResponse();
   try {
     const { populate, ...filterParams } = params;
+    console.log("Populate: ",populate);
     let aux = { ...filterParams };
+    console.log("AUX Filtro: ", aux);
     const filter = criterioFormat(models[model], aux);
-
+    console.log("Filtros a buscar: ", filter);
+  
     // Obtener los campos a populados
     const populateFields = getPopulateFields(models[model], userPopulateFields);
 
