@@ -136,7 +136,7 @@ const FichaSectorialSchema = new Schema(
     },
     icono_marcador: {
       type: String,
-      default: "https://i.postimg.cc/3xdJ890x/logo.png",
+      default: "https://i.postimg.cc/QdcR9bnm/puntero-del-mapa.png",
       description: "Marker icon",
     },
   },
