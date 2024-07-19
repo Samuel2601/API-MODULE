@@ -130,6 +130,10 @@ const FichaSectorialSchema = new Schema(
       default: false,
       description: "Show on map",
     },
+    title_marcador: {
+      type: String,
+      description: "Show on map",
+    },
     icono_marcador: {
       type: String,
       default: "https://i.postimg.cc/3xdJ890x/logo.png",
