@@ -139,11 +139,45 @@ const FichaSectorialSchema = new Schema(
       default: "https://i.postimg.cc/QdcR9bnm/puntero-del-mapa.png",
       description: "Marker icon",
     },
+    // Campos para compartir, me gusta y comentarios
+    compartido: {
+      type: Number,
+      default: 0,
+      description: "Number of times shared",
+    },
+    me_gusta: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "user",
+        description: "Users who liked",
+      },
+    ],
+    comentarios: [
+      {
+        usuario: {
+          type: Schema.Types.ObjectId,
+          ref: "user",
+          required: true,
+          description: "User who commented",
+        },
+        contenido: {
+          type: String,
+          required: true,
+          description: "Comment content",
+        },
+        fecha_comentario: {
+          type: Date,
+          default: Date.now,
+          description: "Comment date",
+        },
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
+
 FichaSectorialSchema.statics.isProtected = function (method) {
   const protectedMethods = [
     "post",
