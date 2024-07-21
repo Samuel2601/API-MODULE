@@ -19,6 +19,7 @@ import {
   validcodeValidations,
 } from "../validations/validations.js";
 import { recoverPassword } from "../contacModule/controllers/PasswordReset.js";
+import { actualizarFichaCompartido, actualizarFichaMeGusta } from "../../labellaModule/controllers/helperController.js";
 
 const router = express.Router();
 
@@ -216,4 +217,6 @@ router.put("/refreshtoken", idtokenUser, async (req, res) => {
     res.status(500).json({ message: "ERROR", error: error });
   }
 });
+router.put('/actualizar_ficha_megusta/:id_ficha', actualizarFichaMeGusta);
+router.put('/actualizar_ficha_compartido/:id_ficha', actualizarFichaCompartido);
 export default router;
