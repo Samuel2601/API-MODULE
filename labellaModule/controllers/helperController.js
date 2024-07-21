@@ -9,7 +9,6 @@ import nodemailer from "nodemailer";
 import smtpTransport from "nodemailer-smtp-transport";
 import path from "path";
 
-import * as Model from "../models/Model.js";
 import Registro from "../models/Registro.js";
 import { models } from "../models/Modelold.js";
 
@@ -24,90 +23,7 @@ const verificar_token = async function (req, res) {
     res.status(500).send({ message: "NoAccess" });
   }
 };
-const verificarCorreo = async function (req, res) {
-  var id = req.params["id"];
-  try {
-    let usuario = await Model.Usuario.findOne({ correo: id });
-    if (usuario) {
-      res.status(200).send(true);
-    } else {
-      res.status(200).send(false);
-    }
-  } catch (error) {
-    res
-      .status(500)
-      .send({ message: "Error al obtener el usuario", error: error });
-  }
-};
 
-const forgotpassword = async function (req, res) {
-  var data = req.body;
-
-  if (!data) {
-    return res.status(400).json({ message: "Usuario requerido" });
-  }
-
-  try {
-    admin_arr = await Model.Usuario.find({ email: data.email });
-    if (admin_arr.length != 0) {
-      if (element.estado != "Off") {
-        const tokenfp = '';//jwt.sign(admin_arr[0]);
-        verificarlink = "http://incorp.tk/" + `new-password/${tokenfp}`;
-        admin_arr[0].password = undefined;
-        console.log(verificarlink);
-        enviar_password(verificarlink, admin_arr[0]);
-        return res
-          .status(200)
-          .json({ message: "Revisa tu bandeja de mensajes" });
-      } else {
-        return res
-          .status(200)
-          .json({ message: "Revisa tu bandeja de mensajes" });
-      }
-    }
-  } catch (error) {
-    return res.status(200).json({ message: "Revisa tu bandeja de mensajes" });
-  }
-};
-const obtener_portada = async function (req, res) {
-  var img = req.params["img"];
-
-  fs.stat("./uploads/incidentes/" + img, function (err) {
-    if (!err) {
-      let path_img = "./uploads/incidentes/" + img;
-      res.status(200).sendFile(path.resolve(path_img));
-    } else {
-      let path_img = "./uploads/default.jpg";
-      res.status(200).sendFile(path.resolve(path_img));
-    }
-  });
-};
-const obtener_portada_avatar = async function (req, res) {
-  var img = req.params["img"];
-
-  fs.stat("./uploads/avatar/" + img, function (err) {
-    if (!err) {
-      let path_img = "./uploads/avatar/" + img;
-      res.status(200).sendFile(path.resolve(path_img));
-    } else {
-      let path_img = "./uploads/default.jpg";
-      res.status(200).sendFile(path.resolve(path_img));
-    }
-  });
-};
-const obtener_portada_ficha = async function (req, res) {
-  var img = req.params["img"];
-
-  fs.stat("./uploads/fichas/" + img, function (err) {
-    if (!err) {
-      let path_img = "./uploads/fichas/" + img;
-      res.status(200).sendFile(path.resolve(path_img));
-    } else {
-      let path_img = "./uploads/default.jpg";
-      res.status(200).sendFile(path.resolve(path_img));
-    }
-  });
-};
 const obtener_portada_barrio = async function (req, res) {
   var img = req.params["img"];
 
