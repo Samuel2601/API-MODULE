@@ -555,7 +555,7 @@ const RequestSchema = new Schema(
     },
     assignees: {
       type: Schema.Types.ObjectId,
-      ref: "usuario" || "user",
+      ref: "user",
       required: true,
       description: "Assignees for the request",
     },
