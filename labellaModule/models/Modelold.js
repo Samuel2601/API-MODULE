@@ -120,6 +120,11 @@ const FichaSectorialSchema = new Schema(
     },
     view_date: { type: Date, default: Date.now, description: "View date" },
     // Nuevos campos para artículos y marcadores en mapa
+    destacado: {
+      type: Boolean,
+      default: false,
+      description: "Fichas en Home",
+    },
     es_articulo: {
       type: Boolean,
       default: false,
