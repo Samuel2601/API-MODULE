@@ -105,9 +105,10 @@ router.post('/auth/mobile/google', async (req, res) => {
   const { token, name, lastName, email, googleId, photo } = req.body;
 
   try {
+    console.log("Datos que recibe:", req.body);
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.CLIENT_ID,
+      audience: process.env.WEB_CLIENT_ID,
     });
     const payload = ticket.getPayload();
 
@@ -144,6 +145,7 @@ router.post('/auth/mobile/google', async (req, res) => {
     const token = await createToken(data, 6, 'days');
     res.json({ token });
   } catch (error) {
+    console.error(error);
     res.status(401).json({ message: 'Invalid Google token', error });
   }
 });
