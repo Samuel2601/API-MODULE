@@ -105,7 +105,8 @@ router.post('/auth/mobile/google', async (req, res) => {
   const { token, name, lastName, email, googleId, photo } = req.body;
 
   try {
-    console.log("Datos que recibe:", req.body);
+    console.log("Datos que recibe:", req.body);  // Verificar qué datos recibe
+
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.WEB_CLIENT_ID,
@@ -116,14 +117,14 @@ router.post('/auth/mobile/google', async (req, res) => {
       return res.status(401).json({ message: 'Invalid Google token' });
     }
 
-    const datauser = new Model.User();
-
-      datauser.name = profile.name.givenName;
-      datauser.last_name = profile.name.familyName;
-      datauser.email = profile.emails[0].value;
-      datauser.googleId = profile.id;
-      datauser.photo = profile.photos[0].value;
-      datauser.verificado = true;
+    const datauser = new Model.User({
+      name,
+      last_name: lastName,
+      email,
+      googleId,
+      photo,
+      verificado: true,
+    });
 
     const { status, message, data, error } = await register(datauser, true);
 
@@ -134,16 +135,16 @@ router.post('/auth/mobile/google', async (req, res) => {
         existingUser.googleId = datauser.googleId;
         existingUser.verificado = true;
         await existingUser.save();
-        const token = await createToken(existingUser, 6, 'days');
-        return res.json({ token });
+        const Stoken = await createToken(existingUser, 6, 'days');
+        return res.json({ token:Stoken });
       }
 
-      const token = await createToken(existingUser, 6, 'days');
-      return res.json({ token });
+      const Stoken = await createToken(existingUser, 6, 'days');
+      return res.json({ token:Stoken });
     }
 
-    const token = await createToken(data, 6, 'days');
-    res.json({ token });
+    const Stoken = await createToken(data, 6, 'days');
+    res.json({ token:Stoken });
   } catch (error) {
     console.error(error);
     res.status(401).json({ message: 'Invalid Google token', error });
