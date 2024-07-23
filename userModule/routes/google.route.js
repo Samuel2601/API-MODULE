@@ -11,6 +11,7 @@ const redirectUrl =
 
 import { OAuth2Client } from 'google-auth-library';
 import { Model } from "../models/exporSchema.js";
+import { register } from "../controllers/user.controller.js";
 
 const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
 
