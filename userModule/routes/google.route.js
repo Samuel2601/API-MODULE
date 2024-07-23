@@ -9,6 +9,11 @@ const redirectUrl =
     ? "https://geoapi.esmeraldas.gob.ec/auth/login"
     : "http://localhost:4200/auth/login";
 
+import { OAuth2Client } from 'google-auth-library';
+import { Model } from "../models/exporSchema.js";
+
+const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
+
 const router = express.Router();
 /**
  * @swagger
@@ -94,6 +99,54 @@ router.get(
   }
 );
 
+
+// Rutas de autenticación móvil
+router.post('/auth/mobile/google', async (req, res) => {
+  const { token, name, lastName, email, googleId, photo } = req.body;
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    if (payload.email !== email || payload.sub !== googleId) {
+      return res.status(401).json({ message: 'Invalid Google token' });
+    }
+
+    const datauser = new Model.User();
+
+      datauser.name = profile.name.givenName;
+      datauser.last_name = profile.name.familyName;
+      datauser.email = profile.emails[0].value;
+      datauser.googleId = profile.id;
+      datauser.photo = profile.photos[0].value;
+      datauser.verificado = true;
+
+    const { status, message, data, error } = await register(datauser, true);
+
+    if (status === 409) {
+      let existingUser = await Model.User.findOne({ email: datauser.email });
+
+      if (existingUser && !existingUser.googleId) {
+        existingUser.googleId = datauser.googleId;
+        existingUser.verificado = true;
+        await existingUser.save();
+        const token = await createToken(existingUser, 6, 'days');
+        return res.json({ token });
+      }
+
+      const token = await createToken(existingUser, 6, 'days');
+      return res.json({ token });
+    }
+
+    const token = await createToken(data, 6, 'days');
+    res.json({ token });
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid Google token', error });
+  }
+});
 // route to check token with postman.
 // using middleware to check for authorization header
 router.get("/verify", auth, (req, res) => {
