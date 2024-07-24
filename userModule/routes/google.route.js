@@ -110,7 +110,7 @@ router.post('/auth/mobile/google', async (req, res) => {
 
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.WEB_CLIENT_ID,
+      audience: process.env.WEB_CLIENT_ID_MOBIL,
     });
     const payload = ticket.getPayload();
 
