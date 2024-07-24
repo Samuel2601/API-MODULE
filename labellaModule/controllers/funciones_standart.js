@@ -36,12 +36,12 @@ async function list(model, params, userPopulateFields = []) {
   let response = cloneResponse();
   try {
     const { populate, ...filterParams } = params;
-    console.log("Populate: ",populate);
+    console.log("Populate: ", populate);
     let aux = { ...filterParams };
     console.log("AUX Filtro: ", aux);
     const filter = criterioFormat(models[model], aux);
     console.log("Filtros a buscar: ", filter);
-  
+
     // Obtener los campos a populados
     const populateFields = getPopulateFields(models[model], userPopulateFields);
 
@@ -157,26 +157,26 @@ async function update(model, id, data, files) {
   try {
     // Obtener el esquema del modelo para identificar campos de tipo array de String
     const modelSchema = models[model].schema.paths;
-    if (files) {
-      // Identificar los campos que deben almacenar archivos
-      const fileFields = Object.keys(modelSchema).filter(
-        (field) =>
-          modelSchema[field].instance === "Array" &&
-          modelSchema[field].caster.instance === "String"
-      );
 
-      // Asignar los archivos a los campos correspondientes en el esquema
-      if (files && Object.keys(files).length > 0) {
-        fileFields.forEach((field) => {
-          if (files[field]) {
-            if (Array.isArray(files[field])) {
-              data[field] = files[field].map((file) => file.path);
-            } else {
-              data[field] = files[field].path; // Si es un solo archivo
-            }
-          }
-        });
-      }
+    // Identificar los campos que deben almacenar archivos
+    const fileFields = Object.keys(modelSchema).filter(
+      (field) =>
+        modelSchema[field].instance === "Array" &&
+        modelSchema[field].caster.instance === "String"
+    );
+
+    // Asignar los archivos a los campos correspondientes en el esquema
+    if (files && Object.keys(files).length > 0) {
+      fileFields.forEach((field) => {
+        const matchingFiles = Object.keys(files).filter((fileField) =>
+          fileField.startsWith(field)
+        );
+        if (matchingFiles.length > 0) {
+          data[field] = matchingFiles.map((fileField) =>
+            path.basename(files[fileField].path)
+          );
+        }
+      });
     }
 
     const res = await models[model].findByIdAndUpdate(id, data, { new: true });
