@@ -9,9 +9,9 @@ const redirectUrl =
     ? "https://geoapi.esmeraldas.gob.ec/auth/login"
     : "http://localhost:4200/auth/login";
 
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client } from "google-auth-library";
 import { Model } from "../models/exporSchema.js";
-import { register } from "../controllers/user.controller.js";
+import { findExistingUser, register } from "../controllers/user.controller.js";
 
 const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
 
@@ -100,13 +100,12 @@ router.get(
   }
 );
 
-
 // Rutas de autenticación móvil
-router.post('/auth/mobile/google', async (req, res) => {
+router.post("/auth/mobile/google", async (req, res) => {
   const { token, name, lastName, email, googleId, photo } = req.body;
 
   try {
-    console.log("Datos que recibe:", req.body);  // Verificar qué datos recibe
+    console.log("Datos que recibe:", req.body); // Verificar qué datos recibe
 
     const ticket = await client.verifyIdToken({
       idToken: token,
@@ -115,7 +114,7 @@ router.post('/auth/mobile/google', async (req, res) => {
     const payload = ticket.getPayload();
 
     if (payload.email !== email || payload.sub !== googleId) {
-      return res.status(401).json({ message: 'Invalid Google token' });
+      return res.status(401).json({ message: "Invalid Google token" });
     }
 
     const datauser = new Model.User({
@@ -128,27 +127,26 @@ router.post('/auth/mobile/google', async (req, res) => {
     });
 
     const { status, message, data, error } = await register(datauser, true);
-    console.log("Repuestas crear usuario",status, message, data, error);
+    console.log("Repuestas crear usuario", status, message, data, error);
     if (status === 409) {
-      let existingUser = await Model.User.findOne({ email: datauser.email });
+      let existingUser = await findExistingUser(datauser);
 
       if (existingUser && !existingUser.googleId) {
         existingUser.googleId = datauser.googleId;
         existingUser.verificado = true;
         await existingUser.save();
-        const Stoken = await createToken(existingUser, 6, 'days');
-        return res.json({ token:Stoken });
+        const Stoken = await createToken(existingUser, 6, "days");
+        return res.json({ token: Stoken });
       }
 
-      const Stoken = await createToken(existingUser, 6, 'days');
-      return res.json({ token:Stoken });
+      const Stoken = await createToken(existingUser, 6, "days");
+      return res.json({ token: Stoken });
     }
-
-    const Stoken = await createToken(data, 6, 'days');
-    res.json({ token:Stoken });
+    const Stoken = await createToken(data, 6, "days");
+    res.json({ token: Stoken });
   } catch (error) {
     console.error(error);
-    res.status(401).json({ message: 'Invalid Google token', error });
+    res.status(401).json({ message: "Invalid Google token", error });
   }
 });
 // route to check token with postman.

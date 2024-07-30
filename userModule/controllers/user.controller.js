@@ -375,4 +375,5 @@ export {
   actualizarUser,
   eliminarUser,
   registrarMasivoUser,
+  findExistingUser
 };

@@ -1,7 +1,7 @@
 import passport from "passport";
 import { OAuth2Strategy as GoogleStrategy } from "passport-google-oauth";
 import { Model } from "../models/exporSchema.js";
-import { register } from "../controllers/user.controller.js";
+import { findExistingUser, register } from "../controllers/user.controller.js";
 
 //require('dotenv').config();
 // An import assertion in a dynamic import
@@ -31,7 +31,7 @@ passport.use(
       datauser.verificado = true;
       const { status, message, data, error } = await register(datauser, true);
       if (status === 409) {
-        let existingUser = await Model.User.findOne({ email: datauser.email });
+        let existingUser =  await findExistingUser(datauser);
 
         if (existingUser && !existingUser.googleId) {
           existingUser.googleId = datauser.googleId;
