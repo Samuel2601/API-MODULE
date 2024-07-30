@@ -51,13 +51,29 @@ async function createDefaultRoleAndPermission(data) {
 }
 
 async function findExistingUser(data) {
-  return await Model.User.findOne({
-    $or: [
-      { email: data.email },
-      { googleId: data.googleId },
-      { facebookId: data.facebookId },
-    ],
-  });
+  // Inicializar una variable para almacenar el usuario encontrado
+  let existingUser = null;
+
+  // Verificar si el campo email tiene un valor y buscar un usuario por email
+  if (data.email) {
+    existingUser = await Model.User.findOne({ email: data.email });
+    if (existingUser) return existingUser;
+  }
+
+  // Verificar si el campo googleId tiene un valor y buscar un usuario por googleId
+  if (data.googleId) {
+    existingUser = await Model.User.findOne({ googleId: data.googleId });
+    if (existingUser) return existingUser;
+  }
+
+  // Verificar si el campo facebookId tiene un valor y buscar un usuario por facebookId
+  if (data.facebookId) {
+    existingUser = await Model.User.findOne({ facebookId: data.facebookId });
+    if (existingUser) return existingUser;
+  }
+
+  // Retornar null si no se encuentra ningún usuario
+  return null;
 }
 
 async function hashPassword(password) {
