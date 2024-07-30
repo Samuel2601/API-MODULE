@@ -128,7 +128,7 @@ router.post('/auth/mobile/google', async (req, res) => {
     });
 
     const { status, message, data, error } = await register(datauser, true);
-
+    console.log("Repuestas crear usuario",status, message, data, error);
     if (status === 409) {
       let existingUser = await Model.User.findOne({ email: datauser.email });
 
