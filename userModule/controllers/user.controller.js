@@ -54,7 +54,6 @@ async function findExistingUser(data) {
   return await Model.User.findOne({
     $or: [
       { email: data.email },
-      { dni: data.dni },
       { googleId: data.googleId },
       { facebookId: data.facebookId },
     ],
