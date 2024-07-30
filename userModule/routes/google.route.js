@@ -105,7 +105,6 @@ router.post("/auth/mobile/google", async (req, res) => {
   const { token, name, lastName, email, googleId, photo } = req.body;
 
   try {
-    console.log("Datos que recibe:", req.body); // Verificar qué datos recibe
 
     const ticket = await client.verifyIdToken({
       idToken: token,
@@ -116,7 +115,6 @@ router.post("/auth/mobile/google", async (req, res) => {
     if (payload.email !== email || payload.sub !== googleId) {
       return res.status(401).json({ message: "Invalid Google token" });
     }
-    console.log("Payload Result:",payload);
     const datauser = new Model.User({
       name,
       last_name: lastName,
@@ -125,9 +123,7 @@ router.post("/auth/mobile/google", async (req, res) => {
       photo,
       verificado: true,
     });
-    console.log("Datos de Usuarios:",datauser);
     const { status, message, data, error } = await register(datauser, true);
-    console.log("Repuestas crear usuario", status, message, data, error);
     if (status === 409) {
       let existingUser = await findExistingUser(datauser);
 
