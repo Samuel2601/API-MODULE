@@ -16,7 +16,7 @@ router_extend.get('/getciudadano/:id', async (req, res) => {
         res.status(500).json({ message: 'Error al obtener ciudadano' });
     }
 });
-routerStand.put(
+router_extend.put(
     `/recolector_ruta/:id`,
     auth,
     permissUser(`/recolector_ruta/:id`,'put'),
