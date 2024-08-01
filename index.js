@@ -31,6 +31,7 @@ import {
 import routerStand from "./labellaModule/routes/router.js";
 import * as passportSetupG from "./userModule/config/google.js";
 import * as passportSetupF from "./userModule/config/facebook.js";
+import router_extend from "./labellaModule/routes/router_extend.js";
 
 // Configuración inicial
 const secret = uuidv4();
@@ -84,14 +85,23 @@ export const notifyPermissionChange = (userId, action, permiso) => {
       const userSocket = userSockets[userId];
       if (userSocket) {
         userSocket.emit("permissions-updated", { action, permiso });
-        console.log("Se notifico a usuario",userId,"con dispositivo conectado en: ",userSockets[userId],"del cambio de permiso:",permiso," para:",action);
+        console.log(
+          "Se notifico a usuario",
+          userId,
+          "con dispositivo conectado en: ",
+          userSockets[userId],
+          "del cambio de permiso:",
+          permiso,
+          " para:",
+          action
+        );
       } else {
         console.log(`User ${userId} not connected.`);
-      }    
+      }
     }
   } catch (error) {
     console.error("Algo salio mal:", error);
-  } 
+  }
 };
 
 export const notifyRoleChange = (userId, action, roleId) => {
@@ -100,14 +110,23 @@ export const notifyRoleChange = (userId, action, roleId) => {
       const userSocket = userSockets[userId];
       if (userSocket) {
         userSocket.emit("role-updated", { action, roleId });
-        console.log("Se notifico a ",userId,"con dispositivo conectado en: ",userSockets[userId],"del cambio de rol:",roleId," para:",action);
+        console.log(
+          "Se notifico a ",
+          userId,
+          "con dispositivo conectado en: ",
+          userSockets[userId],
+          "del cambio de rol:",
+          roleId,
+          " para:",
+          action
+        );
       } else {
         console.log(`User ${userId} not connected.`);
-      }    
+      }
     }
   } catch (error) {
     console.error("Algo salio mal:", error);
-  } 
+  }
 };
 
 // Configuración de sesión
@@ -140,6 +159,7 @@ app.use("/new", routerStand);
 app.use("/new", permisoRoute);
 app.use("/new", userRoute);
 app.use("/new", roleRoute);
+app.use("/new", router_extend);
 autoguardarPermisos(app);
 app.use("/new", authRoute);
 app.use("/new", googleRoute);

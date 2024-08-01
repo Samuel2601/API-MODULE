@@ -36,7 +36,8 @@ export const registrationValidations = [
   )
     .trim()
     .isNumeric()
-    .isLength({ min: 10, max: 10 }),
+    .isLength({ min: 10, max: 10 })
+    .optional(),
 ];
 
 export const loginValidations = [
