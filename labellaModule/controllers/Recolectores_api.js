@@ -57,18 +57,18 @@ async function updateRoutesForDay() {
 cron.schedule("0 22 * * *", updateRoutesForDay);
 
 // Función para ser llamada bajo demanda
-export async function updateRoutesOnDemand(deviceId) {
+export async function updateRoutesOnDemand(id) {
   let response = cloneResponse();
 
   try {
-    const recolector = await models.Recolector.findById(deviceId);
+    const recolector = await models.Recolector.findById(id);
     if (recolector) {
       const { createdAt } = recolector;
       const from = createdAt.toISOString();
       const to = new Date().toISOString(); // Hora actual
 
       // Asegúrate de que fetchRouteData devuelva los datos esperados
-      const routeData = await fetchRouteData(deviceId, from, to);
+      const routeData = await fetchRouteData(recolector.deviceId, from, to);
 
       recolector.ruta = routeData; // Ajusta según la estructura de datos
 
