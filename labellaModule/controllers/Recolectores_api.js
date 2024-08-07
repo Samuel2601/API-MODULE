@@ -15,7 +15,7 @@ function cloneResponse() {
 
 async function fetchRouteData(deviceId, from, to) {
   const url = `https://inteligenciavehicular.com/api/reports/route?deviceId=${deviceId}&type=allEvents&from=${from}&to=${to}`;
-
+  console.log("LLAMADO: ",url);
   const headers = {
     "Content-Type": "application/json",
     Authorization: "Basic " + btoa("CIUDADANIA:123456789"),
