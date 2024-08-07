@@ -15,10 +15,10 @@ router_extend.get('/getciudadano/:id', async (req, res) => {
         res.status(500).json({ message: 'Error al obtener ciudadano' });
     }
 });
-router_extend.put(
+router_extend.get(
     `/recolector_ruta/:id`,
     auth,
-    permissUser(`/recolector_ruta/:id`,'put'),
+    permissUser(`/recolector_ruta/:id`,'get'),
     async (req, res) => {
       const response = await updateRoutesOnDemand(req.params.id);
       res.status(response.status).json(response);
