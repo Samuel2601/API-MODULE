@@ -15,7 +15,7 @@ function cloneResponse() {
 
 async function fetchRouteData(deviceId, from, to) {
   const url = `https://inteligenciavehicular.com/api/reports/route?deviceId=${deviceId}&type=allEvents&from=${from}&to=${to}`;
-  console.log("LLAMADO: ",url);
+  console.log("LLAMADO: ", url);
   const headers = {
     "Content-Type": "application/json",
     Authorization: "Basic " + btoa("CIUDADANIA:123456789"),
@@ -64,7 +64,10 @@ export async function updateRoutesOnDemand(id) {
     const recolector = await models.Recolector.findById(id);
     if (recolector) {
       const { createdAt } = recolector;
-      const from = createdAt.toISOString();
+      const startOfDay = new Date(createdAt);
+      startOfDay.setHours(7, 0, 0, 0);
+      const from = startOfDay.toISOString();
+
       const to = new Date().toISOString(); // Hora actual
 
       // Asegúrate de que fetchRouteData devuelva los datos esperados
