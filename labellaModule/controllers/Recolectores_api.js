@@ -65,7 +65,7 @@ export async function updateRoutesOnDemand(id) {
     if (recolector) {
       const { createdAt } = recolector;
       const startOfDay = new Date(createdAt);
-      startOfDay.setHours(7, 0, 0, 0);
+      startOfDay.setHours(7, 0, 0, 0); // Ajusta la hora a las 7:00 am
       const from = startOfDay.toISOString();
 
       const to = new Date().toISOString(); // Hora actual
