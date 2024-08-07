@@ -61,7 +61,7 @@ export async function updateRoutesOnDemand(deviceId) {
   let response = cloneResponse();
 
   try {
-    const recolector = await models.Recolector.findOne({ deviceId });
+    const recolector = await models.Recolector.findById(deviceId);
     if (recolector) {
       const { createdAt } = recolector;
       const from = createdAt.toISOString();
