@@ -2,25 +2,34 @@ import cron from "node-cron";
 import axios from "axios";
 import { models } from "../models/Modelold.js";
 
+// Response structure
+const response = {
+  status: null, // Can be 'SUCCESS_CODE' or 'ERROR_CODE'
+  data: null, // Response data
+  message: null, // Descriptive message (optional)
+  error: null, // Error details (optional)
+};
+function cloneResponse() {
+  return { ...response };
+}
 
 async function fetchRouteData(deviceId, from, to) {
-    const url = `https://inteligenciavehicular.com/api/reports/route?deviceId=${deviceId}&type=allEvents&from=${from}&to=${to}`;
-    
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic ' + btoa('CIUDADANIA:123456789')
-    };
-  
-    try {
-      const response = await axios.get(url, { headers });
-      console.log(response);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching route data:', error);
-      throw error;
-    }
+  const url = `https://inteligenciavehicular.com/api/reports/route?deviceId=${deviceId}&type=allEvents&from=${from}&to=${to}`;
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: "Basic " + btoa("CIUDADANIA:123456789"),
+  };
+
+  try {
+    const response = await axios.get(url, { headers });
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching route data:", error);
+    throw error;
   }
-  
+}
 
 async function updateRoutesForDay() {
   const startOfDay = new Date();
@@ -49,17 +58,33 @@ cron.schedule("0 22 * * *", updateRoutesForDay);
 
 // Función para ser llamada bajo demanda
 export async function updateRoutesOnDemand(deviceId) {
-  const recolector = await models.Recolector.findOne({ deviceId });
+  let response = cloneResponse();
 
-  if (recolector) {
-    const { createdAt } = recolector;
-    const from = createdAt.toISOString();
-    const to = new Date().toISOString(); // Hora actual
-    const routeData = await fetchRouteData(deviceId, from, to);
+  try {
+    const recolector = await models.Recolector.findOne({ deviceId });
+    if (recolector) {
+      const { createdAt } = recolector;
+      const from = createdAt.toISOString();
+      const to = new Date().toISOString(); // Hora actual
 
-    recolector.ruta = routeData; // Ajusta según la estructura de datos
-    await recolector.save();
-  } else {
-    console.log("Recolector no encontrado");
+      // Asegúrate de que fetchRouteData devuelva los datos esperados
+      const routeData = await fetchRouteData(deviceId, from, to);
+
+      recolector.ruta = routeData; // Ajusta según la estructura de datos
+
+      response.data = await recolector.save();
+      response.status = 200;
+      response.message = "Data retrieved successfully";
+    } else {
+      console.log("Recolector no encontrado");
+      response.status = 404;
+      response.message = "Recolector no encontrado";
+    }
+  } catch (error) {
+    console.error("Error updating routes on demand:", error); // Imprime el error para depuración
+    response.status = 500;
+    response.message = "Algo salió mal";
+    response.error = error.message; // Proporciona más detalles del error
   }
+  return response;
 }
