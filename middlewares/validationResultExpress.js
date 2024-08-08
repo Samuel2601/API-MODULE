@@ -148,7 +148,7 @@ export const createToken = async function (user, time, tipo) {
     // Establece valores predeterminados si no se proporcionan
     const tiempoValido = time || 3;
     const tipoValido = tipo || "hours";
-    console.log(user);
+    
     if (user.status) {
       var payload = {
         sub: user._id,
