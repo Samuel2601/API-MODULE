@@ -138,7 +138,7 @@ export const createToken = async function (user, time, tipo) {
     "milliseconds",
     "ms",
   ];
-
+  console.log("USUARIO:",user,"TIME:",time,"TIPO:",tipo);
   try {
     // Verifica que la unidad de tiempo sea válida
     if (tipo && !validTimeUnits.includes(tipo)) {
