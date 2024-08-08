@@ -65,21 +65,24 @@ export async function updateRoutesOnDemand(id) {
     if (recolector) {
       const { createdAt } = recolector;
 
-      // Establece la hora de inicio a las 7:00 AM del día en que se creó el registro
+      // Establece la zona horaria del servidor (UTC-2 en este ejemplo)
+      const serverTimeOffset = -2; // UTC-2
+
+      // Ajusta la hora de inicio a las 7:00 AM en la zona horaria del servidor
       const startOfDay = new Date(createdAt);
-      startOfDay.setHours(7, 0, 0, 0);
+      startOfDay.setUTCHours(7 + serverTimeOffset, 0, 0, 0);
       const from = startOfDay.toISOString();
 
-      // Establece la hora final a las 10:00 PM del día en que se creó el registro
+      // Ajusta la hora final a las 10:00 PM en la zona horaria del servidor
       const endOfDay = new Date(createdAt);
-      endOfDay.setHours(22, 0, 0, 0);
+      endOfDay.setUTCHours(22 + serverTimeOffset, 0, 0, 0);
       const to = endOfDay.toISOString();
 
       // Asegúrate de que fetchRouteData devuelva los datos esperados
       const routeData = await fetchRouteData(recolector.deviceId, from, to);
 
       recolector.ruta = routeData; // Ajusta según la estructura de datos
-      console.log('Actualizo registro de rutas');
+      console.log("Actualizo registro de rutas");
       response.data = await recolector.save();
       response.status = 200;
       response.message = "Data retrieved successfully";
