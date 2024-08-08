@@ -64,11 +64,16 @@ export async function updateRoutesOnDemand(id) {
     const recolector = await models.Recolector.findById(id);
     if (recolector) {
       const { createdAt } = recolector;
+
+      // Establece la hora de inicio a las 7:00 AM del día en que se creó el registro
       const startOfDay = new Date(createdAt);
-      startOfDay.setHours(7, 0, 0, 0); // Ajusta la hora a las 7:00 am
+      startOfDay.setHours(7, 0, 0, 0);
       const from = startOfDay.toISOString();
 
-      const to = new Date().toISOString(); // Hora actual
+      // Establece la hora final a las 10:00 PM del día en que se creó el registro
+      const endOfDay = new Date(createdAt);
+      endOfDay.setHours(22, 0, 0, 0);
+      const to = endOfDay.toISOString();
 
       // Asegúrate de que fetchRouteData devuelva los datos esperados
       const routeData = await fetchRouteData(recolector.deviceId, from, to);
