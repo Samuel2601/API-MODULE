@@ -66,7 +66,7 @@ export async function updateRoutesOnDemand(id) {
       const { createdAt } = recolector;
 
       // Establece la zona horaria del servidor (UTC-2 en este ejemplo)
-      const serverTimeOffset = 3; // UTC-2
+      const serverTimeOffset = 5; // UTC-2
 
       // Ajusta la hora de inicio a las 7:00 AM en la zona horaria del servidor
       const startOfDay = new Date(createdAt);
