@@ -23,7 +23,7 @@ async function fetchRouteData(deviceId, from, to) {
 
   try {
     const response = await axios.get(url, { headers });
-    console.log(response);
+    //console.log(response);
     return response.data;
   } catch (error) {
     console.error("Error fetching route data:", error);
@@ -79,7 +79,7 @@ export async function updateRoutesOnDemand(id) {
       const routeData = await fetchRouteData(recolector.deviceId, from, to);
 
       recolector.ruta = routeData; // Ajusta según la estructura de datos
-
+      console.log('Actualizo registro de rutas');
       response.data = await recolector.save();
       response.status = 200;
       response.message = "Data retrieved successfully";
