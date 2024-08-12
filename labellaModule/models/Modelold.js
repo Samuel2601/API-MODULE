@@ -521,7 +521,7 @@ const RecolectoresSchema = new Schema(
         course: { type: Number },
         address: { type: String },
         accuracy: { type: Number },
-        network: { type: String },
+        network:{ type: Schema.Types.Mixed },
       },
     ],
     puntos_recoleccion: [
