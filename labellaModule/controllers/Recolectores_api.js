@@ -2,6 +2,9 @@ import cron from "node-cron";
 import axios from "axios";
 import { models } from "../models/Modelold.js";
 
+// Establece la zona horaria del servidor (UTC-2 en este ejemplo)
+const serverTimeOffset = 5; // UTC-2
+
 // Response structure
 const response = {
   status: null, // Can be 'SUCCESS_CODE' or 'ERROR_CODE'
@@ -44,8 +47,17 @@ async function updateRoutesForDay() {
 
   for (const recolector of recolectores) {
     const { deviceId, createdAt } = recolector;
-    const from = createdAt.toISOString();
+    
+    // Ajusta la hora de inicio a las 7:00 AM en la zona horaria del servidor
+    const startOfDay = new Date(createdAt);
+    startOfDay.setUTCHours(7 + serverTimeOffset, 0, 0, 0);
+    const from = startOfDay.toISOString();
+
+    // Ajusta la hora final a las 10:00 PM en la zona horaria del servidor
+    const endOfDay = new Date(createdAt);
+    endOfDay.setUTCHours(22 + serverTimeOffset, 0, 0, 0);
     const to = endOfDay.toISOString();
+
     const routeData = await fetchRouteData(deviceId, from, to);
 
     recolector.ruta = routeData; // Ajusta según la estructura de datos
@@ -63,10 +75,7 @@ export async function updateRoutesOnDemand(id) {
   try {
     const recolector = await models.Recolector.findById(id);
     if (recolector) {
-      const { createdAt } = recolector;
-
-      // Establece la zona horaria del servidor (UTC-2 en este ejemplo)
-      const serverTimeOffset = 5; // UTC-2
+      const { createdAt } = recolector;      
 
       // Ajusta la hora de inicio a las 7:00 AM en la zona horaria del servidor
       const startOfDay = new Date(createdAt);
