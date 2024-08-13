@@ -526,9 +526,12 @@ const RecolectoresSchema = new Schema(
     ],
     puntos_recoleccion: [
       {
-        latitud: { type: Number },
-        longitud: { type: Number },
+        lat: { type: Number },
+        lng: { type: Number },
         timestamp: { type: Date },
+        speed: { type: Number },
+        destacado: { type: Boolean },
+        retorno: { type: Boolean },
       },
     ],
   },
