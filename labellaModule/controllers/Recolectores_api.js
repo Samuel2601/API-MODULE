@@ -85,7 +85,7 @@ async function updateRoutesForDay() {
 }
 
 // Programa la tarea para que se ejecute diariamente a las 10 p.m.
-cron.schedule("12 9 * * *", updateRoutesForDay);
+cron.schedule("0 22 * * *", updateRoutesForDay);
 
 // Función para ser llamada bajo demanda
 export async function updateRoutesOnDemand(id) {
