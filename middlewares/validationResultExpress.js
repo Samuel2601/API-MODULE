@@ -94,7 +94,7 @@ const checkPermission = async (path, method, user, rol) => {
 // Middleware para verificar permisos de usuario y rol
 export const permissUser = (path, method) => async (req, res, next) => {
   if (!req.user) {
-    return res.status(403).json({ message: "Algo salió mal." });
+    return res.status(403).json({ message: "No tienes permisos para esto." });
   }
 
   const hasPermission = await checkPermission(
