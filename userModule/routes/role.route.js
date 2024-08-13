@@ -63,14 +63,15 @@ router.get(
   //criterioValidations,
   //validationResultExpress,
   auth,
-  permissUser("/obtenerrolesporcriterio","get"),
+  permissUser("/obtenerrolesporcriterio", "get"),
   async (req, res) => {
     try {
       const populateFields = req.query.populate
-          ? req.query.populate.split(",")
-          : [];
+        ? req.query.populate.split(",")
+        : [];
       const { status, message, data, error } = await obtenerRolesPorCriterio(
-        req.query, populateFields
+        req.query,
+        populateFields
       );
       res.status(status).json({ message, data, error });
     } catch (error) {
@@ -112,7 +113,7 @@ router.get(
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("/obtenerrole","get"),
+  permissUser("/obtenerrole", "get"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -172,8 +173,8 @@ router.post(
   "/registrarrolesmasivo",
   roleValidator,
   validationResultExpress,
-  permissUser("/registrarrolesmasivo","post"),
   auth,
+  permissUser("/registrarrolesmasivo", "post"),
   async (req, res) => {
     try {
       const { status, message, data, error } = await registrarRolesMasivo(
@@ -221,7 +222,7 @@ router.delete(
   idValidations,
   validationResultExpress,
   auth,
-  permissUser("/eliminarrole","delete"),
+  permissUser("/eliminarrole", "delete"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -288,7 +289,7 @@ router.put(
   putroleValidations,
   validationResultExpress,
   auth,
-  permissUser("/actualizarrole","put"),
+  permissUser("/actualizarrole", "put"),
   async (req, res) => {
     try {
       const id = req.query["id"];
@@ -303,6 +304,5 @@ router.put(
     }
   }
 );
-
 
 export default router;
