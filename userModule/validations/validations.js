@@ -204,26 +204,28 @@ export const roleValidator = [
     .withMessage("Cada elemento del array debe ser un objeto."),
   body("*")
     .bail()
-    .custom((value, { req }) => {
+    .custom((value) => {
       if (!value.hasOwnProperty("name")) {
         throw new Error("El campo 'name' es requerido en cada objeto.");
-      }
-      if (!value.hasOwnProperty("permisos")) {
-        throw new Error("El campo 'permisos' es requerido en cada objeto.");
       }
       if (typeof value.name !== "string" || value.name.trim() === "") {
         throw new Error(
           "El campo 'name' debe ser una cadena de texto no vacía."
         );
       }
-      if (!Array.isArray(value.permisos)) {
-        throw new Error("El campo 'permisos' debe ser un array.");
+
+      // Validación opcional para permisos
+      if (value.hasOwnProperty("permisos")) {
+        if (!Array.isArray(value.permisos)) {
+          throw new Error("El campo 'permisos' debe ser un array.");
+        }
+        if (!value.permisos.every((permiso) => typeof permiso === "string")) {
+          throw new Error(
+            "Cada elemento del campo 'permisos' debe ser una cadena de texto."
+          );
+        }
       }
-      if (!value.permisos.every((permiso) => typeof permiso === "string")) {
-        throw new Error(
-          "Cada elemento del campo 'permisos' debe ser una cadena de texto."
-        );
-      }
+
       return true;
     }),
 ];
