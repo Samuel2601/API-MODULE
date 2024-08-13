@@ -24,17 +24,31 @@ async function fetchRouteData(deviceId, from, to) {
     Authorization: "Basic " + btoa("CIUDADANIA:123456789"),
   };
 
+  // Definir el tiempo de espera (en milisegundos)
+  const timeout = 1200000; // 10 segundos
+
+  // Promesa que rechaza después de un tiempo específico
+  const timeoutPromise = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error("Request timed out")), timeout)
+  );
+
   try {
-    const response = await axios.get(url, { headers });
-    //console.log(response);
+    // Ejecutar la solicitud y la promesa de timeout en una carrera
+    const response = await Promise.race([
+      axios.get(url, { headers }),
+      timeoutPromise
+    ]);
+    
     return response.data;
   } catch (error) {
-    console.error("Error fetching route data:", error);
+    console.error("Error fetching route data:", error.message);
     throw error;
   }
 }
 
+
 async function updateRoutesForDay() {
+  console.log("Cron job started at: ", new Date());
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
@@ -47,7 +61,7 @@ async function updateRoutesForDay() {
 
   for (const recolector of recolectores) {
     const { deviceId, createdAt } = recolector;
-    
+
     // Ajusta la hora de inicio a las 7:00 AM en la zona horaria del servidor
     const startOfDay = new Date(createdAt);
     startOfDay.setUTCHours(7 + serverTimeOffset, 0, 0, 0);
@@ -58,15 +72,20 @@ async function updateRoutesForDay() {
     endOfDay.setUTCHours(22 + serverTimeOffset, 0, 0, 0);
     const to = endOfDay.toISOString();
 
-    const routeData = await fetchRouteData(deviceId, from, to);
+    try {
+      const routeData = await fetchRouteData(deviceId, from, to);
 
-    recolector.ruta = routeData; // Ajusta según la estructura de datos
-    await recolector.save();
+      recolector.ruta = routeData; // Ajusta según la estructura de datos
+      await recolector.save();
+    } catch (error) {
+      console.error(`Error updating recolector with ID ${recolector._id}:`, error.message);
+      // Puedes agregar lógica para reintentar o manejar de otra manera este error
+    }
   }
 }
 
 // Programa la tarea para que se ejecute diariamente a las 10 p.m.
-cron.schedule("0 22 * * *", updateRoutesForDay);
+cron.schedule("0 9 5 * *", updateRoutesForDay);
 
 // Función para ser llamada bajo demanda
 export async function updateRoutesOnDemand(id) {
