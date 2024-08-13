@@ -178,7 +178,7 @@ async function update(model, id, data, files) {
         }
       });
     }
-
+    console.log("MODELO:", model,"ID:",id,"Data:",data);
     const res = await models[model].findByIdAndUpdate(id, data, { new: true });
 
     if (!res) {
