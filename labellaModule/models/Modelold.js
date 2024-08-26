@@ -534,6 +534,7 @@ const RecolectoresSchema = new Schema(
         retorno: { type: Boolean },
       },
     ],
+    capacidad_retorno: [String], // Nuevo campo de capacidad
   },
   {
     timestamps: true,
@@ -544,6 +545,20 @@ const RecolectoresSchema = new Schema(
 RecolectoresSchema.pre('save', function(next) {
   const date = new Date(this.createdAt);
   this.dateOnly = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+  // Filtrar los puntos de recolección que tienen `retorno: true`
+  const puntosConRetorno = this.puntos_recoleccion.filter(punto => punto.retorno === true);
+
+  // Si `capacidad_retorno` tiene más elementos que `puntosConRetorno`, ajustarlo
+  if (this.capacidad_retorno.length > puntosConRetorno.length) {
+    this.capacidad_retorno = this.capacidad_retorno.slice(0, puntosConRetorno.length);
+  }
+
+  // Si `capacidad_retorno` tiene menos elementos que `puntosConRetorno`, rellenarlo con valores por defecto (ej. "vacío")
+  while (this.capacidad_retorno.length < puntosConRetorno.length) {
+    this.capacidad_retorno.push("vacío"); // Puedes cambiar "vacío" a otro valor predeterminado si lo deseas
+  }
+  
   next();
 });
 
