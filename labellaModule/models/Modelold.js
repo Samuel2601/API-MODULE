@@ -534,7 +534,7 @@ const RecolectoresSchema = new Schema(
         retorno: { type: Boolean },
       },
     ],
-    capacidad_retorno: [String], // Nuevo campo de capacidad
+    capacidad_retorno: [{ label:  { type: String, require:true}, value:  { type: String, require:true } }], // Nuevo campo de capacidad
   },
   {
     timestamps: true,
