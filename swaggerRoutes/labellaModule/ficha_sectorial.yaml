@@ -5,7 +5,9 @@ components:
       properties:
         descripcion: {"type":"string","description":"Description"}
         encargado: {"type":"objectid","description":"Responsible user"}
-        direccion_geo: {"type":"string","description":"Geographical address"}
+        direccion_geo.nombre: {"type":"string","description":"Location name"}
+        direccion_geo.latitud: {"type":"number","description":"Latitude"}
+        direccion_geo.longitud: {"type":"number","description":"Longitude"}
         estado: {"type":"objectid","description":"Project activity status"}
         actividad: {"type":"objectid","description":"Project activity"}
         fecha_evento: {"type":"date","description":"Event date"}
@@ -14,6 +16,14 @@ components:
         view: {"type":"boolean","description":"View status"}
         view_id: {"type":"objectid","description":"Viewed by"}
         view_date: {"type":"date","description":"View date"}
+        destacado: {"type":"boolean","description":"Fichas en Home"}
+        es_articulo: {"type":"boolean","description":"Is an article"}
+        mostrar_en_mapa: {"type":"boolean","description":"Show on map"}
+        title_marcador: {"type":"string","description":"Show on map"}
+        icono_marcador: {"type":"string","description":"Marker icon"}
+        compartido: {"type":"number","description":"Number of times shared"}
+        me_gusta: {"type":"array","items":{"type":"string"},"description":"me_gusta field"}
+        comentarios: {"type":"array","items":{"type":"string"},"description":"comentarios field"}
         createdAt: {"type":"date","description":"createdAt field"}
         updatedAt: {"type":"date","description":"updatedAt field"}
 

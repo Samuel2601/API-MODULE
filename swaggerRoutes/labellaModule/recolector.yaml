@@ -3,9 +3,12 @@ components:
     Recolector:
       type: object
       properties:
-        id_api: {"type":"string","description":"Collector ID API EXTERNAL"}
-        nombre: {"type":"string","description":"Collector name API EXTERNAL"}
-        comentarios: {"type":"array","items":{"type":"string"},"description":"comentarios field"}
+        dateOnly: {"type":"string","description":"dateOnly field"}
+        deviceId: {"type":"string","description":"Collector ID API EXTERNAL"}
+        funcionario: {"type":"objectid","description":"Funcionario a cargo del vehículo"}
+        ruta: {"type":"array","items":{"type":"string"},"description":"ruta field"}
+        puntos_recoleccion: {"type":"array","items":{"type":"string"},"description":"puntos_recoleccion field"}
+        capacidad_retorno: {"type":"array","items":{"type":"string"},"description":"capacidad_retorno field"}
         createdAt: {"type":"date","description":"createdAt field"}
         updatedAt: {"type":"date","description":"updatedAt field"}
 

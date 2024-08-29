@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/local-auth": "^3.0.1",
     "@google-cloud/storage": "^7.10.2",
     "axios": "^1.7.2",
     "bcrypt-nodejs": "^0.0.3",
@@ -26,6 +27,7 @@
     "express-session": "^1.18.0",
     "express-validator": "^7.0.1",
     "google-auth-library": "^9.9.0",
+    "googleapis": "^143.0.0",
     "handlebars": "^4.7.8",
     "jsonwebtoken": "^9.0.2",
     "jwt-simple": "^0.5.6",

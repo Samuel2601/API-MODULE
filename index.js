@@ -35,7 +35,7 @@ import router_extend from "./labellaModule/routes/router_extend.js";
 
 // Configuración inicial
 const secret = uuidv4();
-connectDB(); // Conectar a la base de datos por defecto
+connectDB(); // Conectar a la base de datos por defecto.
 const app = express(); // Inicializar la aplicación Express
 const server = http.createServer(app); // Crear el servidor HTTP
 
@@ -153,8 +153,8 @@ app.use((req, res, next) => {
 });
 
 // Definir rutas de la aplicación
-roles();
-usuarios();
+//roles();
+//usuarios();
 app.use("/new", routerStand);
 app.use("/new", permisoRoute);
 app.use("/new", userRoute);
