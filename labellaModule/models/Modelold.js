@@ -535,6 +535,13 @@ const RecolectoresSchema = new Schema(
       },
     ],
     capacidad_retorno: [{ label:  { type: String, require:true}, value:  { type: String, require:true } },{ _id: false }], // Nuevo campo de capacidad
+    view: { type: Boolean, default: true, description: "View status" },
+    view_id: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      description: "Viewed by",
+    },
+    view_date: { type: Date, description: "View date" },
   },
   {
     timestamps: true,
