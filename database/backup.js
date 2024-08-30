@@ -31,8 +31,9 @@ if (!fs.existsSync(backupDir)) {
 
 // Función para subir el backup a Google Drive
 async function uploadBackupToDrive(filePath) {
-  const auth = await authenticate({
-    keyfilePath: path.join(__dirname, "credentials.json"),
+  // Carga el archivo de credenciales de la cuenta de servicio
+  const auth = new google.auth.GoogleAuth({
+    keyFile: path.join(__dirname, "credentials.json"),
     scopes: ["https://www.googleapis.com/auth/drive.file"],
   });
 
@@ -47,13 +48,17 @@ async function uploadBackupToDrive(filePath) {
     body: fs.createReadStream(filePath),
   };
 
-  const response = await driveService.files.create({
-    resource: fileMetadata,
-    media: media,
-    fields: "id",
-  });
+  try {
+    const response = await driveService.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: "id",
+    });
 
-  console.log(`Backup subido a Google Drive con ID: ${response.data.id}`);
+    console.log(`Backup subido a Google Drive con ID: ${response.data.id}`);
+  } catch (error) {
+    console.error("Error subiendo el archivo:", error);
+  }
 }
 
 // Función para transferir el backup a una computadora local usando `scp`
@@ -85,7 +90,6 @@ export async function generateAndTransferBackup() {
 
   exec(command, async (error, stdout, stderr) => {
     if (error) {
-
       console.error(`Error al generar el backup: ${error.message}`);
       response.status = 500;
       response.message = "Algo salió mal";
@@ -108,7 +112,6 @@ export async function generateAndTransferBackup() {
       response.status = 200;
       response.message = "Data retrieved successfully";
     } catch (err) {
-
       console.error(`Error en la transferencia o subida: ${err.message}`);
       response.status = 500;
       response.message = "Algo salió mal";
