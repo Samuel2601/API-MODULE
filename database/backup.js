@@ -83,7 +83,7 @@ export async function listAppdata() {
     response.message = "Data retrieved successfully";
     response.data = res.data.files;
   } catch (error) {
-    console.error(`Errror al listar los backups: ${err}`);
+    console.error(`Errror al listar los backups: ${error}`);
     response.status = 500;
     response.message = "Algo salió mal";
     response.error = error;
