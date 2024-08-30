@@ -521,7 +521,7 @@ const RecolectoresSchema = new Schema(
         course: { type: Number },
         address: { type: String },
         accuracy: { type: Number },
-        network:{ type: Schema.Types.Mixed },
+        network: { type: Schema.Types.Mixed },
       },
     ],
     puntos_recoleccion: [
@@ -534,7 +534,13 @@ const RecolectoresSchema = new Schema(
         retorno: { type: Boolean },
       },
     ],
-    capacidad_retorno: [{ label:  { type: String, require:true}, value:  { type: String, require:true } },{ _id: false }], // Nuevo campo de capacidad
+    capacidad_retorno: [
+      {
+        label: { type: String, require: true },
+        value: { type: String, require: true },
+      },
+      { _id: false },
+    ], // Nuevo campo de capacidad
     view: { type: Boolean, default: true, description: "View status" },
     view_id: {
       type: Schema.Types.ObjectId,
@@ -549,23 +555,35 @@ const RecolectoresSchema = new Schema(
 );
 
 // Middleware para establecer la propiedad dateOnly antes de guardar
-RecolectoresSchema.pre('save', function(next) {
+RecolectoresSchema.pre("save", function (next) {
   const date = new Date(this.createdAt);
-  this.dateOnly = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  this.dateOnly = `${date.getFullYear()}-${
+    date.getMonth() + 1
+  }-${date.getDate()}`;
 
   // Filtrar los puntos de recolección que tienen `retorno: true`
-  const puntosConRetorno = this.puntos_recoleccion.filter(punto => punto.retorno === true);
+  const puntosConRetorno = this.puntos_recoleccion.filter(
+    (punto) => punto.retorno === true
+  );
 
   // Si `capacidad_retorno` tiene más elementos que `puntosConRetorno`, ajustarlo
   if (this.capacidad_retorno.length > puntosConRetorno.length) {
-    this.capacidad_retorno = this.capacidad_retorno.slice(0, puntosConRetorno.length);
+    this.capacidad_retorno = this.capacidad_retorno.slice(
+      0,
+      puntosConRetorno.length
+    );
+  }
+  if (this.view == false) {
+    this.view_date = new Date();
+  } else {
+    this.view_date = null;
   }
 
   // Si `capacidad_retorno` tiene menos elementos que `puntosConRetorno`, rellenarlo con valores por defecto (ej. "vacío")
   while (this.capacidad_retorno.length < puntosConRetorno.length) {
     this.capacidad_retorno.push("vacío"); // Puedes cambiar "vacío" a otro valor predeterminado si lo deseas
   }
-  
+
   next();
 });
 
