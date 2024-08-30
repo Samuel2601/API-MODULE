@@ -61,6 +61,42 @@ async function uploadBackupToDrive(filePath) {
   }
 }
 
+//Función para listar archivos
+export async function listAppdata() {
+  let response = cloneResponse();
+  // Get credentials and build service
+  // TODO (developer) - Use appropriate auth mechanism for your app
+
+  const { GoogleAuth } = require("google-auth-library");
+  const { google } = require("googleapis");
+
+  const auth = new GoogleAuth({
+    keyFile: path.join(__dirname, "credentials.json"),
+    scopes: "https://www.googleapis.com/auth/drive.appdata",
+  });
+  const service = google.drive({ version: "v3", auth });
+  try {
+    const res = await service.files.list({
+      spaces: "appDataFolder",
+      fields: "nextPageToken, files(id, name)",
+      pageSize: 100,
+    });
+    res.data.files.forEach(function (file) {
+      console.log("Found file:", file.name, file.id);
+    });
+    response.status = 200;
+    response.message = "Data retrieved successfully";
+    response.data = res.data.files;
+  } catch (error) {
+    console.error(`Errror al listar los backups: ${err}`);
+    response.status = 500;
+    response.message = "Algo salió mal";
+    response.error = error;
+  }
+  
+  return response;
+}
+
 // Función para transferir el backup a una computadora local usando `scp`
 function transferBackupToLocal(filePath, remotePath) {
   // Asegúrate de reemplazar con tus valores
