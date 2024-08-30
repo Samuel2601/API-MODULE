@@ -7,7 +7,7 @@ import {
   auth,
   permissUser,
 } from "../../middlewares/validationResultExpress.js";
-import { generateAndTransferBackup, listAppdata } from "../../database/backup.js";
+import { generateAndTransferBackup, listAppdata, shareFile } from "../../database/backup.js";
 const router_extend = express.Router();
 router_extend.get("/getciudadano/:id", async (req, res) => {
   var id = req.params["id"];
@@ -44,6 +44,21 @@ router_extend.get(
     res.status(response.status).json(response);
   }
 );
+
+router_extend.get('/share_backup/:fileId', async (req, res) => {
+  const { fileId } = req.params;
+
+  if (!fileId) {
+    return res.status(400).json({ status: 400, message: 'File ID is required' });
+  }
+
+  try {
+    const response = await shareFile(fileId);
+    res.status(response.status).json(response);
+  } catch (error) {
+    res.status(500).json({ status: 500, message: 'An error occurred', error });
+  }
+});
 
 
 

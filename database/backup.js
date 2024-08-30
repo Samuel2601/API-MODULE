@@ -92,6 +92,49 @@ export async function listAppdata() {
   return response;
 }
 
+// Función para actualizar permisos y generar un enlace de compartición
+export async function shareFile(fileId) {
+  let response = cloneResponse();
+
+  const auth = new google.auth.GoogleAuth({
+    keyFile: path.join(__dirname, "credentials.json"),
+    scopes: "https://www.googleapis.com/auth/drive",
+  });
+
+  const driveService = google.drive({ version: "v3", auth });
+
+  try {
+    // Actualizar permisos del archivo
+    await driveService.permissions.create({
+      fileId: fileId,
+      requestBody: {
+        role: "reader", // Permiso de solo lectura
+        type: "anyone", // Acceso para cualquier persona con el enlace
+      },
+    });
+
+    // Generar el enlace de compartición
+    const file = await driveService.files.get({
+      fileId: fileId,
+      fields: "webViewLink",
+    });
+
+    response.status = 200;
+    response.message = "File shared successfully";
+    response.data = {
+      fileId: fileId,
+      shareableLink: file.data.webViewLink,
+    };
+  } catch (error) {
+    console.error(`Error al compartir el archivo: ${error}`);
+    response.status = 500;
+    response.message = "Algo salió mal";
+    response.error = error;
+  }
+
+  return response;
+}
+
 // Función para transferir el backup a una computadora local usando `scp`
 function transferBackupToLocal(filePath, remotePath) {
   // Asegúrate de reemplazar con tus valores
