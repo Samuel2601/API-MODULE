@@ -108,7 +108,6 @@ export async function generateAndTransferBackup() {
       transferBackupToLocal(filePath, remotePath);
 
       console.log("BackUp realizado");
-      response.data = await recolector.save();
       response.status = 200;
       response.message = "Data retrieved successfully";
     } catch (err) {
