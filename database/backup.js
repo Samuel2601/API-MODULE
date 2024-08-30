@@ -64,13 +64,8 @@ async function uploadBackupToDrive(filePath) {
 //Función para listar archivos
 export async function listAppdata() {
   let response = cloneResponse();
-  // Get credentials and build service
-  // TODO (developer) - Use appropriate auth mechanism for your app
 
-  const { GoogleAuth } = require("google-auth-library");
-  const { google } = require("googleapis");
-
-  const auth = new GoogleAuth({
+  const auth = new google.auth.GoogleAuth({
     keyFile: path.join(__dirname, "credentials.json"),
     scopes: "https://www.googleapis.com/auth/drive.appdata",
   });
@@ -93,7 +88,7 @@ export async function listAppdata() {
     response.message = "Algo salió mal";
     response.error = error;
   }
-  
+
   return response;
 }
 
