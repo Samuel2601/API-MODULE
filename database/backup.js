@@ -135,6 +135,38 @@ export async function shareFile(fileId) {
   return response;
 }
 
+// Función para eliminar un archivo de Google Drive
+export async function deleteFile(fileId) {
+  let response = cloneResponse();
+
+  const auth = new google.auth.GoogleAuth({
+    keyFile: path.join(__dirname, "credentials.json"),
+    scopes: "https://www.googleapis.com/auth/drive",
+  });
+
+  const driveService = google.drive({ version: "v3", auth });
+
+  try {
+    // Eliminar el archivo
+    await driveService.files.delete({
+      fileId: fileId,
+    });
+
+    response.status = 200;
+    response.message = "File deleted successfully";
+    response.data = {
+      fileId: fileId,
+    };
+  } catch (error) {
+    console.error(`Error al eliminar el archivo: ${error}`);
+    response.status = 500;
+    response.message = "Algo salió mal";
+    response.error = error;
+  }
+
+  return response;
+}
+
 // Función para transferir el backup a una computadora local usando `scp`
 function transferBackupToLocal(filePath, remotePath) {
   // Asegúrate de reemplazar con tus valores
@@ -156,7 +188,11 @@ function transferBackupToLocal(filePath, remotePath) {
 
 export async function generateAndTransferBackup() {
   let response = cloneResponse();
-  const fileName = `backup-${new Date().toISOString().split("T")[0]}.gz`;
+  const now = new Date();
+  const fileName = `backup-${
+    now.toISOString().split("T")[0]
+  }-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.gz`;
+
   const filePath = path.join(backupDir, fileName);
 
   // Comando para hacer el dump de MongoDB
