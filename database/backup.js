@@ -4,8 +4,8 @@ import { google } from "googleapis";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { NodeSSH } from 'node-ssh';
-
+import { NodeSSH } from "node-ssh";
+const ssh = new NodeSSH();
 // Response structure
 const response = {
   status: 404, // Can be 'SUCCESS_CODE' or 'ERROR_CODE'
@@ -169,20 +169,19 @@ export async function deleteFile(fileId) {
 
 // Función para transferir el backup a una computadora local usando `scp`
 async function transferBackupToLocal(filePath, remotePath) {
-  const ssh = new NodeSSH();
-  const usuario = 'USUARIO';
-  const ip_remota = '192.168.120.71';
-  const password = '485314';
+  const usuario = "USUARIO";
+  const ip_remota = "192.168.120.71";
+  const password = "485314";
 
   try {
     await ssh.connect({
       host: ip_remota,
       username: usuario,
-      password: password
+      password: password,
     });
 
     await ssh.putFile(filePath, remotePath);
-    console.log('Backup transferido correctamente a la computadora local');
+    console.log("Backup transferido correctamente a la computadora local");
   } catch (error) {
     console.error(`Error al transferir el backup: ${error.message}`);
   } finally {
@@ -219,7 +218,7 @@ export async function generateAndTransferBackup() {
 
       // Transferir el archivo a una computadora local
       const remotePath = "C:/Users/USUARIO/Documents/backup";
-      transferBackupToLocal(filePath, remotePath);
+      await transferBackupToLocal(filePath, remotePath);
 
       console.log("BackUp realizado");
       response.status = 200;
