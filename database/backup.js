@@ -1,10 +1,10 @@
 import cron from "node-cron";
 import { exec } from "child_process";
 import { google } from "googleapis";
-import { authenticate } from "@google-cloud/local-auth";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { NodeSSH } from 'node-ssh';
 
 // Response structure
 const response = {
@@ -168,22 +168,26 @@ export async function deleteFile(fileId) {
 }
 
 // Función para transferir el backup a una computadora local usando `scp`
-function transferBackupToLocal(filePath, remotePath) {
-  // Asegúrate de reemplazar con tus valores
-  const usuario = "USUARIO"; // Tu nombre de usuario en Windows
-  const ip_remota = "192.168.120.71"; // La IP de tu computadora local
-  const command = `scp ${filePath} ${usuario}@${ip_remota}:${remotePath.replace(
-    /\\/g,
-    "/"
-  )}`;
-  console.log("Comando por ejecutar: ", command);
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error al transferir el backup: ${error.message}`);
-      return;
-    }
-    console.log("Backup transferido correctamente a la computadora local");
-  });
+async function transferBackupToLocal(filePath, remotePath) {
+  const ssh = new NodeSSH();
+  const usuario = 'USUARIO';
+  const ip_remota = '192.168.120.71';
+  const password = '485314';
+
+  try {
+    await ssh.connect({
+      host: ip_remota,
+      username: usuario,
+      password: password
+    });
+
+    await ssh.putFile(filePath, remotePath);
+    console.log('Backup transferido correctamente a la computadora local');
+  } catch (error) {
+    console.error(`Error al transferir el backup: ${error.message}`);
+  } finally {
+    ssh.dispose();
+  }
 }
 
 export async function generateAndTransferBackup() {
