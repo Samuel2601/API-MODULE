@@ -67,7 +67,7 @@ export async function listAppdata() {
 
   const auth = new google.auth.GoogleAuth({
     keyFile: path.join(__dirname, "credentials.json"),
-    scopes: "https://www.googleapis.com/auth/drive.appdata",
+    scopes: "https://www.googleapis.com/auth/drive",
   });
   const service = google.drive({ version: "v3", auth });
   try {
