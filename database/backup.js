@@ -70,7 +70,7 @@ function transferBackupToLocal(filePath, remotePath) {
     /\\/g,
     "/"
   )}`;
-
+  console.log("Comando por ejecutar: ", command);
   exec(command, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error al transferir el backup: ${error.message}`);
