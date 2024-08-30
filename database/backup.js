@@ -72,7 +72,7 @@ export async function listAppdata() {
   const service = google.drive({ version: "v3", auth });
   try {
     const res = await service.files.list({
-      spaces: "appDataFolder",
+      //spaces: "",
       fields: "nextPageToken, files(id, name)",
       pageSize: 100,
     });
