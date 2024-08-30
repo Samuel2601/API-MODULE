@@ -169,24 +169,25 @@ export async function deleteFile(fileId) {
 
 // Función para transferir el backup a una computadora local usando `scp`
 async function transferBackupToLocal(filePath, remotePath) {
-  const usuario = "USUARIO";
-  const ip_remota = "192.168.120.71";
-  const password = "485314";
+  const usuario = 'USUARIO';
+  const ip_remota = '192.168.120.71';
+  const password = '485314';
 
-  try {
-    await ssh.connect({
-      host: ip_remota,
-      username: usuario,
-      password: password,
-    });
+  // Comando `scp` usando `sshpass` para proporcionar la contraseña
+  const command = `sshpass -p '${password}' scp ${filePath} ${usuario}@${ip_remota}:${remotePath.replace(/\\/g, "/")}`;
 
-    await ssh.putFile(filePath, remotePath);
+  console.log("Comando por ejecutar: ", command);
+
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error al transferir el backup: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`Detalles del error: ${stderr}`);
+    }
     console.log("Backup transferido correctamente a la computadora local");
-  } catch (error) {
-    console.error(`Error al transferir el backup: ${error.message}`);
-  } finally {
-    ssh.dispose();
-  }
+  });
 }
 
 export async function generateAndTransferBackup() {
