@@ -7,7 +7,7 @@ import {
   auth,
   permissUser,
 } from "../../middlewares/validationResultExpress.js";
-import { generateAndTransferBackup } from "../../database/backup.js";
+import { generateAndTransferBackup, listAppdata } from "../../database/backup.js";
 const router_extend = express.Router();
 router_extend.get("/getciudadano/:id", async (req, res) => {
   var id = req.params["id"];
@@ -36,5 +36,15 @@ router_extend.get(
     res.status(response.status).json(response);
   }
 );
+
+router_extend.get(
+  `/list_backup`,
+  async (req, res) => {
+    const response = await listAppdata();
+    res.status(response.status).json(response);
+  }
+);
+
+
 
 export default router_extend;
