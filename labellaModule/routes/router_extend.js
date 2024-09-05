@@ -7,7 +7,12 @@ import {
   auth,
   permissUser,
 } from "../../middlewares/validationResultExpress.js";
-import { deleteFile, generateAndTransferBackup, listAppdata, shareFile } from "../../database/backup.js";
+import {
+  deleteFile,
+  generateAndTransferBackup,
+  listAppdata,
+  shareFile,
+} from "../../database/backup.js";
 const router_extend = express.Router();
 router_extend.get("/getciudadano/:id", async (req, res) => {
   var id = req.params["id"];
@@ -31,6 +36,8 @@ router_extend.get(
 
 router_extend.get(
   `/backup`,
+  auth,
+  permissUser(`/backup`, "get"),
   async (req, res) => {
     const response = await generateAndTransferBackup();
     res.status(response.status).json(response);
@@ -39,43 +46,60 @@ router_extend.get(
 
 router_extend.get(
   `/list_backup`,
+  auth,
+  permissUser(`/list_backup`, "get"),
   async (req, res) => {
     const response = await listAppdata();
     res.status(response.status).json(response);
   }
 );
 
-router_extend.get('/share_backup/:fileId', async (req, res) => {
-  const { fileId } = req.params;
+router_extend.get(
+  "/share_backup/:fileId",
+  auth,
+  permissUser(`/share_backup/:fileid`, "get"),
+  async (req, res) => {
+    const { fileId } = req.params;
 
-  if (!fileId) {
-    return res.status(400).json({ status: 400, message: 'File ID is required' });
+    if (!fileId) {
+      return res
+        .status(400)
+        .json({ status: 400, message: "File ID is required" });
+    }
+
+    try {
+      const response = await shareFile(fileId);
+      res.status(response.status).json(response);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ status: 500, message: "An error occurred", error });
+    }
   }
+);
 
-  try {
-    const response = await shareFile(fileId);
-    res.status(response.status).json(response);
-  } catch (error) {
-    res.status(500).json({ status: 500, message: 'An error occurred', error });
+router_extend.delete(
+  "/deletefile_backup/:fileId",
+  auth,
+  permissUser(`/deletefile_backup/:fileid`, "get"),
+  async (req, res) => {
+    const { fileId } = req.params;
+
+    if (!fileId) {
+      return res
+        .status(400)
+        .json({ status: 400, message: "File ID is required" });
+    }
+
+    try {
+      const response = await deleteFile(fileId);
+      res.status(response.status).json(response);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ status: 500, message: "An error occurred", error });
+    }
   }
-});
-
-
-
-router_extend.delete('/deletefile_backup/:fileId', async (req, res) => {
-  const { fileId } = req.params;
-
-  if (!fileId) {
-    return res.status(400).json({ status: 400, message: 'File ID is required' });
-  }
-
-  try {
-    const response = await deleteFile(fileId);
-    res.status(response.status).json(response);
-  } catch (error) {
-    res.status(500).json({ status: 500, message: 'An error occurred', error });
-  }
-});
-
+);
 
 export default router_extend;
