@@ -6,9 +6,13 @@ components:
         dateOnly: {"type":"string","description":"dateOnly field"}
         deviceId: {"type":"string","description":"Collector ID API EXTERNAL"}
         funcionario: {"type":"objectid","description":"Funcionario a cargo del vehículo"}
+        externo: {"type":"objectid","description":"externo field"}
         ruta: {"type":"array","items":{"type":"string"},"description":"ruta field"}
         puntos_recoleccion: {"type":"array","items":{"type":"string"},"description":"puntos_recoleccion field"}
         capacidad_retorno: {"type":"array","items":{"type":"string"},"description":"capacidad_retorno field"}
+        view: {"type":"boolean","description":"View status"}
+        view_id: {"type":"objectid","description":"Viewed by"}
+        view_date: {"type":"date","description":"View date"}
         createdAt: {"type":"date","description":"createdAt field"}
         updatedAt: {"type":"date","description":"updatedAt field"}
 

@@ -11,7 +11,11 @@ const redirectUrl =
 
 import { OAuth2Client } from "google-auth-library";
 import { Model } from "../models/exporSchema.js";
-import { findExistingUser, register } from "../controllers/user.controller.js";
+import {
+  findExistingExterno,
+  findExistingUser,
+  register,
+} from "../controllers/user.controller.js";
 
 const client = new OAuth2Client(process.env.WEB_CLIENT_ID);
 
@@ -105,7 +109,6 @@ router.post("/auth/mobile/google", async (req, res) => {
   const { token, name, lastName, email, googleId, photo } = req.body;
 
   try {
-
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.WEB_CLIENT_ID_MOBIL,
@@ -161,6 +164,22 @@ router.get("/logout", auth, (req, res) => {
     res.status(200).json({ message: "Cerrado" });
     //res.redirect('/'); //Inside a callback� bulletproof!
   });
+});
+
+// Rutas de autenticación móvil
+router.post("/auth/externo", async (req, res) => {
+  try {
+    let existingUser = await findExistingExterno(req.body);
+    console.log("USUARIO: ", existingUser);
+    if (existingUser) {
+      const Stoken = await createToken(existingUser, 1, "days", true);
+      return res.json({ token: Stoken });
+    }
+    return res.status(404).json({ message: "No registrado" });
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ message: "Invalid Google token", error });
+  }
 });
 
 export default router;

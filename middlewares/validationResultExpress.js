@@ -3,8 +3,8 @@ import { validationResult } from "express-validator";
 import pkg from "jwt-simple";
 import moment from "moment";
 import { Model } from "../userModule/models/exporSchema.js";
-import * as fs from 'fs';
-import path from 'path';
+import * as fs from "fs";
+import path from "path";
 
 var secret = "labella";
 
@@ -111,7 +111,7 @@ export const permissUser = (path, method) => async (req, res, next) => {
   next();
 };
 
-export const createToken = async function (user, time, tipo) {
+export const createToken = async function (user, time, tipo, externo) {
   const validTimeUnits = [
     "year",
     "years",
@@ -138,7 +138,7 @@ export const createToken = async function (user, time, tipo) {
     "milliseconds",
     "ms",
   ];
-  console.log("USUARIO:",user,"TIME:",time,"TIPO:",tipo);
+  console.log("USUARIO:", user, "TIME:", time, "TIPO:", tipo);
   try {
     // Verifica que la unidad de tiempo sea válida
     if (tipo && !validTimeUnits.includes(tipo)) {
@@ -148,8 +148,8 @@ export const createToken = async function (user, time, tipo) {
     // Establece valores predeterminados si no se proporcionan
     const tiempoValido = time || 3;
     const tipoValido = tipo || "hours";
-    
-    if (user.status) {
+
+    if (user.status && !externo) {
       var payload = {
         sub: user._id,
         name: user.name.toUpperCase(),
@@ -168,6 +168,19 @@ export const createToken = async function (user, time, tipo) {
       console.log("Payload creado:", payload);
 
       return pkg.encode(payload, secret);
+    } else if (externo) {
+      var payload = {
+        sub: user._id,
+        name: user.name.toUpperCase(),
+        dni: user.dni,
+        phone: user.phone,
+        iat: moment().unix(),
+        exp: moment().add(tiempoValido, tipoValido).unix(),
+      };
+
+      console.log("Payload creado:", payload);
+
+      return pkg.encode(payload, secret);
     } else {
       return { message: "Usuario deshabilitado" };
     }
@@ -179,7 +192,9 @@ export const createToken = async function (user, time, tipo) {
 
 export const idtokenUser = async function (req, res, next) {
   try {
-    const token = req.headers.authorization?.replace(/^Bearer\s/, "")?.replace(/['"]+/g, "");
+    const token = req.headers.authorization
+      ?.replace(/^Bearer\s/, "")
+      ?.replace(/['"]+/g, "");
     if (!token) {
       return res.status(403).send({ message: "TokenMissing" });
     }
@@ -198,22 +213,22 @@ export const idtokenUser = async function (req, res, next) {
 };
 
 export const obtenerImagen = async function (req, res) {
-  const carpeta = req.params['carpeta'];
-  const img = req.params['img'];
+  const carpeta = req.params["carpeta"];
+  const img = req.params["img"];
 
   // Validar que la carpeta y el archivo no contengan rutas maliciosas
-  if (carpeta.includes('..') || img.includes('..')) {
-    return res.status(400).send('Solicitud inválida');
+  if (carpeta.includes("..") || img.includes("..")) {
+    return res.status(400).send("Solicitud inválida");
   }
 
-  const basePath = './uploads';
+  const basePath = "./uploads";
   const imgPath = path.join(basePath, carpeta, img);
 
   fs.stat(imgPath, function (err) {
     if (!err) {
       res.status(200).sendFile(path.resolve(imgPath));
     } else {
-      const defaultImgPath = path.join(basePath, 'default.jpg');
+      const defaultImgPath = path.join(basePath, "default.jpg");
       res.status(200).sendFile(path.resolve(defaultImgPath));
     }
   });

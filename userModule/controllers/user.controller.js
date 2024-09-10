@@ -5,8 +5,12 @@ import { Model } from "../models/exporSchema.js";
 import apiResponse from "../../helpers/sendstatus.js";
 import * as bcrypt from "bcrypt-nodejs";
 import { mail_confirmar_session } from "../contacModule/controllers/mail.controller.js";
-import { criterioFormat, getPopulateFields } from "../validations/validations.js";
+import {
+  criterioFormat,
+  getPopulateFields,
+} from "../validations/validations.js";
 import { notifyRoleChange } from "../../index.js";
+import { models } from "../../labellaModule/models/Modelold.js";
 
 //FUNCTION USERSCHEMA
 const register = async function (data, ret) {
@@ -43,7 +47,9 @@ async function createDefaultRoleAndPermission(data) {
     permiso = await Model.Permiso.create({ name: "registrarPermisosMasivo" });
   }
 
-  let role = await Model.Role.findOne({name:'Ciudadano'}).sort({ createdAt: -1 });
+  let role = await Model.Role.findOne({ name: "Ciudadano" }).sort({
+    createdAt: -1,
+  });
   if (!role) {
     role = await Model.Role.create({ name: "Admin", permisos: [permiso._id] });
   }
@@ -213,7 +219,7 @@ const validarCodigo = async function (data) {
 
 const obtenerUser = async function (id) {
   try {
-    const registro = await Model.User.findById(id).populate('role');
+    const registro = await Model.User.findById(id).populate("role");
     if (!registro) {
       return apiResponse(404, "Usuario no encontrado.", null, null);
     }
@@ -231,8 +237,8 @@ const obtenerUserPorCriterio = async function (
     const { populate, ...filterParams } = params;
     let aux = { ...filterParams };
     const filter = criterioFormat(Model.User, aux);
-    // Obtener los campos a populados    
-    const populateFields = getPopulateFields(Model.User,userPopulateFields);
+    // Obtener los campos a populados
+    const populateFields = getPopulateFields(Model.User, userPopulateFields);
     // Crear la consulta con populate si es necesario
     let query = Model.User.find(filter).sort({ createdAt: -1 });
     populateFields.forEach((field) => {
@@ -246,7 +252,7 @@ const obtenerUserPorCriterio = async function (
   }
 };
 const actualizarUser = async function (id, data) {
-  console.log("DATOS QUE RECIBO DE PARA LA FNCIÓN:",id,data);
+  console.log("DATOS QUE RECIBO DE PARA LA FNCIÓN:", id, data);
   try {
     let roleChanged = false;
     let oldRole = null;
@@ -381,6 +387,21 @@ async function actualizarUsuarios(usuariosConErrores) {
   }
 }
 
+const findExistingExterno = async function (data) {
+  console.log(data);
+  // Inicializar una variable para almacenar el usuario encontrado
+  let existingUser = null;
+
+  // Verificar si el campo email tiene un valor y buscar un usuario por email
+  if (data.email) {
+    existingUser = await models.Externo.findOne({ dni: data.email });
+    if (existingUser) return existingUser;
+  }
+
+  // Retornar null si no se encuentra ningún usuario
+  return null;
+};
+
 export {
   login,
   register,
@@ -390,5 +411,6 @@ export {
   actualizarUser,
   eliminarUser,
   registrarMasivoUser,
-  findExistingUser
+  findExistingUser,
+  findExistingExterno,
 };
