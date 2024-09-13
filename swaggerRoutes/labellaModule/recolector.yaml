@@ -13,6 +13,8 @@ components:
         view: {"type":"boolean","description":"View status"}
         view_id: {"type":"objectid","description":"Viewed by"}
         view_date: {"type":"date","description":"View date"}
+        observacion.verificacion: {"type":"boolean","description":"observacion.verificacion field"}
+        observacion.comentario: {"type":"string","description":"observacion.comentario field"}
         createdAt: {"type":"date","description":"createdAt field"}
         updatedAt: {"type":"date","description":"updatedAt field"}
 

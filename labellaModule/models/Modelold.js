@@ -543,6 +543,10 @@ const RecolectoresSchema = new Schema(
       {
         label: { type: String, require: true },
         value: { type: String, require: true },
+        verificacion: {
+          type: Boolean,
+          default: false,
+        },
       },
       { _id: false },
     ], // Nuevo campo de capacidad
@@ -553,6 +557,15 @@ const RecolectoresSchema = new Schema(
       description: "Viewed by",
     },
     view_date: { type: Date, description: "View date" },
+    observacion: {
+      verificacion: {
+        type: Boolean,
+        default: false,
+      },
+      comentario: {
+        type: String,
+      },
+    },
   },
   {
     timestamps: true,

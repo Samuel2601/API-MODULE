@@ -1,3 +1,6 @@
-node_modules
+node_modules/
 .env
-database\credentials.json
+database/credentials.json
+uploads/
+swaggerRoutes/labellaModule/
+!uploads/default.jpg

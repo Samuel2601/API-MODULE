@@ -19,6 +19,9 @@ import {
   userArrayValidator,
   putUserValidations,
 } from "../validations/validations.js";
+import multiparty from "connect-multiparty";
+import fs from "fs";
+import path from "path";
 
 const router = express.Router();
 
@@ -470,6 +473,23 @@ router.delete(
  *           description: ID del rol asignado al usuario (opcional).
  *           example: 662feebb0993e219e7db8bfa
  */
+// Función para crear directorios si no existen
+const createDirectoryIfNotExists = (directory) => {
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
+  }
+};
+
+// Middleware de multiparty con directorio dinámico y creación de directorios
+const pathfile = (modelName) => {
+  const directory = path.join("./uploads", modelName.toLowerCase());
+  createDirectoryIfNotExists(directory); // Asegura que el directorio exista
+  return multiparty({
+    uploadDir: directory,
+    maxFieldsSize: 50 * 1024 * 1024,
+  });
+};
+
 router.put(
   "/actualizaruser",
   idValidations,
@@ -477,12 +497,14 @@ router.put(
   validationResultExpress,
   auth,
   permissUser("/actualizaruser", "put"),
+  pathfile("usuario"),
   async (req, res) => {
     try {
       const id = req.query["id"];
       const { status, message, data, error } = await actualizarUser(
         id,
-        req.body
+        req.body,
+        req.files
       );
       res.status(status).json({ message, data, error });
     } catch (error) {

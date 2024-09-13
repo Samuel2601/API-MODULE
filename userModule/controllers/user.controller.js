@@ -11,7 +11,7 @@ import {
 } from "../validations/validations.js";
 import { notifyRoleChange } from "../../index.js";
 import { models } from "../../labellaModule/models/Modelold.js";
-
+import path from "path";
 //FUNCTION USERSCHEMA
 const register = async function (data, ret) {
   try {
@@ -251,8 +251,8 @@ const obtenerUserPorCriterio = async function (
     return apiResponse(500, "ERROR", null, error);
   }
 };
-const actualizarUser = async function (id, data) {
-  console.log("DATOS QUE RECIBO DE PARA LA FNCIÓN:", id, data);
+const actualizarUser = async function (id, data, file) {
+  console.log("DATOS QUE RECIBO DE PARA LA actuaizacion:", id, data);
   try {
     let roleChanged = false;
     let oldRole = null;
@@ -267,6 +267,10 @@ const actualizarUser = async function (id, data) {
     if (data.role && user.role._id.toString() !== data.role) {
       roleChanged = true;
       oldRole = user.role._id.toString();
+    }
+    console.log("ARCHIVOS ENVIADOS: ", file);
+    if (file && file["photo"] && file["photo"].path) {
+      data.photo = path.basename(file["photo"].path);
     }
 
     // Hash de la nueva contraseña si se proporciona
