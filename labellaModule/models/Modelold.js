@@ -565,6 +565,12 @@ const RecolectoresSchema = new Schema(
       comentario: {
         type: String,
       },
+      verificador: {
+        type: Schema.Types.ObjectId,
+        ref: "user",
+        required: false,
+        description: "Funcionario a cargo de la verificación",
+      },
     },
   },
   {
