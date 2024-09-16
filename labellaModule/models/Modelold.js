@@ -560,7 +560,7 @@ const RecolectoresSchema = new Schema(
     observacion: {
       verificacion: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       comentario: {
         type: String,
