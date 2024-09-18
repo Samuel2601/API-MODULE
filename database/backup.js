@@ -169,12 +169,15 @@ export async function deleteFile(fileId) {
 
 // Función para transferir el backup a una computadora local usando `scp`
 async function transferBackupToLocal(filePath, remotePath) {
-  const usuario = 'USUARIO';
-  const ip_remota = '192.168.120.71';
-  const password = '485314';
+  const usuario = "USUARIO";
+  const ip_remota = "192.168.120.71";
+  const password = "485314";
 
   // Comando `scp` usando `sshpass` para proporcionar la contraseña
-  const command = `sshpass -p '${password}' scp ${filePath} ${usuario}@${ip_remota}:${remotePath.replace(/\\/g, "/")}`;
+  const command = `sshpass -p '${password}' scp ${filePath} ${usuario}@${ip_remota}:${remotePath.replace(
+    /\\/g,
+    "/"
+  )}`;
 
   console.log("Comando por ejecutar: ", command);
 
@@ -236,4 +239,4 @@ export async function generateAndTransferBackup() {
 }
 
 // Programar el cron job para que se ejecute diariamente
-cron.schedule("0 0 * * *", generateAndTransferBackup);
+cron.schedule("0 19 * * *", generateAndTransferBackup);
