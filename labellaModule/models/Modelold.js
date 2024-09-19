@@ -619,7 +619,14 @@ RecolectoresSchema.pre("save", function (next) {
 });
 
 RecolectoresSchema.index({ dateOnly: 1, deviceId: 1 }, { unique: true });
-RecolectoresSchema.index({ dateOnly: 1, funcionario: 1 }, { unique: true });
+RecolectoresSchema.index(
+  { dateOnly: 1, funcionario: 1, externo: 1 },
+  { unique: true }
+);
+RecolectoresSchema.index(
+  { dateOnly: 1, funcionario: 1, externo: 1 },
+  { unique: true }
+);
 
 RecolectoresSchema.statics.isProtected = function (method) {
   const protectedMethods = ["post", "delete", "createBatch", "updateBatch"];
