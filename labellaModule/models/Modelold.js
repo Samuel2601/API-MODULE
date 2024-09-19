@@ -618,14 +618,19 @@ RecolectoresSchema.pre("save", function (next) {
   next();
 });
 
+// Índice único para dateOnly y deviceId
 RecolectoresSchema.index({ dateOnly: 1, deviceId: 1 }, { unique: true });
+
+// Índice único para dateOnly y funcionario, pero permitiendo valores nulos en funcionario
 RecolectoresSchema.index(
-  { dateOnly: 1, funcionario: 1, externo: 1 },
-  { unique: true }
+  { dateOnly: 1, funcionario: 1 },
+  { unique: true, partialFilterExpression: { funcionario: { $ne: null } } }
 );
+
+// Índice único para dateOnly y externo, pero permitiendo valores nulos en externo
 RecolectoresSchema.index(
-  { dateOnly: 1, funcionario: 1, externo: 1 },
-  { unique: true }
+  { dateOnly: 1, externo: 1 },
+  { unique: true, partialFilterExpression: { externo: { $ne: null } } }
 );
 
 RecolectoresSchema.statics.isProtected = function (method) {
