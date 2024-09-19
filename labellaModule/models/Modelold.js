@@ -622,7 +622,7 @@ RecolectoresSchema.pre("save", function (next) {
 RecolectoresSchema.index({ dateOnly: 1, deviceId: 1 }, { unique: true });
 
 // Índice único para dateOnly y funcionario y externo, pero permitiendo valores nulos en funcionario
-db.recolectors.createIndex(
+RecolectoresSchema.index(
   { dateOnly: 1, funcionario: 1, externo: 1 },
   { unique: true }
 );
