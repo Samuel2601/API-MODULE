@@ -45,10 +45,27 @@ export async function consultarCedula(identificacion) {
     // Parsear la respuesta XML a JSON usando xml2js
     const parser = new xml2js.Parser({ explicitArray: false });
     const parsedResponse = await parser.parseStringPromise(response.data);
-
-    return parsedResponse; // Devuelve la respuesta completa en formato JSON
+    // Simplificar el JSON
+    const simpleJson = transformToSimpleJson(parsedResponse);
+    return simpleJson;
   } catch (error) {
     console.error("Error al consumir el servicio SOAP:", error);
     throw error;
   }
+}
+// Función para transformar la respuesta parseada en un JSON plano
+function transformToSimpleJson(parsedResponse) {
+  const simpleJson = {};
+
+  // Accedemos directamente a la ruta completa en el objeto parseado
+  const columnas =
+    parsedResponse["soap:Envelope"]["soap:Body"]["ns2:consultarResponse"]
+      .paquete.entidades.entidad.filas.fila.columnas.columna;
+
+  // Recorremos cada columna para asignar "campo" como clave y "valor" como valor en el nuevo JSON
+  columnas.forEach((columna) => {
+    simpleJson[columna.campo] = columna.valor;
+  });
+
+  return simpleJson;
 }

@@ -202,5 +202,5 @@ server.listen(PORT, () => {
 
 consultarCedula("1650108879").then((response) => {
   // Convertir la respuesta en un formato más legible
-  console.log("Respuesta:", JSON.stringify(response, null, 2));
+  console.log("Respuesta:", response);
 });
