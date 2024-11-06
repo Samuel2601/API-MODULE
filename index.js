@@ -32,6 +32,8 @@ import routerStand from "./labellaModule/routes/router.js";
 import * as passportSetupG from "./userModule/config/google.js";
 import * as passportSetupF from "./userModule/config/facebook.js";
 import router_extend from "./labellaModule/routes/router_extend.js";
+import { verifyCiudadanos } from "./apiservices/listCiudadadanos.js";
+import { consultarCedula } from "./apiservices/dinardap.js";
 
 // Configuración inicial
 const secret = uuidv4();
@@ -39,7 +41,7 @@ connectDB(); // Conectar a la base de datos por defecto.
 const app = express(); // Inicializar la aplicación Express
 const server = http.createServer(app); // Crear el servidor HTTP
 
-let userSockets = {}; // Define userSockets como un objeto vacío al inicio del archivo
+export let userSockets = {}; // Define userSockets como un objeto vacío al inicio del archivo
 
 // Inicializar Socket.IO después de crear el servidor
 const io = new Server(server, {
@@ -160,7 +162,7 @@ app.use("/new", permisoRoute);
 app.use("/new", userRoute);
 app.use("/new", roleRoute);
 app.use("/new", router_extend);
-autoguardarPermisos(app);
+//autoguardarPermisos(app);
 app.use("/new", authRoute);
 app.use("/new", googleRoute);
 app.use("/new", facebookRoute);
@@ -196,4 +198,9 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 2000;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
+});
+
+consultarCedula("1650108879").then((response) => {
+  // Convertir la respuesta en un formato más legible
+  console.log("Respuesta:", JSON.stringify(response, null, 2));
 });

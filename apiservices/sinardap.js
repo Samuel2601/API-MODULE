@@ -18,7 +18,10 @@ export async function getCiudadano(cedula) {
   const e = new Error("El ciudadano consta como fallecido");
   e.statusCode = 403;
   try {
-    const ciudadano = (await axiosInstance.request(config)).data;
+    const response = await axiosInstance.request(config);
+
+    const ciudadano = response.data;
+
     if (ciudadano.fechaDefuncion) {
       throw e;
     }

@@ -18,6 +18,7 @@ components:
         view: {"type":"boolean","description":"View status"}
         view_id: {"type":"objectid","description":"Viewed by"}
         view_date: {"type":"date","description":"View date"}
+        urgencia: {"type":"boolean","description":"Urgency status"}
         createdAt: {"type":"date","description":"createdAt field"}
         updatedAt: {"type":"date","description":"updatedAt field"}
 
