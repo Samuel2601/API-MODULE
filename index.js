@@ -21,6 +21,8 @@ import googleRoute from "./userModule/routes/google.route.js";
 import facebookRoute from "./userModule/routes/facebook.route.js";
 import contactRoute from "./userModule/routes/contac.route.js";
 import webhoobs from "./userModule/contacModule/webhoobs/whatsapps.config.js";
+import router from "./apiservices/dinardap.goc.ec/dinardap.route.js";
+
 import { swaggerOptions } from "./swagger/configswagger.js";
 import {
   permiso,
@@ -32,8 +34,7 @@ import routerStand from "./labellaModule/routes/router.js";
 import * as passportSetupG from "./userModule/config/google.js";
 import * as passportSetupF from "./userModule/config/facebook.js";
 import router_extend from "./labellaModule/routes/router_extend.js";
-import { verifyCiudadanos } from "./apiservices/listCiudadadanos.js";
-import { consultarCedula } from "./apiservices/dinardap.js";
+import { consultarCedula } from "./apiservices/dinardap.goc.ec/controllers/cedula.js";
 
 // Configuración inicial
 const secret = uuidv4();
@@ -168,6 +169,7 @@ app.use("/new", googleRoute);
 app.use("/new", facebookRoute);
 app.use("/new", contactRoute);
 app.use("/new", webhoobs);
+app.use("/dinardap", router);
 
 // Endpoint para verificar el estado de Socket.IO
 app.get("/new/socket-status", (req, res) => {
@@ -199,8 +201,18 @@ const PORT = process.env.PORT || 2000;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-
-consultarCedula("1650108879").then((response) => {
+/*
+consultarCedula(3789, "0803768530").then((response) => {
   // Convertir la respuesta en un formato más legible
-  console.log("Respuesta:", response);
-});
+  console.log("Respuesta:", JSON.stringify(response, null, 2));
+});*/
+
+/*consultarRuc(3800, "1390001556001").then((response) => {
+  // Convertir la respuesta en un formato más legible
+  console.log("Respuesta:", JSON.stringify(response, null, 2));
+});*/
+/*
+consultarCedula3805(3805, "0803768530").then((response) => {
+  // Convertir la respuesta en un formato más legible
+  console.log("Respuesta:", JSON.stringify(response, null, 2));
+});*/
