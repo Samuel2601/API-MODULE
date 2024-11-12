@@ -163,13 +163,13 @@ app.use("/new", permisoRoute);
 app.use("/new", userRoute);
 app.use("/new", roleRoute);
 app.use("/new", router_extend);
-//autoguardarPermisos(app);
+app.use("/dinardap", router);
+autoguardarPermisos(app);
 app.use("/new", authRoute);
 app.use("/new", googleRoute);
 app.use("/new", facebookRoute);
 app.use("/new", contactRoute);
 app.use("/new", webhoobs);
-app.use("/dinardap", router);
 
 // Endpoint para verificar el estado de Socket.IO
 app.get("/new/socket-status", (req, res) => {
