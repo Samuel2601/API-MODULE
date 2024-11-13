@@ -11,7 +11,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: process.env.URI||'http://localhost:4202',
+        url: process.env.URI||'http://localhost:4202/',
         description: 'Servidor de desarrollo',
       },
     ],

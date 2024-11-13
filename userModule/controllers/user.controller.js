@@ -44,7 +44,7 @@ const register = async function (data, ret) {
 async function createDefaultRoleAndPermission(data) {
   let permiso = await Model.Permiso.findOne().sort({ createdAt: -1 });
   if (!permiso) {
-    permiso = await Model.Permiso.create({ name: "registrarPermisosMasivo" });
+    permiso = await Model.Permiso.create({ name: "/registrarpermisosmasivo", method: 'post'});
   }
 
   let role = await Model.Role.findOne({ name: "Ciudadano" }).sort({
