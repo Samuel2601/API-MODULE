@@ -879,12 +879,12 @@ const MediosDeVidaSchema = new Schema({
   participacionCapacitacion: { type: String, required: true },
   cuantosTrabajos: { type: Number, required: true },
   actividadLaboral: { type: String, required: true },
-  actividadEconomica: { type: [String], required: true },
+  actividadEconomica: { type: [], required: true },
   relacionDependencia: { type: String, required: true },
   cuentaPropia: { type: String, required: true },
   ingresosMensuales: { type: String, required: true },
-  gastosHogar: { type: [String], required: true },
-  fuentesIngresos: { type: [String], required: true },
+  gastosHogar: { type: [], required: true },
+  fuentesIngresos: { type: [], required: true },
 });
 
 const RedesDeApoyoSchema = new Schema({
