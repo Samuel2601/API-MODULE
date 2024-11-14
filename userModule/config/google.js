@@ -14,35 +14,47 @@ import { findExistingUser, register } from "../controllers/user.controller.js";
 passport.use(
   new GoogleStrategy(
     {
-      clientID: process.env.WEB_CLIENT_ID, //keys.web.client_id,
-      clientSecret: process.env.WEB_CLIENT_SECRET, //keys.web.client_secret,
-      callbackURL: process.env.WEB_REDIRECT_URIS.split(",")[0], //'http://localhost:4201/auth/google/callback/'//keys.web.redirect_uris[0]
+      clientID: process.env.WEB_CLIENT_ID,
+      clientSecret: process.env.WEB_CLIENT_SECRET,
+      callbackURL: process.env.WEB_REDIRECT_URIS.split(",")[0],
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log(profile);
-      const email = profile.emails[0].value;
-      const datauser = new Model.User();
+      try {
+        const email = profile.emails[0].value;
 
-      datauser.name = profile.name.givenName;
-      datauser.last_name = profile.name.familyName;
-      datauser.email = profile.emails[0].value;
-      datauser.googleId = profile.id;
-      datauser.photo = profile.photos[0].value;
-      datauser.verificado = true;
-      const { status, message, data, error } = await register(datauser, true);
-      if (status === 409) {
-        let existingUser =  await findExistingUser(datauser);
-
-        if (existingUser && !existingUser.googleId) {
-          existingUser.googleId = datauser.googleId;
-          existingUser.verificado = true;
-          await existingUser.save();
+        // Verificar si el usuario ya existe
+        let existingUser = await findExistingUser({ email, googleId: profile.id });
+        
+        if (existingUser) {
+          // Si existe pero no tiene googleId, actualizar el registro
+          if (!existingUser.googleId) {
+            existingUser.googleId = profile.id;
+            existingUser.verificado = true;
+            await existingUser.save();
+          }
           return done(null, existingUser);
         }
 
-        return done(null, existingUser);
+        // Si no existe, registrar el nuevo usuario
+        const datauser = new Model.User({
+          name: profile.name.givenName,
+          last_name: profile.name.familyName,
+          email,
+          googleId: profile.id,
+          photo: profile.photos[0].value,
+          verificado: true,
+        });
+
+        const { status, data } = await register(datauser, true);
+        
+        if (status === 409) {
+          return done(null, false, { message: "User already exists" });
+        }
+
+        return done(null, data);
+      } catch (error) {
+        return done(error);
       }
-      return done(null, data);
     }
   )
 );
