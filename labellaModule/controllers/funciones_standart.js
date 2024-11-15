@@ -8,7 +8,7 @@ import path from "path";
 //const models = require("../models/Model");
 
 const SUCCESS_CODE = 200;
-const ERROR_CODE = 500;
+const ERROR_CODE = 409;
 const NOFOUND_CODE = 500;
 const PARTIAL_SUCCESS_CODE = 207;
 
@@ -178,7 +178,7 @@ async function update(model, id, data, files) {
         }
       });
     }
-    console.log("MODELO:", model,"ID:",id,"Data:",data);
+    console.log("MODELO:", model, "ID:", id, "Data:", data);
     const res = await models[model].findByIdAndUpdate(id, data, { new: true });
 
     if (!res) {
