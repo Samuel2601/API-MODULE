@@ -936,16 +936,21 @@ const RedesDeApoyoSchema = new Schema({
   mejoraPlus: { type: String },
 });
 
-const RegistroSchema = new Schema({
-  informacionRegistro: InformacionRegistroSchema,
-  informacionPersonal: InformacionPersonalSchema,
-  informacionUbicacion: InformacionUbicacionSchema,
-  salud: SaludSchema,
-  vivienda: ViviendaSchema,
-  mediosDeVida: MediosDeVidaSchema,
-  redesDeApoyo: RedesDeApoyoSchema,
-  familiaList: [],
-});
+const RegistroSchema = new Schema(
+  {
+    informacionRegistro: InformacionRegistroSchema,
+    informacionPersonal: InformacionPersonalSchema,
+    informacionUbicacion: InformacionUbicacionSchema,
+    salud: SaludSchema,
+    vivienda: ViviendaSchema,
+    mediosDeVida: MediosDeVidaSchema,
+    redesDeApoyo: RedesDeApoyoSchema,
+    familiaList: [],
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Si deseas que la ubicación completa sea única
 RegistroSchema.index(
