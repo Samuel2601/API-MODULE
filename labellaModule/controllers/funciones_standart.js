@@ -6,7 +6,7 @@ import {
 import { models } from "../models/Modelold.js";
 import path from "path";
 //const models = require("../models/Model");
-
+import "../../userModule/models/exporSchema.js";
 const SUCCESS_CODE = 200;
 const ERROR_CODE = 409;
 const NOFOUND_CODE = 500;
@@ -24,19 +24,12 @@ function cloneResponse() {
 }
 
 // List function
-/*  userPopulateFields.length > 0
-        ? userPopulateFields
-        : Object.keys(modelSchema).filter(
-            (field) =>
-              modelSchema[field].options && modelSchema[field].options.ref
-          );*/
-//console.log(populateFields, filter);
-//const modelSchema = models[model].schema.paths;
 async function list(model, params, userPopulateFields = []) {
   let response = cloneResponse();
   try {
-    const { populate, ...filterParams } = params;
+    const { populate, select, ...filterParams } = params;
     console.log("Populate: ", populate);
+    console.log("Select: ", select);
     let aux = { ...filterParams };
     console.log("AUX Filtro: ", aux);
     const filter = criterioFormat(models[model], aux);
@@ -45,8 +38,14 @@ async function list(model, params, userPopulateFields = []) {
     // Obtener los campos a populados
     const populateFields = getPopulateFields(models[model], userPopulateFields);
 
-    // Crear la consulta con populate si es necesario
+    // Crear la consulta con populate y select si es necesario
     let query = models[model].find(filter).sort({ createdAt: -1 });
+
+    // Aplicar los campos de selección
+    if (select) {
+      query = query.select(select.split(",").join(" "));
+    }
+
     if (populateFields) {
       populateFields.forEach((field) => {
         query = query.populate(field);
@@ -54,7 +53,6 @@ async function list(model, params, userPopulateFields = []) {
     }
 
     const data = await query;
-    //console.log(data[0]);
     response.status = SUCCESS_CODE;
     response.data = data.length > 0 ? data : [];
     response.message = "Data retrieved successfully";

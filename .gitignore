@@ -3,4 +3,5 @@ node_modules/
 database/credentials.json
 uploads/
 swaggerRoutes/labellaModule/
+
 !uploads/default.jpg

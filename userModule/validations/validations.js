@@ -118,18 +118,49 @@ function isFieldType(model, field, type) {
 }
 export function getPopulateFields(model, userPopulateFields) {
   const modelSchema = model.schema.paths;
-  const allPopulateFields = Object.keys(modelSchema).filter(
-    (field) => modelSchema[field].options && modelSchema[field].options.ref
-  );
-  console.log("Todos los populates",allPopulateFields);
-  // Si se manda 'populate all', retornar todos los campos que tienen referencia
-  if (userPopulateFields.includes('all')) {
+
+  // Función para obtener campos con referencias (`ref`) en un conjunto de paths
+  const getRefFields = (schemaPaths, parentField = "") =>
+    Object.keys(schemaPaths)
+      .filter((field) => {
+        const fieldOptions = schemaPaths[field].options;
+        return fieldOptions && fieldOptions.ref;
+      })
+      .map((field) => (parentField ? `${parentField}.${field}` : field));
+
+  // Detectar campos referenciados en el nivel principal
+  const topLevelPopulateFields = getRefFields(modelSchema);
+
+  // Detectar campos referenciados en subdocumentos
+  const subDocPopulateFields = Object.keys(modelSchema)
+    .filter((field) => modelSchema[field].instance === "Embedded") // Filtra subdocumentos
+    .flatMap((field) => {
+      const subSchemaPaths = modelSchema[field].schema.paths;
+      return getRefFields(subSchemaPaths, field);
+    });
+
+  // Combinar todos los campos de referencias encontrados
+  const allPopulateFields = [
+    ...topLevelPopulateFields,
+    ...subDocPopulateFields,
+  ];
+
+  console.log("Todos los campos de referencia (populate):", allPopulateFields);
+
+  // Si el usuario especifica "all", devolver todos los campos con referencia
+  if (userPopulateFields.includes("all")) {
     return allPopulateFields;
   }
 
-  // Caso contrario, retornar los campos especificados por el usuario
-  return userPopulateFields;
-};
+  // Validar que los campos enviados por el usuario existen en las referencias disponibles
+  const validUserFields = userPopulateFields.filter((field) =>
+    allPopulateFields.includes(field)
+  );
+
+  console.log("Campos solicitados válidos para populate:", validUserFields);
+
+  return validUserFields;
+}
 
 export function criterioFormat(model, params) {
   const filter = { ...params };
@@ -295,9 +326,7 @@ export const putpermisoValidations = [
     .notEmpty()
     .isString()
     .withMessage("El método debe ser una cadena de texto."),
-  body("user")
-    .isArray()
-    .withMessage("Permisos debe ser un array."),
+  body("user").isArray().withMessage("Permisos debe ser un array."),
   body("user.*").isMongoId().withMessage("Cada permiso debe ser un ID válido."),
 ];
 
@@ -308,10 +337,12 @@ export const putroleValidations = [
     .isString()
     .withMessage("El nombre debe ser una cadena de texto."),
   body("permisos").isArray().withMessage("Permisos debe ser un array."),
-  body("permisos.*").isMongoId().withMessage("Cada permiso debe ser un ID válido."),
+  body("permisos.*")
+    .isMongoId()
+    .withMessage("Cada permiso debe ser un ID válido."),
   body("orden")
     .isInt({ min: 1 })
-    .withMessage("El orden debe ser un número entero positivo.")
+    .withMessage("El orden debe ser un número entero positivo."),
 ];
 
 export const putUserValidations = [
@@ -337,11 +368,11 @@ export const putUserValidations = [
     .optional() // Permite que el campo sea opcional si no se envía
     .trim()
     .isLength({ min: 5 }),
-  body("passwordConfirmation", "Las contraseñas no coinciden...").optional(
-    { nullable: true }
-  ).custom((value, { req }) => {
-    return value === req.body.password;
-  }),
+  body("passwordConfirmation", "Las contraseñas no coinciden...")
+    .optional({ nullable: true })
+    .custom((value, { req }) => {
+      return value === req.body.password;
+    }),
   body(
     "telf",
     "El número de teléfono debe contener solo números y tener una longitud de 10 dígitos..."

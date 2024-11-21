@@ -75,7 +75,12 @@ const generateRoutes = (modelName) => {
         const populateFields = req.query.populate
           ? req.query.populate.split(",")
           : [];
-        const response = await list(modelName, req.query, populateFields);
+        const selectFields = req.query.select || ""; // Leer el parámetro `select`
+        const response = await list(
+          modelName,
+          { ...req.query, select: selectFields },
+          populateFields
+        );
         res.status(response.status).json(response);
       }
     );
