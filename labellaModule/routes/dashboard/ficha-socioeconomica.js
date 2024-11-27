@@ -38,8 +38,18 @@ rute_ficha_socioeconomica.get(
       // Línea de Tiempo por Hora
       const lineaDeTiempoHora = await models.Registro.aggregate([
         {
+          $addFields: {
+            localDate: {
+              $dateToParts: {
+                date: "$informacionRegistro.date",
+                timezone: "America/Guayaquil",
+              },
+            },
+          },
+        },
+        {
           $group: {
-            _id: { $hour: "$informacionRegistro.date" },
+            _id: "$localDate.hour", // Agrupamos por hora local
             count: { $sum: 1 },
           },
         },
