@@ -13,9 +13,20 @@ rute_ficha_socioeconomica.get(
       const porEncuestador = await models.Registro.aggregate([
         {
           $group: {
-            _id: "$informacionRegistro.encuestador",
-            count: { $sum: 1 },
+            _id: "$informacionRegistro.encuestador", // Agrupamos por el ID del encuestador
+            count: { $sum: 1 }, // Contamos los registros asociados
           },
+        },
+        {
+          $lookup: {
+            from: "users", // Nombre de la colección de encuestadores
+            localField: "_id", // Campo local que se usará para la unión
+            foreignField: "_id", // Campo en la colección relacionada
+            as: "encuestador", // Alias para los datos del encuestador
+          },
+        },
+        {
+          $unwind: "$encuestador", // Expandimos el array para convertirlo en un objeto
         },
       ]);
 
