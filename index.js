@@ -35,6 +35,7 @@ import * as passportSetupG from "./userModule/config/google.js";
 import * as passportSetupF from "./userModule/config/facebook.js";
 import router_extend from "./labellaModule/routes/router_extend.js";
 import { consultarCedula } from "./apiservices/dinardap.goc.ec/controllers/cedula.js";
+import rute_ficha_socioeconomica from "./labellaModule/routes/dashboard/ficha-socioeconomica.js";
 
 // Configuración inicial
 const secret = uuidv4();
@@ -170,6 +171,7 @@ app.use("/new", googleRoute);
 app.use("/new", facebookRoute);
 app.use("/new", contactRoute);
 app.use("/new", webhoobs);
+app.use("/new", rute_ficha_socioeconomica);
 
 // Endpoint para verificar el estado de Socket.IO
 app.get("/new/socket-status", (req, res) => {
