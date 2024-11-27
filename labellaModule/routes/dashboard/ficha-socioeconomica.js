@@ -79,33 +79,8 @@ rute_ficha_socioeconomica.get(
   async (req, res) => {
     try {
       // Recibir filtros desde la solicitud (query params o body)
-      console.log("Query", req.query);
+
       const filter = buildFilterFromSchema(req.query, models.Registro.schema);
-      console.log("filter", filter);
-      /*const { encuestador, startDate, endDate, ...restFilters } = req.query;
-
-      // Construir filtros dinámicos
-      const filter = {
-        ...restFilters, // Otros filtros proporcionados
-      };
-
-      // Filtro por encuestador si se proporciona
-      if (encuestador) {
-        filter["informacionRegistro.encuestador"] = new mongoose.Types.ObjectId(
-          encuestador
-        );
-      }
-
-      // Filtro por rango de fechas si se proporciona
-      if (startDate || endDate) {
-        filter["informacionRegistro.date"] = {};
-        if (startDate) {
-          filter["informacionRegistro.date"].$gte = new Date(startDate);
-        }
-        if (endDate) {
-          filter["informacionRegistro.date"].$lte = new Date(endDate);
-        }
-      }*/
 
       const total = await models.Registro.countDocuments(filter);
 
@@ -190,34 +165,7 @@ rute_ficha_socioeconomica.get(
   "/api/registros/informacionPersonal",
   async (req, res) => {
     try {
-      const { entrevistado, dni, minEdad, maxEdad, nacionalidad } = req.query;
-      console.log("Query", req.query);
       const filter = buildFilterFromSchema(req.query, models.Registro.schema);
-      console.log("filter", filter);
-      // Filtros dinámicos
-      /*const filter = {};
-
-      if (entrevistado) {
-        filter["informacionPersonal.entrevistado"] = new RegExp(
-          entrevistado,
-          "i" // Búsqueda insensible a mayúsculas/minúsculas
-        );
-      }
-      if (dni) {
-        filter["informacionPersonal.dni"] = dni;
-      }
-      if (minEdad || maxEdad) {
-        filter["informacionPersonal.edad"] = {};
-        if (minEdad) {
-          filter["informacionPersonal.edad"].$gte = parseInt(minEdad, 10);
-        }
-        if (maxEdad) {
-          filter["informacionPersonal.edad"].$lte = parseInt(maxEdad, 10);
-        }
-      }
-      if (nacionalidad) {
-        filter["informacionPersonal.nacionalidad"] = nacionalidad;
-      }*/
 
       // Total de registros
       const total = await models.Registro.countDocuments(filter);
@@ -234,6 +182,34 @@ rute_ficha_socioeconomica.get(
         { $sort: { count: -1 } }, // Ordenar por cantidad en orden descendente
       ]);
 
+      const nacionalidadPercentage = await models.Registro.aggregate([
+        { $match: filter }, // Aplicar los filtros dinámicos
+        {
+          $group: {
+            _id: "$informacionPersonal.nacionalidad",
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            nacionalidad: "$_id",
+            percentage: {
+              $multiply: [{ $divide: ["$count", total] }, 100],
+            },
+          },
+        },
+      ]);
+
+      const promedioEdad = await models.Registro.aggregate([
+        { $match: filter },
+        {
+          $group: {
+            _id: null,
+            promedioEdad: { $avg: "$informacionPersonal.edad" },
+          },
+        },
+      ]);
+
       // Distribución por Edad
       const distribucionEdad = await models.Registro.aggregate([
         { $match: filter },
@@ -247,6 +223,51 @@ rute_ficha_socioeconomica.get(
         },
       ]);
 
+      const rangoEdadCount = await models.Registro.aggregate([
+        { $match: filter }, // Aplicar los filtros dinámicos
+        {
+          $project: {
+            rangoEdad: {
+              $cond: [
+                { $lt: ["$informacionPersonal.edad", 18] },
+                "Menor de edad", // Edad menor de 18
+                {
+                  $cond: [
+                    { $lt: ["$informacionPersonal.edad", 30] },
+                    "18-29", // Edad entre 18 y 29
+                    {
+                      $cond: [
+                        { $lt: ["$informacionPersonal.edad", 40] },
+                        "30-39", // Edad entre 30 y 39
+                        {
+                          $cond: [
+                            { $lt: ["$informacionPersonal.edad", 50] },
+                            "40-49", // Edad entre 40 y 49
+                            "50+", // Edad de 50 en adelante
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+        { $group: { _id: "$rangoEdad", count: { $sum: 1 } } },
+      ]);
+
+      const ageStats = await models.Registro.aggregate([
+        { $match: filter }, // Aplicar los filtros dinámicos
+        {
+          $group: {
+            _id: null,
+            minEdad: { $min: "$informacionPersonal.edad" },
+            maxEdad: { $max: "$informacionPersonal.edad" },
+          },
+        },
+      ]);
+
       // Contactos Telefónicos Únicos
       const telefonosUnicos = await models.Registro.distinct(
         "informacionPersonal.phone",
@@ -256,8 +277,171 @@ rute_ficha_socioeconomica.get(
       res.json({
         total,
         porNacionalidad,
+        nacionalidadPercentage,
         distribucionEdad,
         telefonosUnicos,
+        promedioEdad,
+        rangoEdadCount,
+        ageStats,
+      });
+    } catch (err) {
+      console.error(err);
+      res
+        .status(500)
+        .json({ error: "Error al obtener estadísticas detalladas." });
+    }
+  }
+);
+
+rute_ficha_socioeconomica.get(
+  "/api/registros/InformacionUbicacion",
+  async (req, res) => {
+    try {
+      const filter = buildFilterFromSchema(req.query, models.Registro.schema);
+
+      // Total de registros
+      const total = await models.Registro.countDocuments(filter);
+
+      const promedioPosesion = await models.Registro.aggregate([
+        {
+          $project: {
+            posesionTiempoEnAños: {
+              $cond: {
+                if: {
+                  $eq: ["$informacionUbicacion.posesionTimeUnit", "days"],
+                },
+                then: {
+                  $divide: ["$informacionUbicacion.posesionTimeNumber", 365],
+                },
+                else: {
+                  $cond: {
+                    if: {
+                      $eq: ["$informacionUbicacion.posesionTimeUnit", "months"],
+                    },
+                    then: {
+                      $divide: ["$informacionUbicacion.posesionTimeNumber", 12],
+                    },
+                    else: "$informacionUbicacion.posesionTimeNumber", // Ya está en años
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            promedioPosesion: {
+              $avg: "$posesionTiempoEnAños",
+            },
+          },
+        },
+      ]);
+      const distribucionPorSector = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: "$informacionUbicacion.sector",
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1 } },
+      ]);
+
+      const promedioFamiliasPorLote = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: null,
+            promedioFamilias: { $avg: "$informacionUbicacion.familyCount" },
+          },
+        },
+      ]);
+
+      const promedioPersonasPorLote = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: null,
+            promedioPersonas: { $avg: "$informacionUbicacion.peopleCount" },
+          },
+        },
+      ]);
+
+      const distribucionPorEstadoCasa = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: "$informacionUbicacion.houseState",
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1 } },
+      ]);
+
+      const promedioPersonasPorSector = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: "$informacionUbicacion.sector",
+            promedioPersonas: { $avg: "$informacionUbicacion.peopleCount" },
+          },
+        },
+      ]);
+
+      const totalPersonasPorBarrio = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: "$informacionUbicacion.barrio",
+            totalPersonas: { $sum: "$informacionUbicacion.peopleCount" },
+          },
+        },
+      ]);
+
+      const totalLotesPorSector = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: "$informacionUbicacion.sector",
+            totalLotes: { $sum: 1 },
+          },
+        },
+      ]);
+
+      const totalFamiliasPorSector = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: "$informacionUbicacion.sector",
+            totalFamilias: { $sum: "$informacionUbicacion.familyCount" },
+          },
+        },
+      ]);
+
+      const totalFamiliasPorBarrio = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: "$informacionUbicacion.barrio",
+            totalFamilias: { $sum: "$informacionUbicacion.familyCount" },
+          },
+        },
+      ]);
+
+      const totalFamiliasPorLote = await models.Registro.aggregate([
+        {
+          $group: {
+            _id: "$informacionUbicacion.lotenumero", // O el campo que utilices para identificar el lote
+            totalFamilias: { $sum: "$informacionUbicacion.familyCount" },
+          },
+        },
+      ]);
+
+      res.json({
+        total,
+        promedioPosesion,
+        distribucionPorSector,
+        promedioFamiliasPorLote,
+        promedioPersonasPorLote,
+        distribucionPorEstadoCasa,
+        promedioPersonasPorSector,
+        totalPersonasPorBarrio,
+        totalLotesPorSector,
+        totalFamiliasPorSector,
+        totalFamiliasPorBarrio,
+        totalFamiliasPorLote,
       });
     } catch (err) {
       console.error(err);
