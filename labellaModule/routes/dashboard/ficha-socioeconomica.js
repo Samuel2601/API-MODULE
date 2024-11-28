@@ -665,4 +665,186 @@ rute_ficha_socioeconomica.get("/api/registros/salud", async (req, res) => {
   }
 });
 
+rute_ficha_socioeconomica.get("/api/registros/vivienda", async (req, res) => {
+  try {
+    const filter = buildFilterFromSchema(req.query, models.Registro.schema);
+
+    // Total de registros
+    const total = await models.Registro.countDocuments(filter);
+
+    const distribucionEstructura = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: "$vivienda.estructuraVivienda",
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const promedioPisosYHabitaciones = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: null,
+          promedioPisos: { $avg: "$vivienda.numPisos" },
+          promedioHabitaciones: { $avg: "$vivienda.numHabitaciones" },
+        },
+      },
+    ]);
+
+    const accesoServicios = await models.Registro.aggregate([
+      {
+        $unwind: "$vivienda.serviciosBasicos", // Dividimos los servicios en registros individuales
+      },
+      {
+        $group: {
+          _id: "$vivienda.serviciosBasicos",
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const distribucionTenencia = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: "$vivienda.tenenciaVivienda",
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const documentosPropiedad = await models.Registro.aggregate([
+      {
+        $unwind: "$vivienda.documentosPropiedad",
+      },
+      {
+        $group: {
+          _id: "$vivienda.documentosPropiedad",
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const distribucionAlumbrado = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: "$vivienda.tipoAlumbrado",
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const distribucionAgua = await models.Registro.aggregate([
+      {
+        $unwind: "$vivienda.abastecimientoAgua",
+      },
+      {
+        $group: {
+          _id: "$vivienda.abastecimientoAgua",
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const bienesElectrodomesticos = await models.Registro.aggregate([
+      {
+        $unwind: "$vivienda.bienesServiciosElectrodomesticos",
+      },
+      {
+        $group: {
+          _id: "$vivienda.bienesServiciosElectrodomesticos",
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const zonasRiesgo = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: "$vivienda.zonaRiesgo",
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const serviciosPorFecha = await models.Registro.aggregate([
+      {
+        $unwind: "$vivienda.serviciosBasicos",
+      },
+      {
+        $group: {
+          _id: {
+            servicio: "$vivienda.serviciosBasicos",
+            año: { $year: "$createdAt" },
+          },
+          total: { $sum: 1 },
+        },
+      },
+    ]);
+
+    res.json({
+      total,
+      distribucionEstructura,
+      promedioPisosYHabitaciones,
+      accesoServicios,
+      distribucionTenencia,
+      documentosPropiedad,
+      distribucionAlumbrado,
+      distribucionAgua,
+      bienesElectrodomesticos,
+      zonasRiesgo,
+      serviciosPorFecha,
+    });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Error al obtener estadísticas detalladas." });
+  }
+});
+
+// Endpoint para obtener valores únicos
+rute_ficha_socioeconomica.get(
+  "/api/registros/unique-values",
+  async (req, res) => {
+    try {
+      const uniqueValues = await models.Registro.aggregate([
+        {
+          $facet: {
+            sectores: [{ $group: { _id: "$informacionUbicacion.sector" } }],
+            barrios: [{ $group: { _id: "$informacionUbicacion.barrio" } }],
+            estadosSalud: [{ $group: { _id: "$salud.estadoSalud" } }],
+            causasSalud: [
+              { $unwind: "$salud.causasSalud" },
+              { $group: { _id: "$salud.causasSalud" } },
+            ],
+            estructuraVivienda: [
+              { $group: { _id: "$vivienda.estructuraVivienda" } },
+            ],
+            tenenciaVivienda: [
+              { $group: { _id: "$vivienda.tenenciaVivienda" } },
+            ],
+          },
+        },
+      ]);
+
+      const formattedResponse = {
+        sectores: uniqueValues[0]?.sectores.map((item) => item._id),
+        barrios: uniqueValues[0]?.barrios.map((item) => item._id),
+        estadosSalud: uniqueValues[0]?.estadosSalud.map((item) => item._id),
+        causasSalud: uniqueValues[0]?.causasSalud.map((item) => item._id),
+        estructuraVivienda: uniqueValues[0]?.estructuraVivienda.map(
+          (item) => item._id
+        ),
+        tenenciaVivienda: uniqueValues[0]?.tenenciaVivienda.map(
+          (item) => item._id
+        ),
+      };
+
+      res.status(200).json(formattedResponse);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error al obtener valores únicos" });
+    }
+  }
+);
 export default rute_ficha_socioeconomica;
