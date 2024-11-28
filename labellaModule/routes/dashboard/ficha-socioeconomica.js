@@ -810,12 +810,23 @@ rute_ficha_socioeconomica.get(
       const uniqueValues = await models.Registro.aggregate([
         {
           $facet: {
+            encuestador: [
+              { $group: { _id: "$informacionRegistro.encuestador" } },
+            ],
             sectores: [{ $group: { _id: "$informacionUbicacion.sector" } }],
             barrios: [{ $group: { _id: "$informacionUbicacion.barrio" } }],
+            houseState: [
+              { $unwind: "$informacionUbicacion.houseState" },
+              { $group: { _id: "$informacionUbicacion.houseState" } },
+            ],
             estadosSalud: [{ $group: { _id: "$salud.estadoSalud" } }],
             causasSalud: [
               { $unwind: "$salud.causasSalud" },
               { $group: { _id: "$salud.causasSalud" } },
+            ],
+            conexionHigienico: [
+              { $unwind: "$salud.conexionHigienico" },
+              { $group: { _id: "$salud.conexionHigienico" } },
             ],
             estructuraVivienda: [
               { $group: { _id: "$vivienda.estructuraVivienda" } },
@@ -828,10 +839,15 @@ rute_ficha_socioeconomica.get(
       ]);
 
       const formattedResponse = {
+        encuestador: uniqueValues[0]?.encuestador.map((item) => item._id),
         sectores: uniqueValues[0]?.sectores.map((item) => item._id),
         barrios: uniqueValues[0]?.barrios.map((item) => item._id),
+        houseState: uniqueValues[0]?.houseState.map((item) => item._id),
         estadosSalud: uniqueValues[0]?.estadosSalud.map((item) => item._id),
         causasSalud: uniqueValues[0]?.causasSalud.map((item) => item._id),
+        conexionHigienico: uniqueValues[0]?.conexionHigienico.map(
+          (item) => item._id
+        ),
         estructuraVivienda: uniqueValues[0]?.estructuraVivienda.map(
           (item) => item._id
         ),
