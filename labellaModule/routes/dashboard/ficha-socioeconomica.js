@@ -294,7 +294,7 @@ rute_ficha_socioeconomica.get(
 );
 
 rute_ficha_socioeconomica.get(
-  "/api/registros/InformacionUbicacion",
+  "/api/registros/informacionUbicacion",
   async (req, res) => {
     try {
       const filter = buildFilterFromSchema(req.query, models.Registro.schema);
@@ -431,7 +431,7 @@ rute_ficha_socioeconomica.get(
 
       res.json({
         total,
-        promedioPosesion,
+        promedioPosesion: [{ ...promedioPosesion["0"], timeUnit: "years" }],
         distribucionPorSector,
         promedioFamiliasPorLote,
         promedioPersonasPorLote,
@@ -451,5 +451,218 @@ rute_ficha_socioeconomica.get(
     }
   }
 );
+
+rute_ficha_socioeconomica.get("/api/registros/salud", async (req, res) => {
+  try {
+    const filter = buildFilterFromSchema(req.query, models.Registro.schema);
+
+    // Total de registros
+    const total = await models.Registro.countDocuments(filter);
+
+    const distribucionEstadoSalud = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: "$salud.estadoSalud",
+          cantidad: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const causasFrecuentes = await models.Registro.aggregate([
+      { $unwind: "$salud.causasSalud" },
+      {
+        $group: {
+          _id: "$salud.causasSalud",
+          frecuencia: { $sum: 1 },
+        },
+      },
+      { $sort: { frecuencia: -1 } }, // Ordenar de más a menos frecuente
+    ]);
+
+    const saludPorConexionHigienica = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: "$salud.conexionHigienico", // Agrupamos por tipo de conexión higiénica
+          saludables: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$salud.estadoSalud", "FATAL"] }, // No es fatal
+                    { $ne: ["$salud.estadoSalud", "MALO"] }, // No es malo
+                  ],
+                },
+                1, // Si cumple, sumamos 1 (saludable)
+                0, // Si no, sumamos 0
+              ],
+            },
+          },
+          enfermos: {
+            $sum: {
+              $cond: [
+                {
+                  $or: [
+                    { $eq: ["$salud.estadoSalud", "FATAL"] }, // Es fatal
+                    { $eq: ["$salud.estadoSalud", "MALO"] }, // Es malo
+                  ],
+                },
+                1, // Si cumple, sumamos 1 (enfermo)
+                0, // Si no, sumamos 0
+              ],
+            },
+          },
+          total: { $sum: 1 }, // Contamos todos los registros
+        },
+      },
+    ]);
+
+    const hogaresSinConexion = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: "$salud.conexionHigienico",
+          cantidad: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          porcentaje: {
+            $multiply: [{ $divide: ["$cantidad", total] }, 100],
+          },
+        },
+      },
+    ]);
+
+    const causasPorConexion = await models.Registro.aggregate([
+      { $unwind: "$salud.causasSalud" },
+      {
+        $group: {
+          _id: {
+            conexion: "$salud.conexionHigienico",
+            causa: "$salud.causasSalud",
+          },
+          cantidad: { $sum: 1 },
+        },
+      },
+      { $sort: { cantidad: -1 } },
+    ]);
+
+    const evolucionEstadoSalud = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: {
+            estadoSalud: "$salud.estadoSalud",
+            mes: { $month: "$createdAt" },
+            anio: { $year: "$createdAt" },
+          },
+          cantidad: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          "_id.anio": 1,
+          "_id.mes": 1,
+        },
+      },
+    ]);
+
+    const causasPorAnio = await models.Registro.aggregate([
+      { $unwind: "$salud.causasSalud" },
+      {
+        $group: {
+          _id: {
+            causa: "$salud.causasSalud",
+            anio: { $year: "$createdAt" },
+          },
+          cantidad: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          "_id.anio": 1,
+          cantidad: -1,
+        },
+      },
+    ]);
+
+    const evolucionConexionHigienica = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: {
+            conexion: "$salud.conexionHigienico",
+            mes: { $month: "$createdAt" },
+            anio: { $year: "$createdAt" },
+          },
+          cantidad: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          "_id.anio": 1,
+          "_id.mes": 1,
+        },
+      },
+    ]);
+
+    const causasYEstadoPorTiempo = await models.Registro.aggregate([
+      { $unwind: "$salud.causasSalud" },
+      {
+        $group: {
+          _id: {
+            causa: "$salud.causasSalud",
+            estadoSalud: "$salud.estadoSalud",
+            mes: { $month: "$createdAt" },
+            anio: { $year: "$createdAt" },
+          },
+          cantidad: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          "_id.anio": 1,
+          "_id.mes": 1,
+          cantidad: -1,
+        },
+      },
+    ]);
+
+    const registrosPorTiempo = await models.Registro.aggregate([
+      {
+        $group: {
+          _id: {
+            mes: { $month: "$createdAt" },
+            anio: { $year: "$createdAt" },
+          },
+          totalRegistros: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          "_id.anio": 1,
+          "_id.mes": 1,
+        },
+      },
+    ]);
+
+    res.json({
+      total,
+      distribucionEstadoSalud,
+      causasFrecuentes,
+      saludPorConexionHigienica,
+      hogaresSinConexion,
+      causasPorConexion,
+      evolucionEstadoSalud,
+      causasPorAnio,
+      evolucionConexionHigienica,
+      causasYEstadoPorTiempo,
+      registrosPorTiempo,
+    });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Error al obtener estadísticas detalladas." });
+  }
+});
 
 export default rute_ficha_socioeconomica;
