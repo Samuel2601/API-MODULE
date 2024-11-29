@@ -153,7 +153,35 @@ rute_ficha_socioeconomica.get(
         { $sort: { _id: 1 } },
       ]);
 
-      res.json({ total, porEncuestador, lineaDeTiempo, lineaDeTiempoHora });
+      // Línea de Tiempo por Hora
+      const lineaDeTiempoHoraConectividad = await models.Registro.aggregate([
+        { $match: filter },
+        {
+          $addFields: {
+            localDate: {
+              $dateToParts: {
+                date: "$createdAt",
+                timezone: "America/Guayaquil",
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$localDate.hour",
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]);
+
+      res.json({
+        total,
+        porEncuestador,
+        lineaDeTiempo,
+        lineaDeTiempoHora,
+        lineaDeTiempoHoraConectividad,
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Error al obtener estadísticas." });
