@@ -325,151 +325,187 @@ rute_ficha_socioeconomica.get(
   "/api/registros/informacionUbicacion",
   async (req, res) => {
     try {
+      // Construir el filtro para los registros
       const filter = buildFilterFromSchema(req.query, models.Registro.schema);
 
       // Total de registros
-      const total = await models.Registro.countDocuments(filter);
-
-      const promedioPosesion = await models.Registro.aggregate([
+      const total = await models.Registro.countDocuments(filter).allowDiskUse(
+        true
+      );
+      const estadisticas = await models.Registro.aggregate([
         {
-          $project: {
-            posesionTiempoEnAños: {
-              $cond: {
-                if: {
-                  $eq: ["$informacionUbicacion.posesionTimeUnit", "days"],
-                },
-                then: {
-                  $divide: ["$informacionUbicacion.posesionTimeNumber", 365],
-                },
-                else: {
-                  $cond: {
-                    if: {
-                      $eq: ["$informacionUbicacion.posesionTimeUnit", "months"],
+          $facet: {
+            promedioPosesion: [
+              {
+                $project: {
+                  posesionTiempoEnAños: {
+                    $cond: {
+                      if: {
+                        $eq: ["$informacionUbicacion.posesionTimeUnit", "days"],
+                      },
+                      then: {
+                        $divide: [
+                          "$informacionUbicacion.posesionTimeNumber",
+                          365,
+                        ],
+                      },
+                      else: {
+                        $cond: {
+                          if: {
+                            $eq: [
+                              "$informacionUbicacion.posesionTimeUnit",
+                              "months",
+                            ],
+                          },
+                          then: {
+                            $divide: [
+                              "$informacionUbicacion.posesionTimeNumber",
+                              12,
+                            ],
+                          },
+                          else: "$informacionUbicacion.posesionTimeNumber",
+                        },
+                      },
                     },
-                    then: {
-                      $divide: ["$informacionUbicacion.posesionTimeNumber", 12],
-                    },
-                    else: "$informacionUbicacion.posesionTimeNumber", // Ya está en años
                   },
                 },
               },
-            },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            promedioPosesion: {
-              $avg: "$posesionTiempoEnAños",
-            },
-          },
-        },
-      ]);
-      const distribucionPorSector = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: "$informacionUbicacion.sector",
-            count: { $sum: 1 },
-          },
-        },
-        { $sort: { count: -1 } },
-      ]);
+              {
+                $group: {
+                  _id: null,
+                  promedioPosesion: { $avg: "$posesionTiempoEnAños" },
+                },
+              },
+            ],
+            promedioFamiliasPorLote: [
+              {
+                $group: {
+                  _id: null,
+                  promedioFamilias: {
+                    $avg: "$informacionUbicacion.familyCount",
+                  },
+                },
+              },
+            ],
+            promedioPersonasPorLote: [
+              {
+                $group: {
+                  _id: null,
+                  promedioPersonas: {
+                    $avg: "$informacionUbicacion.peopleCount",
+                  },
+                },
+              },
+            ],
+            distribucionPorSector: [
+              {
+                $group: {
+                  _id: "$informacionUbicacion.sector",
+                  count: { $sum: 1 },
+                },
+              },
+              { $sort: { count: -1 } },
+            ],
+            distribucionPorBarrio: [
+              {
+                $group: {
+                  _id: "$informacionUbicacion.barrio",
+                  count: { $sum: 1 },
+                },
+              },
+              { $sort: { count: -1 } },
+            ],
+            distribucionPorManzana: [
+              {
+                $group: {
+                  _id: "$informacionUbicacion.manzana",
+                  count: { $sum: 1 },
+                },
+              },
+              { $sort: { count: -1 } },
+            ],
+            distribucionPorEstadoCasa: [
+              {
+                $group: {
+                  _id: "$informacionUbicacion.houseState",
+                  count: { $sum: 1 },
+                },
+              },
+              { $sort: { count: -1 } },
+            ],
+            totalPersonasPorSector: [
+              {
+                $group: {
+                  _id: "$informacionUbicacion.sector",
+                  totalPersonas: { $sum: "$informacionUbicacion.peopleCount" },
+                },
+              },
+            ],
+            totalFamiliasPorSector: [
+              {
+                $group: {
+                  _id: "$informacionUbicacion.sector",
+                  totalFamilias: { $sum: "$informacionUbicacion.familyCount" },
+                },
+              },
+            ],
 
-      const promedioFamiliasPorLote = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: null,
-            promedioFamilias: { $avg: "$informacionUbicacion.familyCount" },
+            totalPersonasPorLote: [
+              {
+                $group: {
+                  _id: "$informacionUbicacion.lotenumero",
+                  totalPersonas: { $sum: "$informacionUbicacion.peopleCount" },
+                },
+              },
+            ],
+            totalFamiliasPorLote: [
+              {
+                $group: {
+                  _id: "$informacionUbicacion.lotenumero",
+                  totalFamilias: { $sum: "$informacionUbicacion.familyCount" },
+                },
+              },
+            ],
           },
         },
-      ]);
-
-      const promedioPersonasPorLote = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: null,
-            promedioPersonas: { $avg: "$informacionUbicacion.peopleCount" },
-          },
-        },
-      ]);
-
-      const distribucionPorEstadoCasa = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: "$informacionUbicacion.houseState",
-            count: { $sum: 1 },
-          },
-        },
-        { $sort: { count: -1 } },
-      ]);
-
-      const promedioPersonasPorSector = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: "$informacionUbicacion.sector",
-            promedioPersonas: { $avg: "$informacionUbicacion.peopleCount" },
-          },
-        },
-      ]);
-
-      const totalPersonasPorBarrio = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: "$informacionUbicacion.barrio",
-            totalPersonas: { $sum: "$informacionUbicacion.peopleCount" },
-          },
-        },
-      ]);
-
-      const totalLotesPorSector = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: "$informacionUbicacion.sector",
-            totalLotes: { $sum: 1 },
-          },
-        },
-      ]);
-
-      const totalFamiliasPorSector = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: "$informacionUbicacion.sector",
-            totalFamilias: { $sum: "$informacionUbicacion.familyCount" },
-          },
-        },
-      ]);
-
-      const totalFamiliasPorBarrio = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: "$informacionUbicacion.barrio",
-            totalFamilias: { $sum: "$informacionUbicacion.familyCount" },
-          },
-        },
-      ]);
-
-      const totalFamiliasPorLote = await models.Registro.aggregate([
-        {
-          $group: {
-            _id: "$informacionUbicacion.lotenumero", // O el campo que utilices para identificar el lote
-            totalFamilias: { $sum: "$informacionUbicacion.familyCount" },
-          },
-        },
-      ]);
-
+      ]).allowDiskUse(true);
+      
+      estadisticas[0].promedioPosesion = {
+        promedioPosesion: estadisticas[0].promedioPosesion[0].promedioPosesion,
+        timeUnit: "years",
+      };
+      estadisticas[0].promedioFamiliasPorLote =
+        estadisticas[0].promedioFamiliasPorLote[0].promedioFamilias;
+      estadisticas[0].promedioPersonasPorLote =
+        estadisticas[0].promedioPersonasPorLote[0].promedioPersonas;
+      estadisticas[0].distribucionPorSector.forEach((item) => {
+        item.percentage = item.count*100 / total;
+      });
+      estadisticas[0].distribucionPorBarrio.forEach((item) => {
+        item.percentage = item.count*100 / total;
+      });
+      estadisticas[0].distribucionPorManzana.forEach((item) => {
+        item.percentage = item.count*100 / total;
+      });
+      estadisticas[0].distribucionPorEstadoCasa.forEach((item) => {
+        item.percentage = item.count*100 / total;
+      });
+      estadisticas[0].totalPersonasPorSector.forEach((item) => {
+        item.percentage = item.totalPersonas*100 / total;
+      });
+      estadisticas[0].totalFamiliasPorSector.forEach((item) => {
+        item.percentage = item.totalFamilias*100 / total;
+      });
+      estadisticas[0].totalPersonasPorLote.forEach((item) => {
+        item.percentage = item.totalPersonas*100 / total;
+      });
+      estadisticas[0].totalFamiliasPorLote.forEach((item) => {
+        item.percentage = item.totalFamilias*100 / total;
+      });
+      // Preparar los datos de respuesta
       res.json({
         total,
-        promedioPosesion: [{ ...promedioPosesion["0"], timeUnit: "years" }],
-        distribucionPorSector,
-        promedioFamiliasPorLote,
-        promedioPersonasPorLote,
-        distribucionPorEstadoCasa,
-        promedioPersonasPorSector,
-        totalPersonasPorBarrio,
-        totalLotesPorSector,
-        totalFamiliasPorSector,
-        totalFamiliasPorBarrio,
-        totalFamiliasPorLote,
+        ...estadisticas[0],
       });
     } catch (err) {
       console.error(err);
