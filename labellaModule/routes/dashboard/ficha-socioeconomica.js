@@ -320,7 +320,13 @@ rute_ficha_socioeconomica.get(
     }
   }
 );
-
+const calcularPorcentaje = (array, key) => {
+  const totalCategoria = array.reduce((acc, item) => acc + item[key], 0);
+  array.forEach((item) => {
+    item.percentage =
+      totalCategoria > 0 ? (item[key] * 100) / totalCategoria : 0;
+  });
+};
 rute_ficha_socioeconomica.get(
   "/api/registros/informacionUbicacion",
   async (req, res) => {
@@ -469,7 +475,7 @@ rute_ficha_socioeconomica.get(
           },
         },
       ]).allowDiskUse(true);
-      
+
       estadisticas[0].promedioPosesion = {
         promedioPosesion: estadisticas[0].promedioPosesion[0].promedioPosesion,
         timeUnit: "years",
@@ -478,30 +484,21 @@ rute_ficha_socioeconomica.get(
         estadisticas[0].promedioFamiliasPorLote[0].promedioFamilias;
       estadisticas[0].promedioPersonasPorLote =
         estadisticas[0].promedioPersonasPorLote[0].promedioPersonas;
-      estadisticas[0].distribucionPorSector.forEach((item) => {
-        item.percentage = item.count*100 / total;
-      });
-      estadisticas[0].distribucionPorBarrio.forEach((item) => {
-        item.percentage = item.count*100 / total;
-      });
-      estadisticas[0].distribucionPorManzana.forEach((item) => {
-        item.percentage = item.count*100 / total;
-      });
-      estadisticas[0].distribucionPorEstadoCasa.forEach((item) => {
-        item.percentage = item.count*100 / total;
-      });
-      estadisticas[0].totalPersonasPorSector.forEach((item) => {
-        item.percentage = item.totalPersonas*100 / total;
-      });
-      estadisticas[0].totalFamiliasPorSector.forEach((item) => {
-        item.percentage = item.totalFamilias*100 / total;
-      });
-      estadisticas[0].totalPersonasPorLote.forEach((item) => {
-        item.percentage = item.totalPersonas*100 / total;
-      });
-      estadisticas[0].totalFamiliasPorLote.forEach((item) => {
-        item.percentage = item.totalFamilias*100 / total;
-      });
+      // Aplicar a cada categoría
+      calcularPorcentaje(estadisticas[0].distribucionPorSector, "count");
+      calcularPorcentaje(estadisticas[0].distribucionPorBarrio, "count");
+      calcularPorcentaje(estadisticas[0].distribucionPorManzana, "count");
+      calcularPorcentaje(estadisticas[0].distribucionPorEstadoCasa, "count");
+      calcularPorcentaje(
+        estadisticas[0].totalPersonasPorSector,
+        "totalPersonas"
+      );
+      calcularPorcentaje(
+        estadisticas[0].totalFamiliasPorSector,
+        "totalFamilias"
+      );
+      calcularPorcentaje(estadisticas[0].totalPersonasPorLote, "totalPersonas");
+      calcularPorcentaje(estadisticas[0].totalFamiliasPorLote, "totalFamilias");
       // Preparar los datos de respuesta
       res.json({
         total,
