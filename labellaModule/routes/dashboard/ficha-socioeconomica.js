@@ -73,6 +73,25 @@ const buildFilterFromSchema = (query, schema) => {
   return filter;
 };
 
+rute_ficha_socioeconomica.get("/api/registros/filter", async (req, res) => {
+  try {
+    const filter = buildFilterFromSchema(req.query, models.Registro.schema);
+
+    // Total de registros
+    const total = await models.Registro.countDocuments();
+    const total_filtered = await models.Registro.countDocuments(filter);
+    res.json({
+      total,
+      total_filtered,
+    });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Error al obtener estadísticas detalladas." });
+  }
+});
+
 // Obtener estadísticas
 rute_ficha_socioeconomica.get(
   "/api/registros/informacionRegistro",
@@ -82,106 +101,129 @@ rute_ficha_socioeconomica.get(
 
       const filter = buildFilterFromSchema(req.query, models.Registro.schema);
 
-      const total = await models.Registro.countDocuments(filter);
+      // Ejecutar el pipeline de agregación
+      const resultado = await models.Registro.aggregate([
+        { $match: filter }, // Filtro dinámico
+        {
+          $facet: {
+            total: [{ $count: "total" }], // Total de registros
 
-      // Registros por Encuestador
-      const porEncuestador = await models.Registro.aggregate([
-        { $match: filter }, // Aplicar los filtros dinámicos
-        {
-          $group: {
-            _id: "$informacionRegistro.encuestador",
-            count: { $sum: 1 },
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "_id",
-            foreignField: "_id",
-            as: "encuestador",
-            pipeline: [
+            // Registros por Encuestador
+            porEncuestador: [
               {
-                $project: {
-                  _id: 1,
-                  name: 1,
-                  last_name: 1,
-                  email: 1,
+                $group: {
+                  _id: "$informacionRegistro.encuestador",
+                  count: { $sum: 1 },
                 },
               },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "_id",
+                  foreignField: "_id",
+                  as: "encuestador",
+                },
+              },
+              { $unwind: "$encuestador" },
+              {
+                $project: {
+                  _id: 0,
+                  encuestador: {
+                    name: "$encuestador.name",
+                    last_name: "$encuestador.last_name",
+                    email: "$encuestador.email",
+                  },
+                  count: 1,
+                },
+              },
+              { $sort: { count: -1 } }, // Ordenar por cantidad, descendente
+            ],
+
+            // Línea de Tiempo por Fecha
+            lineaDeTiempo: [
+              {
+                $group: {
+                  _id: {
+                    $dateToString: {
+                      format: "%Y-%m-%d",
+                      date: "$informacionRegistro.date",
+                    },
+                  },
+                  count: { $sum: 1 },
+                },
+              },
+              { $sort: { _id: 1 } }, // Orden cronológico
+            ],
+
+            // Línea de Tiempo por Hora
+            lineaDeTiempoHora: [
+              {
+                $addFields: {
+                  localDate: {
+                    $dateToParts: {
+                      date: "$informacionRegistro.date",
+                      timezone: "America/Guayaquil",
+                    },
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: "$localDate.hour",
+                  count: { $sum: 1 },
+                },
+              },
+              { $sort: { _id: 1 } },
+            ],
+
+            // Línea de Tiempo por Hora (Conectividad)
+            lineaDeTiempoHoraConectividad: [
+              {
+                $addFields: {
+                  localDate: {
+                    $dateToParts: {
+                      date: "$createdAt",
+                      timezone: "America/Guayaquil",
+                    },
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: "$localDate.hour",
+                  count: { $sum: 1 },
+                },
+              },
+              { $sort: { _id: 1 } },
             ],
           },
         },
-        { $unwind: "$encuestador" },
+        {
+          $project: {
+            total: { $arrayElemAt: ["$total.total", 0] }, // Extraer total
+            porEncuestador: 1,
+            lineaDeTiempo: 1,
+            lineaDeTiempoHora: 1,
+            lineaDeTiempoHoraConectividad: 1,
+          },
+        },
       ]);
 
-      // Línea de Tiempo por Fecha
-      const lineaDeTiempo = await models.Registro.aggregate([
-        { $match: filter },
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: "$informacionRegistro.date",
-              },
-            },
-            count: { $sum: 1 },
-          },
-        },
-        { $sort: { _id: 1 } },
-      ]);
+      // Calcular porcentajes de nacionalidad (opcional)
+      if (resultado[0].lineaDeTiempo) {
+        calcularPorcentaje(resultado[0].lineaDeTiempo, "count");
+      }
+      if (resultado[0].lineaDeTiempoHora) {
+        calcularPorcentaje(resultado[0].lineaDeTiempoHora, "count");
+      }
+      if (resultado[0].lineaDeTiempoHoraConectividad) {
+        calcularPorcentaje(resultado[0].lineaDeTiempoHoraConectividad, "count");
+      }
+      if (resultado[0].porEncuestador) {
+        calcularPorcentaje(resultado[0].porEncuestador, "count");
+      }
 
-      // Línea de Tiempo por Hora
-      const lineaDeTiempoHora = await models.Registro.aggregate([
-        { $match: filter },
-        {
-          $addFields: {
-            localDate: {
-              $dateToParts: {
-                date: "$informacionRegistro.date",
-                timezone: "America/Guayaquil",
-              },
-            },
-          },
-        },
-        {
-          $group: {
-            _id: "$localDate.hour",
-            count: { $sum: 1 },
-          },
-        },
-        { $sort: { _id: 1 } },
-      ]);
-
-      // Línea de Tiempo por Hora
-      const lineaDeTiempoHoraConectividad = await models.Registro.aggregate([
-        { $match: filter },
-        {
-          $addFields: {
-            localDate: {
-              $dateToParts: {
-                date: "$createdAt",
-                timezone: "America/Guayaquil",
-              },
-            },
-          },
-        },
-        {
-          $group: {
-            _id: "$localDate.hour",
-            count: { $sum: 1 },
-          },
-        },
-        { $sort: { _id: 1 } },
-      ]);
-
-      res.json({
-        total,
-        porEncuestador,
-        lineaDeTiempo,
-        lineaDeTiempoHora,
-        lineaDeTiempoHoraConectividad,
-      });
+      res.json(resultado[0]);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Error al obtener estadísticas." });
@@ -195,123 +237,235 @@ rute_ficha_socioeconomica.get(
     try {
       const filter = buildFilterFromSchema(req.query, models.Registro.schema);
 
-      // Total de registros
-      const total = await models.Registro.countDocuments(filter);
-
-      // Estadísticas por Nacionalidad
-      const porNacionalidad = await models.Registro.aggregate([
-        { $match: filter }, // Aplicar los filtros dinámicos
-        {
-          $group: {
-            _id: "$informacionPersonal.nacionalidad", // Agrupar por nacionalidad
-            count: { $sum: 1 },
-          },
-        },
-        { $sort: { count: -1 } }, // Ordenar por cantidad en orden descendente
-      ]);
-
-      const nacionalidadPercentage = await models.Registro.aggregate([
-        { $match: filter }, // Aplicar los filtros dinámicos
-        {
-          $group: {
-            _id: "$informacionPersonal.nacionalidad",
-            count: { $sum: 1 },
-          },
-        },
-        {
-          $project: {
-            nacionalidad: "$_id",
-            percentage: {
-              $multiply: [{ $divide: ["$count", total] }, 100],
-            },
-          },
-        },
-      ]);
-
-      const promedioEdad = await models.Registro.aggregate([
+      const estadisticas = await models.Registro.aggregate([
         { $match: filter },
         {
-          $group: {
-            _id: null,
-            promedioEdad: { $avg: "$informacionPersonal.edad" },
-          },
-        },
-      ]);
-
-      // Distribución por Edad
-      const distribucionEdad = await models.Registro.aggregate([
-        { $match: filter },
-        {
-          $bucket: {
-            groupBy: "$informacionPersonal.edad", // Agrupar por rango de edad
-            boundaries: [0, 18, 30, 50, 65, 100], // Definir rangos
-            default: "Otro", // Etiqueta para edades fuera de rango
-            output: { count: { $sum: 1 } },
-          },
-        },
-      ]);
-
-      const rangoEdadCount = await models.Registro.aggregate([
-        { $match: filter }, // Aplicar los filtros dinámicos
-        {
-          $project: {
-            rangoEdad: {
-              $cond: [
-                { $lt: ["$informacionPersonal.edad", 18] },
-                "Menor de edad", // Edad menor de 18
-                {
-                  $cond: [
-                    { $lt: ["$informacionPersonal.edad", 30] },
-                    "18-29", // Edad entre 18 y 29
-                    {
-                      $cond: [
-                        { $lt: ["$informacionPersonal.edad", 40] },
-                        "30-39", // Edad entre 30 y 39
-                        {
-                          $cond: [
-                            { $lt: ["$informacionPersonal.edad", 50] },
-                            "40-49", // Edad entre 40 y 49
-                            "50+", // Edad de 50 en adelante
-                          ],
-                        },
-                      ],
-                    },
-                  ],
+          $facet: {
+            totalRegistros: [
+              { $count: "total" }, // Total de registros
+            ],
+            porNacionalidad: [
+              {
+                $group: {
+                  _id: "$informacionPersonal.nacionalidad",
+                  count: { $sum: 1 },
                 },
-              ],
+              },
+              { $sort: { count: -1 } },
+            ],
+            promedioEdad: [
+              {
+                $group: {
+                  _id: null,
+                  promedioEdad: { $avg: "$informacionPersonal.edad" },
+                },
+              },
+            ],
+            rangoEdadCount: [
+              {
+                $project: {
+                  rangoEdad: {
+                    $cond: [
+                      { $lt: ["$informacionPersonal.edad", 18] },
+                      "Menor de edad",
+                      {
+                        $cond: [
+                          { $lt: ["$informacionPersonal.edad", 30] },
+                          "18-29",
+                          {
+                            $cond: [
+                              { $lt: ["$informacionPersonal.edad", 40] },
+                              "30-39",
+                              {
+                                $cond: [
+                                  { $lt: ["$informacionPersonal.edad", 50] },
+                                  "40-49",
+                                  {
+                                    $cond: [
+                                      {
+                                        $lt: ["$informacionPersonal.edad", 60],
+                                      },
+                                      "50-59",
+                                      {
+                                        $cond: [
+                                          {
+                                            $lt: [
+                                              "$informacionPersonal.edad",
+                                              70,
+                                            ],
+                                          },
+                                          "60-69",
+                                          {
+                                            $cond: [
+                                              {
+                                                $lt: [
+                                                  "$informacionPersonal.edad",
+                                                  80,
+                                                ],
+                                              },
+                                              "70-79",
+                                              {
+                                                $cond: [
+                                                  {
+                                                    $lt: [
+                                                      "$informacionPersonal.edad",
+                                                      90,
+                                                    ],
+                                                  },
+                                                  "80-89",
+                                                  "90+",
+                                                ],
+                                              },
+                                            ],
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  sortKey: {
+                    $cond: [
+                      { $lt: ["$informacionPersonal.edad", 18] },
+                      0,
+                      {
+                        $cond: [
+                          { $lt: ["$informacionPersonal.edad", 30] },
+                          1,
+                          {
+                            $cond: [
+                              { $lt: ["$informacionPersonal.edad", 40] },
+                              2,
+                              {
+                                $cond: [
+                                  { $lt: ["$informacionPersonal.edad", 50] },
+                                  3,
+                                  {
+                                    $cond: [
+                                      {
+                                        $lt: ["$informacionPersonal.edad", 60],
+                                      },
+                                      4,
+                                      {
+                                        $cond: [
+                                          {
+                                            $lt: [
+                                              "$informacionPersonal.edad",
+                                              70,
+                                            ],
+                                          },
+                                          5,
+                                          {
+                                            $cond: [
+                                              {
+                                                $lt: [
+                                                  "$informacionPersonal.edad",
+                                                  80,
+                                                ],
+                                              },
+                                              6,
+                                              {
+                                                $cond: [
+                                                  {
+                                                    $lt: [
+                                                      "$informacionPersonal.edad",
+                                                      90,
+                                                    ],
+                                                  },
+                                                  7,
+                                                  8,
+                                                ],
+                                              },
+                                            ],
+                                          },
+                                        ],
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: { rangoEdad: "$rangoEdad", sortKey: "$sortKey" },
+                  count: { $sum: 1 },
+                },
+              },
+              { $sort: { "_id.sortKey": 1 } }, // Ordenar por rango de edad
+              { $project: { rangoEdad: "$_id.rangoEdad", count: 1, _id: 0 } }, // Eliminar claves internas
+            ],
+
+            distribucionEdad: [
+              {
+                $bucket: {
+                  groupBy: "$informacionPersonal.edad",
+                  boundaries: [0, 18, 30, 50, 65, 100],
+                  default: "Otro",
+                  output: { count: { $sum: 1 } },
+                },
+              },
+            ],
+            ageStats: [
+              {
+                $group: {
+                  _id: null,
+                  minEdad: { $min: "$informacionPersonal.edad" },
+                  maxEdad: { $max: "$informacionPersonal.edad" },
+                },
+              },
+            ],
+            telefonosUnicos: [
+              {
+                $group: {
+                  _id: null,
+                  telefonos: { $addToSet: "$informacionPersonal.phone" },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $project: {
+            total: { $arrayElemAt: ["$totalRegistros.total", 0] },
+            porNacionalidad: 1,
+            promedioEdad: { $arrayElemAt: ["$promedioEdad.promedioEdad", 0] },
+            rangoEdadCount: 1,
+            distribucionEdad: 1,
+            ageStats: { $arrayElemAt: ["$ageStats", 0] },
+            telefonosUnicos: {
+              $arrayElemAt: ["$telefonosUnicos.telefonos", 0],
             },
           },
         },
-        { $group: { _id: "$rangoEdad", count: { $sum: 1 } } },
       ]);
 
-      const ageStats = await models.Registro.aggregate([
-        { $match: filter }, // Aplicar los filtros dinámicos
-        {
-          $group: {
-            _id: null,
-            minEdad: { $min: "$informacionPersonal.edad" },
-            maxEdad: { $max: "$informacionPersonal.edad" },
-          },
-        },
-      ]);
+      // Tomar el resultado del facet
+      const resultado = estadisticas[0];
 
-      // Contactos Telefónicos Únicos
-      const telefonosUnicos = await models.Registro.distinct(
-        "informacionPersonal.phone",
-        filter
-      );
+      // Calcular porcentajes de nacionalidad (opcional)
+      if (resultado.porNacionalidad) {
+        calcularPorcentaje(resultado.porNacionalidad, "count");
+      }
 
-      res.json({
-        total,
-        porNacionalidad,
-        nacionalidadPercentage,
-        distribucionEdad,
-        telefonosUnicos,
-        promedioEdad,
-        rangoEdadCount,
-        ageStats,
-      });
+      // Calcular porcentajes de nacionalidad (opcional)
+      if (resultado.rangoEdadCount) {
+        calcularPorcentaje(resultado.rangoEdadCount, "count");
+      }
+
+      res.json(resultado);
     } catch (err) {
       console.error(err);
       res
@@ -320,6 +474,7 @@ rute_ficha_socioeconomica.get(
     }
   }
 );
+
 const calcularPorcentaje = (array, key) => {
   const totalCategoria = array.reduce((acc, item) => acc + item[key], 0);
   array.forEach((item) => {
@@ -327,6 +482,7 @@ const calcularPorcentaje = (array, key) => {
       totalCategoria > 0 ? (item[key] * 100) / totalCategoria : 0;
   });
 };
+
 rute_ficha_socioeconomica.get(
   "/api/registros/informacionUbicacion",
   async (req, res) => {
@@ -623,7 +779,7 @@ rute_ficha_socioeconomica.get("/api/registros/salud", async (req, res) => {
             },
             { $sort: { count: -1 } },
           ],
-         
+
           totalPersonasPorCausaCombinada: [
             {
               $unwind: "$salud.causasSalud",
