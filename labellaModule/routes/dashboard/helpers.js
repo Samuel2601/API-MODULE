@@ -143,8 +143,44 @@ const grafic_table = async (
   let chartLabels = [];
   let chartDatasets = [];
 
-  // Preparar los datos y etiquetas del gráfico
-  if (type === "doble") {
+  if (type === "date") {
+    // Generar etiquetas de fechas entre el rango proporcionado
+    const startDate = new Date(data[0]._id);
+    const endDate = new Date(data[data.length - 1]._id);
+    chartLabels = generateDateRange(startDate, endDate);
+
+    chartDatasets = [
+      {
+        label: title,
+        data: chartLabels.map((date) => {
+          const match = data.find((item) => item._id === date);
+          return match ? match.count : 0;
+        }),
+        borderColor: borderColor ?? "#42A5F5",
+        backgroundColor: backgroundColor ?? "#42a5f563",
+        fill: true,
+        tension: 0.5,
+      },
+    ];
+  } else if (type === "time") {
+    // Generar etiquetas de horas
+    chartLabels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+
+    chartDatasets = [
+      {
+        label: title,
+        data: chartLabels.map((hour) => {
+          const match = data.find((item) => item._id === parseInt(hour));
+          return match ? match.count : 0;
+        }),
+        borderColor: borderColor ?? "#42A5F5",
+        backgroundColor: backgroundColor ?? "#42a5f563",
+        fill: true,
+        tension: 0.5,
+      },
+    ];
+  } else if (type === "doble") {
+    // Gráfico de barras apiladas
     const uniqueLabels = Array.from(
       new Set(data.map((item) => item._id[fieldMap[columnOrder[0]]]))
     );
@@ -177,15 +213,23 @@ const grafic_table = async (
         data: data.map(
           (item) => item[fieldMap[columnOrder[columnOrder.length - 2]]]
         ),
-        backgroundColor: backgroundColor ?? "#42a5f563",
-        borderColor: borderColor ?? "#42A5F5",
+        borderColor: type !== "bar" ? "#ffffff" : borderColor ?? "#42A5F5",
+        backgroundColor:
+          type !== "bar" ? colors : backgroundColor ?? "#42a5f563",
+        fill: true,
+        tension: 0.5,
       },
     ];
   }
 
   // Preparar el gráfico
   const chart = {
-    type: type === "time" || type === "date" ? "line" : type==="doble"? 'bar' : type, // Si es 'time', el gráfico es de tipo 'line'
+    type:
+      type === "time" || type === "date"
+        ? "line"
+        : type === "doble"
+        ? "bar"
+        : type,
     labels: chartLabels,
     datasets: chartDatasets,
     title: title,
