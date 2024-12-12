@@ -95,18 +95,27 @@ rute_ficha_socioeconomica.get(
         "#FFA726"
       );
 
-      const components = {
-        surveyorData,
-        timelineData,
-        hourlyData,
-        hourlyDataConectividad,
-      };
+      // Agrupaciones con títulos
+      const groupedComponents = [
+        {
+          title: "Datos de Encuestas y Temporalidad",
+          components: {
+            surveyorData,
+            timelineData,
+            hourlyData,
+            hourlyDataConectividad,
+          },
+        },
+      ];
 
-      const components_arr = Object.entries(components).map(([key, value]) => ({
-        key,
-        ...value,
+      // Convertir a un array con `title` y `components`
+      const components_arr = groupedComponents.map((group) => ({
+        title: group.title,
+        components: Object.entries(group.components).map(([key, value]) => ({
+          key,
+          ...value,
+        })),
       }));
-
       [
         "lineaDeTiempo",
         "lineaDeTiempoHora",
@@ -170,14 +179,24 @@ rute_ficha_socioeconomica.get(
         "bar",
         "#42a5f5"
       );
-      const components = {
-        porNacionalidad,
-        rangoEdadCount,
-      };
+      // Agrupaciones con títulos
+      const groupedComponents = [
+        {
+          title: "Estadísticas Demográficas",
+          components: {
+            porNacionalidad,
+            rangoEdadCount,
+          },
+        },
+      ];
 
-      const components_arr = Object.entries(components).map(([key, value]) => ({
-        key,
-        ...value,
+      // Convertir a un array con `title` y `components`
+      const components_arr = groupedComponents.map((group) => ({
+        title: group.title,
+        components: Object.entries(group.components).map(([key, value]) => ({
+          key,
+          ...value,
+        })),
       }));
 
       ["porNacionalidad", "rangoEdadCount"].forEach((field) => {
@@ -313,22 +332,41 @@ rute_ficha_socioeconomica.get(
         "#26A69A"
       );
 
-      const components = {
-        distribucionPorSector,
-        distribucionPorBarrio,
-        distribucionPorManzana,
-        distribucionPorEstadoCasa,
-        totalPersonasPorSector,
-        totalFamiliasPorSector,
-        totalPersonasPorLote,
-        totalFamiliasPorLote,
-      };
+      // Agrupaciones con títulos
+      const groupedComponents = [
+        {
+          title: "Distribución Geográfica",
+          components: {
+            distribucionPorSector,
+            distribucionPorBarrio,
+            distribucionPorManzana,
+          },
+        },
+        {
+          title: "Estado de Vivienda",
+          components: {
+            distribucionPorEstadoCasa,
+          },
+        },
+        {
+          title: "Totales por Ubicación",
+          components: {
+            totalPersonasPorSector,
+            totalFamiliasPorSector,
+            totalPersonasPorLote,
+            totalFamiliasPorLote,
+          },
+        },
+      ];
 
-      const components_arr = Object.entries(components).map(([key, value]) => ({
-        key,
-        ...value,
+      // Convertir a un array con `title` y `components`
+      const components_arr = groupedComponents.map((group) => ({
+        title: group.title,
+        components: Object.entries(group.components).map(([key, value]) => ({
+          key,
+          ...value,
+        })),
       }));
-
       [
         "distribucionPorSector",
         "distribucionPorBarrio",
@@ -476,20 +514,40 @@ rute_ficha_socioeconomica.get("/api/registros/salud", async (req, res) => {
       "#26A69A"
     );
 
-    const components = {
-      distribucionEstadoSalud,
-      causasFrecuentes,
-      distribucionEstadoSaludYCausa,
-      distribucionConexionHigienico,
-      distribucionConexionHigienicoPorEstadoSalud,
-      distribucionPorEstadoSaludYConexionHigienico,
-      causasPorSector,
-      totalPersonasPorCausaCombinada,
-    };
+    // Agrupaciones con títulos
+    const groupedComponents = [
+      {
+        title: "Estado de Salud",
+        components: {
+          distribucionEstadoSalud,
+          distribucionEstadoSaludYCausa,
+        },
+      },
+      {
+        title: "Causas y Factores",
+        components: {
+          causasFrecuentes,
+          causasPorSector,
+          totalPersonasPorCausaCombinada,
+        },
+      },
+      {
+        title: "Conexión Higiénica",
+        components: {
+          distribucionConexionHigienico,
+          distribucionConexionHigienicoPorEstadoSalud,
+          distribucionPorEstadoSaludYConexionHigienico,
+        },
+      },
+    ];
 
-    const components_arr = Object.entries(components).map(([key, value]) => ({
-      key,
-      ...value,
+    // Convertir a un array con `title` y `components`
+    const components_arr = groupedComponents.map((group) => ({
+      title: group.title,
+      components: Object.entries(group.components).map(([key, value]) => ({
+        key,
+        ...value,
+      })),
     }));
 
     [
@@ -653,22 +711,41 @@ rute_ficha_socioeconomica.get("/api/registros/vivienda", async (req, res) => {
       "#66BB6A"
     );
 
-    // Componente con los gráficos generados
-    const components = {
-      distribucionEstructura,
-      accesoServicios,
-      distribucionTenencia,
-      documentosPropiedad,
-      distribucionAlumbrado,
-      distribucionAgua,
-      bienesElectrodomesticos,
-      zonasRiesgo,
-      serviciosPorFecha,
-    };
+    // Agrupaciones con títulos
+    const groupedComponents = [
+      {
+        title: "Infraestructura",
+        components: {
+          distribucionEstructura,
+          distribucionAlumbrado,
+          distribucionAgua,
+        },
+      },
+      {
+        title: "Servicios y Tenencia",
+        components: {
+          accesoServicios,
+          distribucionTenencia,
+          documentosPropiedad,
+          serviciosPorFecha,
+        },
+      },
+      {
+        title: "Condiciones del Hogar",
+        components: {
+          bienesElectrodomesticos,
+          zonasRiesgo,
+        },
+      },
+    ];
 
-    const components_arr = Object.entries(components).map(([key, value]) => ({
-      key,
-      ...value,
+    // Convertir a un array con `title` y `components`
+    const components_arr = groupedComponents.map((group) => ({
+      title: group.title,
+      components: Object.entries(group.components).map(([key, value]) => ({
+        key,
+        ...value,
+      })),
     }));
 
     // Limpiar los campos de estadística antes de enviar la respuesta
@@ -698,146 +775,194 @@ rute_ficha_socioeconomica.get("/api/registros/vivienda", async (req, res) => {
   }
 });
 
-rute_ficha_socioeconomica.get("/api/registros/redesDeApoyo", async (req, res) => {
-  try {
-    const filter = buildFilterFromSchema(req.query, models.Registro.schema);
+rute_ficha_socioeconomica.get(
+  "/api/registros/redesDeApoyo",
+  async (req, res) => {
+    try {
+      const filter = buildFilterFromSchema(req.query, models.Registro.schema);
 
-    // Total de registros
-    const total = await models.Registro.countDocuments(filter);
+      // Ejecutar la consulta de agregación
+      const estadisticas = await aggregateQueryRedesDeApoyo(
+        models.Registro,
+        filter
+      );
 
-    // Ejecutar la consulta de agregación
-    const estadisticas = await aggregateQueryRedesDeApoyo(
-      models.Registro,
-      filter
-    );
+      const resultado = estadisticas[0];
 
-    const resultado = estadisticas[0];
+      // Calcular porcentajes (opcional) para los campos relacionados con los porcentajes
+      [
+        "apoyoHumanitario",
+        "actividadesBarrio",
+        "actividadesCantonDentro",
+        "actividadesCantonFuera",
+        "mejorasBarrio",
+        "mejorasporSector",
+        "mejorasporBarrio",
+        "mejoraPlus",
+      ].forEach((field) => {
+        if (resultado[field]) {
+          calcularPorcentaje(resultado[field], "count");
+        }
+      });
 
-    // Calcular porcentajes (opcional) para los campos relacionados con los porcentajes
-    [
-      "apoyoHumanitario",
-      "actividadesBarrio",
-      "actividadesCantonDentro",
-      "actividadesCantonFuera",
-      "mejorasBarrio",
-      "mejoraPlus",
-    ].forEach((field) => {
-      if (resultado[field]) {
-        calcularPorcentaje(resultado[field], "count");
-      }
-    });
+      // Generar los gráficos de acuerdo a los resultados
+      const apoyoHumanitario = await grafic_table(
+        resultado.apoyoHumanitario,
+        {
+          Ayuda: "_id",
+          Conteo: "count",
+          Porcentaje: "percentage",
+        },
+        "Ayuda Humanitaria Recibida",
+        "bar",
+        "#42A5F5"
+      );
 
-    // Generar los gráficos de acuerdo a los resultados
-    const apoyoHumanitario = await grafic_table(
-      resultado.apoyoHumanitario,
-      {
-        Ayuda: "_id",
-        Conteo: "count",
-        Porcentaje: "percentage",
-      },
-      "Ayuda Humanitaria Recibida",
-      "bar",
-      "#42A5F5"
-    );
+      const actividadesBarrio = await grafic_table(
+        resultado.actividadesBarrio,
+        {
+          Actividad: "_id",
+          Conteo: "count",
+          Porcentaje: "percentage",
+        },
+        "Actividades en el Barrio",
+        "bar",
+        "#66BB6A"
+      );
 
-    const actividadesBarrio = await grafic_table(
-      resultado.actividadesBarrio,
-      {
-        Actividad: "_id",
-        Conteo: "count",
-        Porcentaje: "percentage",
-      },
-      "Actividades en el Barrio",
-      "bar",
-      "#66BB6A"
-    );
+      const actividadesCantonDentro = await grafic_table(
+        resultado.actividadesCantonDentro,
+        {
+          Actividad: "_id",
+          Conteo: "count",
+          Porcentaje: "percentage",
+        },
+        "Actividades dentro del Cantón",
+        "bar",
+        "#FFA726"
+      );
 
-    const actividadesCantonDentro = await grafic_table(
-      resultado.actividadesCantonDentro,
-      {
-        Actividad: "_id",
-        Conteo: "count",
-        Porcentaje: "percentage",
-      },
-      "Actividades dentro del Cantón",
-      "bar",
-      "#FFA726"
-    );
+      const actividadesCantonFuera = await grafic_table(
+        resultado.actividadesCantonFuera,
+        {
+          Actividad: "_id",
+          Conteo: "count",
+          Porcentaje: "percentage",
+        },
+        "Actividades fuera del Cantón",
+        "bar",
+        "#AB47BC"
+      );
 
-    const actividadesCantonFuera = await grafic_table(
-      resultado.actividadesCantonFuera,
-      {
-        Actividad: "_id",
-        Conteo: "count",
-        Porcentaje: "percentage",
-      },
-      "Actividades fuera del Cantón",
-      "bar",
-      "#AB47BC"
-    );
+      const mejorasBarrio = await grafic_table(
+        resultado.mejorasBarrio,
+        {
+          Mejora: "_id",
+          Conteo: "count",
+          Porcentaje: "percentage",
+        },
+        "Mejoras en el Barrio",
+        "bar",
+        "#FF7043"
+      );
+      const mejorasporSector = await grafic_table(
+        resultado.mejorasporSector,
+        {
+          Sector: "_id.sector",
+          Mejora: "_id.mejora",
+          Conteo: "count",
+          Porcentaje: "percentage",
+        },
+        "Mejoras en los Sectores",
+        "stacked",
+        "#FF7043"
+      );
+      const mejorasporBarrio = await grafic_table(
+        resultado.mejorasporBarrio,
+        {
+          Barrio: "_id.barrio",
+          Mejora: "_id.mejora",
+          Conteo: "count",
+          Porcentaje: "percentage",
+        },
+        "Mejoras en los Barrios",
+        "stacked",
+        "#FF7043"
+      );
+      const mejoraPlus = await grafic_table(
+        resultado.mejoraPlus,
+        {
+          Mejora: "_id",
+          Conteo: "count",
+          Porcentaje: "percentage",
+        },
+        "Mejoras Extras",
+        "bar",
+        "#29B6F6"
+      );
 
-    const mejorasBarrio = await grafic_table(
-      resultado.mejorasBarrio,
-      {
-        Mejora: "_id",
-        Conteo: "count",
-        Porcentaje: "percentage",
-      },
-      "Mejoras en el Barrio",
-      "bar",
-      "#FF7043"
-    );
-    console.log(resultado.mejoraPlus);
-    const mejoraPlus = await grafic_table(
-      resultado.mejoraPlus,
-      {
-        Mejora: "_id",
-        Conteo: "count",
-        Porcentaje: "percentage",
-      },
-      "Mejoras Plus",
-      "bar",
-      "#29B6F6"
-    );
+      // Agrupaciones con títulos
+      const groupedComponents = [
+        {
+          title: "Apoyo",
+          components: {
+            apoyoHumanitario,
+          },
+        },
+        {
+          title: "Actividades",
+          components: {
+            actividadesBarrio,
+            actividadesCantonDentro,
+            actividadesCantonFuera,
+          },
+        },
+        {
+          title: "Mejoras",
+          components: {
+            mejorasBarrio,
+            mejorasporSector,
+            mejorasporBarrio,
+            mejoraPlus,
+          },
+        },
+      ];
 
-    // Componente con los gráficos generados
-    const components = {
-      apoyoHumanitario,
-      actividadesBarrio,
-      actividadesCantonDentro,
-      actividadesCantonFuera,
-      mejorasBarrio,
-      mejoraPlus,
-    };
+      // Convertir a un array con `title` y `components`
+      const components_arr = groupedComponents.map((group) => ({
+        title: group.title,
+        components: Object.entries(group.components).map(([key, value]) => ({
+          key,
+          ...value,
+        })),
+      }));
 
-    const components_arr = Object.entries(components).map(([key, value]) => ({
-      key,
-      ...value,
-    }));
+      // Limpiar los campos de estadística antes de enviar la respuesta
+      [
+        "apoyoHumanitario",
+        "actividadesBarrio",
+        "actividadesCantonDentro",
+        "actividadesCantonFuera",
+        "mejorasBarrio",
+        "mejorasporSector",
+        "mejorasporBarrio",
+        "mejoraPlus",
+      ].forEach((field) => {
+        if (resultado[field]) {
+          delete resultado[field];
+        }
+      });
 
-    // Limpiar los campos de estadística antes de enviar la respuesta
-    [
-      "apoyoHumanitario",
-      "actividadesBarrio",
-      "actividadesCantonDentro",
-      "actividadesCantonFuera",
-      "mejorasBarrio",
-      "mejoraPlus",
-    ].forEach((field) => {
-      if (resultado[field]) {
-        delete resultado[field];
-      }
-    });
-
-    // Devolver el resultado con los gráficos
-    res.json({ ...resultado, components_arr });
-  } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ error: "Error al obtener estadísticas de redes de apoyo." });
+      // Devolver el resultado con los gráficos
+      res.json({ ...resultado, components_arr });
+    } catch (err) {
+      console.error(err);
+      res
+        .status(500)
+        .json({ error: "Error al obtener estadísticas de redes de apoyo." });
+    }
   }
-});
+);
 
 // Endpoint para obtener valores únicos
 rute_ficha_socioeconomica.get(

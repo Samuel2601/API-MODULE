@@ -856,6 +856,36 @@ const aggregateQueryRedesDeApoyo = async (model, filter) => {
             },
             { $sort: { count: -1 } },
           ],
+          mejorasporSector: [
+            {
+              $unwind: "$redesDeApoyo.mejorasBarrio", // Descomponer las mejoras por registro
+            },
+            {
+              $group: {
+                _id: {
+                  sector: "$informacionUbicacion.sector", // Agrupar por sector
+                  mejora: "$redesDeApoyo.mejorasBarrio", // Agrupar por tipo de mejora
+                },
+                count: { $sum: 1 }, // Contar la cantidad de veces que aparece cada mejora en el barrio
+              },
+            },
+            { $sort: { _id: 1 } },
+          ],
+          mejorasporBarrio: [
+            {
+              $unwind: "$redesDeApoyo.mejorasBarrio", // Descomponer las mejoras por registro
+            },
+            {
+              $group: {
+                _id: {
+                  barrio: "$informacionUbicacion.barrio", // Agrupar por barrio
+                  mejora: "$redesDeApoyo.mejorasBarrio", // Agrupar por tipo de mejora
+                },
+                count: { $sum: 1 }, // Contar la cantidad de veces que aparece cada mejora en el barrio
+              },
+            },
+            { $sort: { _id: 1 } },
+          ],
           mejoraPlus: [
             {
               $group: {
@@ -875,6 +905,8 @@ const aggregateQueryRedesDeApoyo = async (model, filter) => {
           actividadesCantonDentro: 1,
           actividadesCantonFuera: 1,
           mejorasBarrio: 1,
+          mejorasporSector: 1,
+          mejorasporBarrio: 1,
           mejoraPlus: 1,
         },
       },
