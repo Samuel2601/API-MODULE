@@ -110,7 +110,6 @@ const aggregateQueryGeneral = async (model, filter) => {
     ])
     .allowDiskUse(true);
 };
-
 const aggregateQueryPersonal = async (model, filter) => {
   return await model
     .aggregate([
@@ -326,7 +325,6 @@ const aggregateQueryPersonal = async (model, filter) => {
     ])
     .allowDiskUse(true);
 };
-
 const aggregateQueryUbicacion = async (model, filter) => {
   return await model
     .aggregate([
@@ -655,9 +653,10 @@ const aggregateQueryVivienda = async (model, filter) => {
             {
               $group: {
                 _id: "$vivienda.estructuraVivienda",
-                total: { $sum: 1 },
+                count: { $sum: 1 },
               },
             },
+            { $sort: { count: -1 } },
           ],
 
           // Promedio de Pisos y Habitaciones
@@ -677,9 +676,10 @@ const aggregateQueryVivienda = async (model, filter) => {
             {
               $group: {
                 _id: "$vivienda.serviciosBasicos",
-                total: { $sum: 1 },
+                count: { $sum: 1 },
               },
             },
+            { $sort: { count: -1 } },
           ],
 
           // Distribución de Tenencia de Vivienda
@@ -687,9 +687,10 @@ const aggregateQueryVivienda = async (model, filter) => {
             {
               $group: {
                 _id: "$vivienda.tenenciaVivienda",
-                total: { $sum: 1 },
+                count: { $sum: 1 },
               },
             },
+            { $sort: { count: -1 } },
           ],
 
           // Documentos de Propiedad
@@ -698,9 +699,10 @@ const aggregateQueryVivienda = async (model, filter) => {
             {
               $group: {
                 _id: "$vivienda.documentosPropiedad",
-                total: { $sum: 1 },
+                count: { $sum: 1 },
               },
             },
+            { $sort: { count: -1 } },
           ],
 
           // Distribución de Alumbrado
@@ -708,9 +710,10 @@ const aggregateQueryVivienda = async (model, filter) => {
             {
               $group: {
                 _id: "$vivienda.tipoAlumbrado",
-                total: { $sum: 1 },
+                count: { $sum: 1 },
               },
             },
+            { $sort: { count: -1 } },
           ],
 
           // Distribución de Agua
@@ -719,9 +722,10 @@ const aggregateQueryVivienda = async (model, filter) => {
             {
               $group: {
                 _id: "$vivienda.abastecimientoAgua",
-                total: { $sum: 1 },
+                count: { $sum: 1 },
               },
             },
+            { $sort: { count: -1 } },
           ],
 
           // Bienes Electrodomésticos
@@ -730,9 +734,10 @@ const aggregateQueryVivienda = async (model, filter) => {
             {
               $group: {
                 _id: "$vivienda.bienesServiciosElectrodomesticos",
-                total: { $sum: 1 },
+                count: { $sum: 1 },
               },
             },
+            { $sort: { count: -1 } },
           ],
 
           // Zonas de Riesgo
@@ -740,9 +745,10 @@ const aggregateQueryVivienda = async (model, filter) => {
             {
               $group: {
                 _id: "$vivienda.zonaRiesgo",
-                total: { $sum: 1 },
+                count: { $sum: 1 },
               },
             },
+            { $sort: { count: -1 } },
           ],
 
           // Servicios por Fecha (Año)
@@ -754,9 +760,10 @@ const aggregateQueryVivienda = async (model, filter) => {
                   servicio: "$vivienda.serviciosBasicos",
                   año: { $year: "$createdAt" },
                 },
-                total: { $sum: 1 },
+                count: { $sum: 1 },
               },
             },
+            { $sort: { count: -1 } },
           ],
         },
       },
@@ -781,8 +788,100 @@ const aggregateQueryVivienda = async (model, filter) => {
     .allowDiskUse(true);
 };
 const aggregateQueryRedesDeApoyo = async (model, filter) => {
-  return await model.aggregate([]).allowDiskUse(true);
+  return await model
+    .aggregate([
+      { $match: filter },
+      {
+        $facet: {
+          totalRedesDeApoyo: [
+            { $count: "total" }, // Total de registros relacionados con redes de apoyo
+          ],
+          apoyoHumanitario: [
+            {
+              $unwind: "$redesDeApoyo.recibeayudaHumanitaria",
+            },
+            {
+              $group: {
+                _id: "$redesDeApoyo.recibeayudaHumanitaria",
+                count: { $sum: 1 },
+              },
+            },
+            { $sort: { count: -1 } },
+          ],
+          actividadesBarrio: [
+            {
+              $unwind: "$redesDeApoyo.actividadesBarrio",
+            },
+            {
+              $group: {
+                _id: "$redesDeApoyo.actividadesBarrio",
+                count: { $sum: 1 },
+              },
+            },
+            { $sort: { count: -1 } },
+          ],
+          actividadesCantonDentro: [
+            {
+              $unwind: "$redesDeApoyo.actividadCantonDentro",
+            },
+            {
+              $group: {
+                _id: "$redesDeApoyo.actividadCantonDentro",
+                count: { $sum: 1 },
+              },
+            },
+            { $sort: { count: -1 } },
+          ],
+          actividadesCantonFuera: [
+            {
+              $unwind: "$redesDeApoyo.actividadCantonFuera",
+            },
+            {
+              $group: {
+                _id: "$redesDeApoyo.actividadCantonFuera",
+                count: { $sum: 1 },
+              },
+            },
+            { $sort: { count: -1 } },
+          ],
+          mejorasBarrio: [
+            {
+              $unwind: "$redesDeApoyo.mejorasBarrio",
+            },
+            {
+              $group: {
+                _id: "$redesDeApoyo.mejorasBarrio",
+                count: { $sum: 1 },
+              },
+            },
+            { $sort: { count: -1 } },
+          ],
+          mejoraPlus: [
+            {
+              $group: {
+                _id: "$redesDeApoyo.mejoraPlus",
+                count: { $sum: 1 },
+              },
+            },
+            { $sort: { count: -1 } },
+          ],
+        },
+      },
+      {
+        $project: {
+          totalRedesDeApoyo: { $arrayElemAt: ["$totalRedesDeApoyo.total", 0] },
+          apoyoHumanitario: 1,
+          actividadesBarrio: 1,
+          actividadesCantonDentro: 1,
+          actividadesCantonFuera: 1,
+          mejorasBarrio: 1,
+          mejoraPlus: 1,
+        },
+      },
+    ])
+    .allowDiskUse(true);
 };
+
 const aggregateQueryFamilia = async (model, filter) => {
   return await model.aggregate([]).allowDiskUse(true);
 };

@@ -71,32 +71,28 @@ rute_ficha_socioeconomica.get(
         },
         "Registros por Encuestador",
         "bar",
-        "#66BB6A",
-        "#66bb6a7d"
+        "#66BB6A"
       );
       const timelineData = await grafic_table(
         resultado.lineaDeTiempo,
         { Fecha: "_id", Conteo: "count", Porcentaje: "percentage" },
         "Registros por Fecha",
         "date",
-        "#42A5F5",
-        "#42a5f57d"
+        "#42A5F5"
       );
       const hourlyData = await grafic_table(
         resultado.lineaDeTiempoHora,
         { Hora: "_id", Conteo: "count", Porcentaje: "percentage" },
         "Registros por Hora",
         "time",
-        "#FF7043",
-        "#ff70437d"
+        "#FF7043"
       );
       const hourlyDataConectividad = await grafic_table(
         resultado.lineaDeTiempoHoraConectividad,
         { Hora: "_id", Conteo: "count", Porcentaje: "percentage" },
         "Registros por Hora (Conectividad)",
         "time",
-        "#FFA726",
-        "#ffa7267d"
+        "#FFA726"
       );
 
       const components = {
@@ -159,7 +155,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Registros por Nacionalidad",
-        "doughnut"
+        "doughnut",
+        "#42a5f5"
       );
       //console.log(resultado.rangoEdadCount);
       const rangoEdadCount = await grafic_table(
@@ -170,7 +167,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Registros por Rango de Edad",
-        "bar"
+        "bar",
+        "#42a5f5"
       );
       const components = {
         porNacionalidad,
@@ -234,7 +232,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Distribución por Sector",
-        "bar"
+        "bar",
+        "#42a5f5"
       );
       const distribucionPorBarrio = await grafic_table(
         resultado.distribucionPorBarrio,
@@ -244,7 +243,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Distribución por Barrio",
-        "bar"
+        "bar",
+        "#66BB6A"
       );
       const distribucionPorManzana = await grafic_table(
         resultado.distribucionPorManzana,
@@ -254,7 +254,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Distribución por Manzana",
-        "bar"
+        "bar",
+        "#FFA726"
       );
       const distribucionPorEstadoCasa = await grafic_table(
         resultado.distribucionPorEstadoCasa,
@@ -264,7 +265,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Distribución por Estado de Casa",
-        "bar"
+        "bar",
+        "#AB47BC"
       );
       const totalPersonasPorSector = await grafic_table(
         resultado.totalPersonasPorSector,
@@ -274,7 +276,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Total de Personas por Sector",
-        "bar"
+        "bar",
+        "#FF7043"
       );
       const totalFamiliasPorSector = await grafic_table(
         resultado.totalFamiliasPorSector,
@@ -284,7 +287,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Total de Familias por Sector",
-        "bar"
+        "bar",
+        "#29B6F6"
       );
       const totalPersonasPorLote = await grafic_table(
         resultado.totalPersonasPorLote,
@@ -294,7 +298,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Total de Personas por Lote",
-        "bar"
+        "bar",
+        "#FFCA28"
       );
       const totalFamiliasPorLote = await grafic_table(
         resultado.totalFamiliasPorLote,
@@ -304,7 +309,8 @@ rute_ficha_socioeconomica.get(
           Porcentaje: "percentage",
         },
         "Total de Familias por Lote",
-        "bar"
+        "bar",
+        "#26A69A"
       );
 
       const components = {
@@ -358,7 +364,7 @@ rute_ficha_socioeconomica.get("/api/registros/salud", async (req, res) => {
     const estadisticas = await aggregateQuerySalud(models.Registro, filter);
 
     const resultado = estadisticas[0];
-    console.log(resultado);
+    //console.log(resultado);
     // Calcular porcentajes (opcional)
     [
       "distribucionEstadoSalud",
@@ -383,8 +389,7 @@ rute_ficha_socioeconomica.get("/api/registros/salud", async (req, res) => {
       },
       "Distribución por Estado de Salud",
       "bar",
-      "#42A5F5",
-      "#42a5f57d"
+      "#42A5F5"
     );
     const causasFrecuentes = await grafic_table(
       resultado.causasFrecuentes,
@@ -395,21 +400,20 @@ rute_ficha_socioeconomica.get("/api/registros/salud", async (req, res) => {
       },
       "Causas Frecuentes",
       "bar",
-      "#66BB6A",
-      "#66bb6a7d"
+      "#66BB6A"
     );
+
     const distribucionEstadoSaludYCausa = await grafic_table(
       resultado.distribucionEstadoSaludYCausa,
       {
-        Estado: "estadoSalud",
-        Causa: "causaSalud",
+        Estado: "_id.estadoSalud",
+        Causa: "_id.causaSalud",
         Conteo: "count",
         Porcentaje: "percentage",
       },
       "Distribución por Estado de Salud y Causa",
-      "doble",
-      "#FFA726",
-      "#ffa7267d"
+      "stacked",
+      "#FFA726"
     );
     const distribucionConexionHigienico = await grafic_table(
       resultado.distribucionConexionHigienico,
@@ -420,47 +424,45 @@ rute_ficha_socioeconomica.get("/api/registros/salud", async (req, res) => {
       },
       "Distribución por Conexión Higienica",
       "bar",
-      "#AB47BC",
-      "#ab47bc7d"
+      "#AB47BC"
     );
+
     const distribucionConexionHigienicoPorEstadoSalud = await grafic_table(
       resultado.distribucionConexionHigienicoPorEstadoSalud,
       {
-        Estado: "estadoSalud",
-        Conexion: "conexionHigienico",
+        Estado: "_id.estadoSalud",
+        Conexion: "_id.conexionHigienico",
         Conteo: "count",
         Porcentaje: "percentage",
       },
       "Distribución por Conexión Higienica y Estado de Salud",
-      "doble",
-      "#FF7043",
-      "#ff70437d"
+      "stacked",
+      "#FF7043"
     );
+
     const distribucionPorEstadoSaludYConexionHigienico = await grafic_table(
       resultado.distribucionPorEstadoSaludYConexionHigienico,
       {
-        Estado: "estadoSalud",
-        Conexion: "conexionHigienico",
+        Estado: "_id.estadoSalud",
+        Conexion: "_id.conexionHigienico",
         Conteo: "count",
         Porcentaje: "percentage",
       },
       "Distribución por Estado de Salud y Conexión Higienica",
-      "doble",
-      "#29B6F6",
-      "#29b6f67d"
+      "stacked",
+      "#29B6F6"
     );
     const causasPorSector = await grafic_table(
       resultado.causasPorSector,
       {
-        Sector: "sector",
-        Causa: "causaSalud",
+        Sector: "_id.sector",
+        Causa: "_id.causaSalud",
         Conteo: "totalPersonas",
         Porcentaje: "percentage",
       },
       "Distribución por Sector y Causa",
-      "doble",
-      "#FFCA28",
-      "#ffca287d"
+      "stacked",
+      "#FFCA28"
     );
     const totalPersonasPorCausaCombinada = await grafic_table(
       resultado.totalPersonasPorCausaCombinada,
@@ -471,8 +473,7 @@ rute_ficha_socioeconomica.get("/api/registros/salud", async (req, res) => {
       },
       "Distribución por Causa",
       "bar",
-      "#26A69A",
-      "#26a69a7d"
+      "#26A69A"
     );
 
     const components = {
@@ -522,12 +523,139 @@ rute_ficha_socioeconomica.get("/api/registros/vivienda", async (req, res) => {
     // Total de registros
     const total = await models.Registro.countDocuments(filter);
 
+    // Ejecutar la consulta de agregación
     const estadisticas = await aggregateQueryVivienda(models.Registro, filter);
 
-    res.json({
-      total,
+    const resultado = estadisticas[0];
+    // Calcular porcentajes (opcional) para los campos relacionados con los porcentajes
+    [
+      "distribucionEstructura",
+      "accesoServicios",
+      "distribucionTenencia",
+      "documentosPropiedad",
+      "distribucionAlumbrado",
+      "distribucionAgua",
+      "bienesElectrodomesticos",
+      "zonasRiesgo",
+      "serviciosPorFecha",
+    ].forEach((field) => {
+      if (resultado[field]) {
+        calcularPorcentaje(resultado[field], "count");
+      }
+    });
+
+    // Generar los gráficos de acuerdo a los resultados
+    const distribucionEstructura = await grafic_table(
+      resultado.distribucionEstructura,
+      {
+        Estructura: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Distribución de Estructura de Vivienda",
+      "bar",
+      "#42A5F5"
+    );
+
+    const accesoServicios = await grafic_table(
+      resultado.accesoServicios,
+      {
+        Servicio: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Acceso a Servicios Básicos",
+      "bar",
+      "#66BB6A"
+    );
+
+    const distribucionTenencia = await grafic_table(
+      resultado.distribucionTenencia,
+      {
+        Tenencia: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Distribución de Tenencia de Vivienda",
+      "bar",
+      "#FFA726"
+    );
+
+    const documentosPropiedad = await grafic_table(
+      resultado.documentosPropiedad,
+      {
+        Documento: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Documentos de Propiedad",
+      "bar",
+      "#AB47BC"
+    );
+
+    const distribucionAlumbrado = await grafic_table(
+      resultado.distribucionAlumbrado,
+      {
+        Alumbrado: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Distribución de Alumbrado",
+      "bar",
+      "#FF7043"
+    );
+
+    const distribucionAgua = await grafic_table(
+      resultado.distribucionAgua,
+      {
+        Agua: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Distribución de Agua",
+      "bar",
+      "#29B6F6"
+    );
+
+    const bienesElectrodomesticos = await grafic_table(
+      resultado.bienesElectrodomesticos,
+      {
+        Electrodomestico: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Bienes Electrodomésticos",
+      "bar",
+      "#FFCA28"
+    );
+
+    const zonasRiesgo = await grafic_table(
+      resultado.zonasRiesgo,
+      {
+        Zona: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Zonas de Riesgo",
+      "bar",
+      "#26A69A"
+    );
+    const serviciosPorFecha = await grafic_table(
+      resultado.serviciosPorFecha,
+      {
+        Servicio: "_id.servicio",
+        Año: "_id.año",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Servicios por Año",
+      "stacked",
+      "#66BB6A"
+    );
+
+    // Componente con los gráficos generados
+    const components = {
       distribucionEstructura,
-      promedioPisosYHabitaciones,
       accesoServicios,
       distribucionTenencia,
       documentosPropiedad,
@@ -536,12 +664,178 @@ rute_ficha_socioeconomica.get("/api/registros/vivienda", async (req, res) => {
       bienesElectrodomesticos,
       zonasRiesgo,
       serviciosPorFecha,
+    };
+
+    const components_arr = Object.entries(components).map(([key, value]) => ({
+      key,
+      ...value,
+    }));
+
+    // Limpiar los campos de estadística antes de enviar la respuesta
+    [
+      "distribucionEstructura",
+      "accesoServicios",
+      "distribucionTenencia",
+      "documentosPropiedad",
+      "distribucionAlumbrado",
+      "distribucionAgua",
+      "bienesElectrodomesticos",
+      "zonasRiesgo",
+      "serviciosPorFecha",
+    ].forEach((field) => {
+      if (resultado[field]) {
+        delete resultado[field];
+      }
     });
+
+    // Devolver el resultado con los gráficos
+    res.json({ ...resultado, components_arr });
   } catch (err) {
     console.error(err);
     res
       .status(500)
       .json({ error: "Error al obtener estadísticas detalladas." });
+  }
+});
+
+rute_ficha_socioeconomica.get("/api/registros/redesDeApoyo", async (req, res) => {
+  try {
+    const filter = buildFilterFromSchema(req.query, models.Registro.schema);
+
+    // Total de registros
+    const total = await models.Registro.countDocuments(filter);
+
+    // Ejecutar la consulta de agregación
+    const estadisticas = await aggregateQueryRedesDeApoyo(
+      models.Registro,
+      filter
+    );
+
+    const resultado = estadisticas[0];
+
+    // Calcular porcentajes (opcional) para los campos relacionados con los porcentajes
+    [
+      "apoyoHumanitario",
+      "actividadesBarrio",
+      "actividadesCantonDentro",
+      "actividadesCantonFuera",
+      "mejorasBarrio",
+      "mejoraPlus",
+    ].forEach((field) => {
+      if (resultado[field]) {
+        calcularPorcentaje(resultado[field], "count");
+      }
+    });
+
+    // Generar los gráficos de acuerdo a los resultados
+    const apoyoHumanitario = await grafic_table(
+      resultado.apoyoHumanitario,
+      {
+        Ayuda: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Ayuda Humanitaria Recibida",
+      "bar",
+      "#42A5F5"
+    );
+
+    const actividadesBarrio = await grafic_table(
+      resultado.actividadesBarrio,
+      {
+        Actividad: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Actividades en el Barrio",
+      "bar",
+      "#66BB6A"
+    );
+
+    const actividadesCantonDentro = await grafic_table(
+      resultado.actividadesCantonDentro,
+      {
+        Actividad: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Actividades dentro del Cantón",
+      "bar",
+      "#FFA726"
+    );
+
+    const actividadesCantonFuera = await grafic_table(
+      resultado.actividadesCantonFuera,
+      {
+        Actividad: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Actividades fuera del Cantón",
+      "bar",
+      "#AB47BC"
+    );
+
+    const mejorasBarrio = await grafic_table(
+      resultado.mejorasBarrio,
+      {
+        Mejora: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Mejoras en el Barrio",
+      "bar",
+      "#FF7043"
+    );
+    console.log(resultado.mejoraPlus);
+    const mejoraPlus = await grafic_table(
+      resultado.mejoraPlus,
+      {
+        Mejora: "_id",
+        Conteo: "count",
+        Porcentaje: "percentage",
+      },
+      "Mejoras Plus",
+      "bar",
+      "#29B6F6"
+    );
+
+    // Componente con los gráficos generados
+    const components = {
+      apoyoHumanitario,
+      actividadesBarrio,
+      actividadesCantonDentro,
+      actividadesCantonFuera,
+      mejorasBarrio,
+      mejoraPlus,
+    };
+
+    const components_arr = Object.entries(components).map(([key, value]) => ({
+      key,
+      ...value,
+    }));
+
+    // Limpiar los campos de estadística antes de enviar la respuesta
+    [
+      "apoyoHumanitario",
+      "actividadesBarrio",
+      "actividadesCantonDentro",
+      "actividadesCantonFuera",
+      "mejorasBarrio",
+      "mejoraPlus",
+    ].forEach((field) => {
+      if (resultado[field]) {
+        delete resultado[field];
+      }
+    });
+
+    // Devolver el resultado con los gráficos
+    res.json({ ...resultado, components_arr });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Error al obtener estadísticas de redes de apoyo." });
   }
 });
 
