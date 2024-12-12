@@ -966,7 +966,7 @@ rute_ficha_socioeconomica.get(
 
 // Endpoint para obtener valores únicos
 rute_ficha_socioeconomica.get(
-  "/api/registros/unique-values",
+  "/api/registros/uniqueValues",
   async (req, res) => {
     try {
       const uniqueValues = await models.Registro.aggregate([
