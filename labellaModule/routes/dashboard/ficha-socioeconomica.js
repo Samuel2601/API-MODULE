@@ -974,6 +974,27 @@ rute_ficha_socioeconomica.get(
           $facet: {
             encuestador: [
               { $group: { _id: "$informacionRegistro.encuestador" } },
+              {
+                $lookup: {
+                  from: "users", // Colección de usuarios
+                  localField: "_id",
+                  foreignField: "_id",
+                  as: "encuestador",
+                },
+              },
+              { $unwind: "$encuestador" },
+              {
+                $project: {
+                  label: {
+                    $concat: [
+                      { $ifNull: ["$encuestador.name", ""] }, // Asegura que el nombre esté presente
+                      " ",
+                      { $ifNull: ["$encuestador.last_name", ""] }, // Asegura que el apellido esté presente
+                    ],
+                  },
+                  value: "$_id",
+                },
+              },
             ],
             sectores: [{ $group: { _id: "$informacionUbicacion.sector" } }],
             barrios: [{ $group: { _id: "$informacionUbicacion.barrio" } }],
@@ -998,27 +1019,23 @@ rute_ficha_socioeconomica.get(
             ],
           },
         },
+        {
+          $project: {
+            encuestador: 1,
+            sectores: 1,
+            barrios: 1,
+            houseState: 1,
+            estadosSalud: 1,
+            causasSalud: 1,
+            conexionHigienico: 1,
+            estructuraVivienda: 1,
+            tenenciaVivienda: 1,
+          },
+        },
       ]);
 
-      const formattedResponse = {
-        encuestador: uniqueValues[0]?.encuestador.map((item) => item._id),
-        sectores: uniqueValues[0]?.sectores.map((item) => item._id),
-        barrios: uniqueValues[0]?.barrios.map((item) => item._id),
-        houseState: uniqueValues[0]?.houseState.map((item) => item._id),
-        estadosSalud: uniqueValues[0]?.estadosSalud.map((item) => item._id),
-        causasSalud: uniqueValues[0]?.causasSalud.map((item) => item._id),
-        conexionHigienico: uniqueValues[0]?.conexionHigienico.map(
-          (item) => item._id
-        ),
-        estructuraVivienda: uniqueValues[0]?.estructuraVivienda.map(
-          (item) => item._id
-        ),
-        tenenciaVivienda: uniqueValues[0]?.tenenciaVivienda.map(
-          (item) => item._id
-        ),
-      };
 
-      res.status(200).json(formattedResponse);
+      res.status(200).json(uniqueValues[0]);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Error al obtener valores únicos" });
