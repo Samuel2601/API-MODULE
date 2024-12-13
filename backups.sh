@@ -34,7 +34,20 @@ check_dependencies() {
     for cmd in exp gzip sshpass scp; do
         if ! command -v "$cmd" &>/dev/null; then
             log "Error: $cmd no está instalado."
-            exit 1
+            read -p "¿Deseas instalar $cmd? (s/n): " choice
+            if [[ "$choice" == "s" || "$choice" == "S" ]]; then
+                case $cmd in
+                    exp) sudo apt-get install oracle-client;; # Comando de ejemplo, depende de tu distribución
+                    gzip) sudo apt-get install gzip;;
+                    sshpass) sudo apt-get install sshpass;;
+                    scp) sudo apt-get install openssh-client;;
+                    *) log "Comando desconocido: $cmd";;
+                esac
+            else
+                log "Puedes instalarlo manualmente utilizando los siguientes comandos:"
+                echo "sudo apt-get install $cmd"
+                exit 1
+            fi
         fi
     done
     log "Todas las dependencias están presentes."
@@ -108,7 +121,7 @@ transfer_backup() {
 clean_old_backups() {
     log "Eliminando backups antiguos locales..."
     # Limpiar backups locales más antiguos (opcional, mantiene solo 7 días)
-    find "${BACKUP_DIR}" -type f -mtime +7 -exec rm -f {} \;
+    find "${BACKUP_DIR}" -type f -mtime +7 ! -name "*.log" -exec rm -f {} \;
     log " ---> Limpieza completada de backups antiguos."
 }
 
