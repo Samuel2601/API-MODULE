@@ -37,6 +37,7 @@ import router_extend from "./labellaModule/routes/router_extend.js";
 import { consultarCedula } from "./apiservices/dinardap.goc.ec/controllers/cedula.js";
 import rute_ficha_socioeconomica from "./labellaModule/routes/dashboard/ficha-socioeconomica.js";
 import router_setting_ficha_sectorial from "./FischaSocioeconomica/controllers/settings.controller.js";
+import { generateBackupIfNotExists } from "./database/backup.js";
 
 // Configuración inicial
 const secret = uuidv4();
@@ -205,6 +206,8 @@ const PORT = process.env.PORT || 2000;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+
+await generateBackupIfNotExists();
 /*
 consultarCedula(3789, "0803768530").then((response) => {
   // Convertir la respuesta en un formato más legible

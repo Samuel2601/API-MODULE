@@ -9,7 +9,7 @@ import {
 } from "../../middlewares/validationResultExpress.js";
 import {
   deleteFile,
-  generateAndTransferBackup,
+  generateBackupIfNotExists,
   listAppdata,
   shareFile,
 } from "../../database/backup.js";
@@ -39,7 +39,7 @@ router_extend.get(
   auth,
   permissUser(`/backup`, "get"),
   async (req, res) => {
-    const response = await generateAndTransferBackup();
+    const response = await generateBackupIfNotExists();
     res.status(response.status).json(response);
   }
 );

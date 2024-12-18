@@ -193,14 +193,58 @@ async function transferBackupToLocal(filePath, remotePath) {
   });
 }
 
-export async function generateAndTransferBackup() {
+// Función para verificar si el backup ya existe localmente
+function backupExistsLocal(dateString) {
+  const backupFiles = fs.readdirSync(backupDir);
+  return backupFiles.some((file) => file.includes(dateString));
+}
+
+// Función para verificar si el backup ya existe en Google Drive
+async function backupExistsOnDrive(dateString) {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: path.join(__dirname, "credentials.json"),
+    scopes: "https://www.googleapis.com/auth/drive",
+  });
+
+  const driveService = google.drive({ version: "v3", auth });
+
+  try {
+    const res = await driveService.files.list({
+      fields: "files(id, name)",
+      q: `name contains '${dateString}'`,
+      pageSize: 10,
+    });
+
+    return res.data.files && res.data.files.length > 0;
+  } catch (error) {
+    console.error("Error al verificar en Google Drive:", error);
+    return false;
+  }
+}
+
+export async function generateBackupIfNotExists() {
   let response = cloneResponse();
   const now = new Date();
-  const fileName = `backup-${
-    now.toISOString().split("T")[0]
-  }-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.gz`;
-
+  const dateString = now.toISOString().split("T")[0];
+  const fileName = `backup-${dateString}-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.gz`;
   const filePath = path.join(backupDir, fileName);
+
+  // Verificar si el backup ya existe localmente
+  const existsLocal = backupExistsLocal(dateString);
+
+  // Verificar si el backup ya existe en Google Drive
+  const existsOnDrive = await backupExistsOnDrive(dateString);
+
+  if (existsLocal || existsOnDrive) {
+    console.log("El backup del día ya existe. No se generará uno nuevo.");
+    response.status = 200;
+    response.message = "Backup already exists for today";
+    return response;
+  }
+
+  console.log(
+    "No se encontró un backup para el día actual. Generando uno nuevo..."
+  );
 
   // Comando para hacer el dump de MongoDB
   const command = `mongodump --uri="mongodb://localhost:27017/${process.env.BASE_DATOS}" --archive=${filePath} --gzip`;
@@ -224,14 +268,14 @@ export async function generateAndTransferBackup() {
       const remotePath = "C:/Users/USUARIO/Documents/backup";
       await transferBackupToLocal(filePath, remotePath);
 
-      console.log("BackUp realizado");
+      console.log("Backup realizado y transferido correctamente");
       response.status = 200;
-      response.message = "Data retrieved successfully";
+      response.message = "Backup created and transferred successfully";
     } catch (err) {
       console.error(`Error en la transferencia o subida: ${err.message}`);
       response.status = 500;
       response.message = "Algo salió mal";
-      response.error = error.message; // Proporciona más detalles del error
+      response.error = err.message;
     }
   });
 
@@ -239,4 +283,4 @@ export async function generateAndTransferBackup() {
 }
 
 // Programar el cron job para que se ejecute diariamente
-cron.schedule("0 19 * * *", generateAndTransferBackup);
+cron.schedule("0 12 * * *", generateBackupIfNotExists);
