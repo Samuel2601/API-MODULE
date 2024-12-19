@@ -206,8 +206,9 @@ const PORT = process.env.PORT || 2000;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-
+console.log("Iniciando el proceso de backup");
 await generateBackupIfNotExists();
+console.log("Backup finalizado");
 /*
 consultarCedula(3789, "0803768530").then((response) => {
   // Convertir la respuesta en un formato más legible
