@@ -207,7 +207,7 @@ server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
 console.log("Iniciando el proceso de backup");
-generateBackupIfNotExists().then((response) => {
+await generateBackupIfNotExists().then((response) => {
   console.log("Respuesta del proceso de backup:", response);
 });
 console.log("Backup finalizado");

@@ -226,16 +226,14 @@ export async function generateBackupIfNotExists() {
   let response = cloneResponse();
   const now = new Date();
   const dateString = now.toISOString().split("T")[0];
-  const fileName = `backup-${
-    localDate.toISOString().split("T")[0]
-  }-${localDate.getHours()}-${localDate.getMinutes()}-${localDate.getSeconds()}.gz`;
-  const filePath = path.join(backupDir, fileName);
+  const fileName = `backup-${dateString}-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.gz`;
+  const filePath = path.join(backupDir, fileName); // Asegúrate de definir `backupDir`
 
   // Verificar si el backup ya existe localmente
-  const existsLocal = backupExistsLocal(dateString);
+  const existsLocal = backupExistsLocal(dateString); // Define esta función si aún no está creada
 
   // Verificar si el backup ya existe en Google Drive
-  const existsOnDrive = await backupExistsOnDrive(dateString);
+  const existsOnDrive = await backupExistsOnDrive(dateString); // Define esta función si aún no está creada
 
   if (existsLocal || existsOnDrive) {
     console.log("El backup del día ya existe. No se generará uno nuevo.");
