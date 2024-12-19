@@ -207,7 +207,9 @@ server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
 console.log("Iniciando el proceso de backup");
-await generateBackupIfNotExists();
+generateBackupIfNotExists().then((response) => {
+  console.log("Respuesta del proceso de backup:", response);
+});
 console.log("Backup finalizado");
 /*
 consultarCedula(3789, "0803768530").then((response) => {
