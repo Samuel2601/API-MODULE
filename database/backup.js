@@ -196,7 +196,13 @@ async function transferBackupToLocal(filePath, remotePath) {
 // Función para verificar si el backup ya existe localmente
 function backupExistsLocal(dateString) {
   const backupFiles = fs.readdirSync(backupDir);
-  return backupFiles.some((file) => file.includes(dateString));
+
+  // Verificar específicamente el patrón "backup-YYYY-MM-DD-"
+  const backupPrefix = `backup-${dateString}-`;
+
+  return backupFiles.some(
+    (file) => file.startsWith(backupPrefix) && file.endsWith(".gz")
+  );
 }
 
 // Función para verificar si el backup ya existe en Google Drive
@@ -222,64 +228,67 @@ async function backupExistsOnDrive(dateString) {
   }
 }
 
-export async function generateBackupIfNotExists() {
-  let response = cloneResponse();
-  const now = new Date();
-  const dateString = now.toISOString().split("T")[0];
-  const fileName = `backup-${dateString}-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.gz`;
-  const filePath = path.join(backupDir, fileName); // Asegúrate de definir `backupDir`
+export async function generateBackupIfNotExists(auto) {
+  try {
+    let response = cloneResponse();
+    const now = new Date();
+    const dateString = now.toISOString().split("T")[0];
+    const fileName = `backup-${dateString}-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}.gz`;
+    const filePath = path.join(backupDir, fileName); // Asegúrate de definir `backupDir`
+    if (auto) {
+      // Verificar si el backup ya existe localmente
+      const existsLocal = backupExistsLocal(dateString);
+      console.log("Existe localmente?", existsLocal);
+      if (existsLocal) {
+        console.log("El backup del día ya existe. No se generará uno nuevo.");
+        response.status = 200;
+        response.message = "Backup already exists for today";
+        return response;
+      }
 
-  // Verificar si el backup ya existe localmente
-  const existsLocal = backupExistsLocal(dateString); // Define esta función si aún no está creada
+      console.log(
+        "No se encontró un backup para el día actual. Generando uno nuevo..."
+      );
+    }
 
-  // Verificar si el backup ya existe en Google Drive
-  const existsOnDrive = await backupExistsOnDrive(dateString); // Define esta función si aún no está creada
+    // Comando para hacer el dump de MongoDB
+    const command = `mongodump --uri="mongodb://localhost:27017/${process.env.BASE_DATOS}" --archive=${filePath} --gzip`;
 
-  if (existsLocal || existsOnDrive) {
-    console.log("El backup del día ya existe. No se generará uno nuevo.");
-    response.status = 200;
-    response.message = "Backup already exists for today";
+    exec(command, async (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error al generar el backup: ${error.message}`);
+        response.status = 500;
+        response.message = "Algo salió mal";
+        response.error = error.message;
+        return;
+      }
+
+      console.log(`Backup generado correctamente: ${filePath}`);
+
+      try {
+        // Subir el archivo a Google Drive
+        await uploadBackupToDrive(filePath);
+
+        // Transferir el archivo a una computadora local
+        const remotePath = "C:/Users/USUARIO/Documents/backup";
+        await transferBackupToLocal(filePath, remotePath);
+
+        console.log("Backup realizado y transferido correctamente");
+        response.status = 200;
+        response.message = "Backup created and transferred successfully";
+      } catch (err) {
+        console.error(`Error en la transferencia o subida: ${err.message}`);
+        response.status = 500;
+        response.message = "Algo salió mal";
+        response.error = err.message;
+      }
+    });
+
     return response;
+  } catch (error) {
+    console.error("Error al generar el backup:", error);
+    return { status: 500, message: "Algo salió mal", error: error.message };
   }
-
-  console.log(
-    "No se encontró un backup para el día actual. Generando uno nuevo..."
-  );
-
-  // Comando para hacer el dump de MongoDB
-  const command = `mongodump --uri="mongodb://localhost:27017/${process.env.BASE_DATOS}" --archive=${filePath} --gzip`;
-
-  exec(command, async (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error al generar el backup: ${error.message}`);
-      response.status = 500;
-      response.message = "Algo salió mal";
-      response.error = error.message;
-      return;
-    }
-
-    console.log(`Backup generado correctamente: ${filePath}`);
-
-    try {
-      // Subir el archivo a Google Drive
-      await uploadBackupToDrive(filePath);
-
-      // Transferir el archivo a una computadora local
-      const remotePath = "C:/Users/USUARIO/Documents/backup";
-      await transferBackupToLocal(filePath, remotePath);
-
-      console.log("Backup realizado y transferido correctamente");
-      response.status = 200;
-      response.message = "Backup created and transferred successfully";
-    } catch (err) {
-      console.error(`Error en la transferencia o subida: ${err.message}`);
-      response.status = 500;
-      response.message = "Algo salió mal";
-      response.error = err.message;
-    }
-  });
-
-  return response;
 }
 
 // Programar el cron job para que se ejecute diariamente
