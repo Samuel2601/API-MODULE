@@ -167,19 +167,18 @@ export async function deleteFile(fileId) {
   return response;
 }
 
-// Función para transferir el backup a una computadora local usando `scp`
-async function transferBackupToLocal(filePath, remotePath) {
-  const usuario = "USUARIO";
-  const ip_remota = "192.168.120.71";
-  const password = "485314";
+// Función para transferir el backup a un servidor remoto usando `scp`
+async function transferBackupToRemote(filePath, remotePath) {
+  const usuario = "root"; // Usuario con permisos en el servidor
+  const ip_remota = "159.223.186.132"; // Dirección IP del servidor remoto
 
-  // Comando `scp` usando `sshpass` para proporcionar la contraseña
-  const command = `sshpass -p '${password}' scp ${filePath} ${usuario}@${ip_remota}:${remotePath.replace(
+  // Comando `scp` para transferir el archivo
+  const command = `scp ${filePath} ${usuario}@${ip_remota}:${remotePath.replace(
     /\\/g,
     "/"
   )}`;
 
-  console.log("Comando por ejecutar: ", command);
+  console.log("Ejecutando comando SCP: ", command);
 
   exec(command, (error, stdout, stderr) => {
     if (error) {
@@ -189,7 +188,7 @@ async function transferBackupToLocal(filePath, remotePath) {
     if (stderr) {
       console.error(`Detalles del error: ${stderr}`);
     }
-    console.log("Backup transferido correctamente a la computadora local");
+    console.log("Backup transferido correctamente al servidor remoto");
   });
 }
 
@@ -271,7 +270,7 @@ export async function generateBackupIfNotExists(auto) {
 
         // Transferir el archivo a una computadora local
         const remotePath = "C:/Users/USUARIO/Documents/backup";
-        await transferBackupToLocal(filePath, remotePath);
+        await transferBackupToRemote(filePath, remotePath);
 
         console.log("Backup realizado y transferido correctamente");
         response.status = 200;
