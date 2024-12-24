@@ -8,8 +8,10 @@
 # Variables del backup
 BACKUP_DIR="/backups/oracle/temp"               # Directorio local para backups
 LOCAL_USER="root"                               # Usuario local
-LOCAL_PASSWORD="admin.pruebas/2015*"                  # Contraseña local
+LOCAL_PASSWORD="admin.prueba/2015*"                  # Contraseña local
+LOCAL_HOST="192.168.120.13"                          # IP del servidor local
 SH_DIR="/home/sis_backups_auto/backups_centu5.sh"                                       # Directorio de scripts
+
 
 REMOTE_USER="root"                               # Usuario remoto
 REMOTE_PASSWORD="alcaldiA2025P"                  # Contraseña para ssh
@@ -54,17 +56,24 @@ check_dependencies() {
 
 # Función para generar el backup de Oracle
 generate_backup() {
-    log "Iniciando el proceso de backup en el servidor local..."
+    log "Iniciando el proceso de backup en el servidor local... ${BACKUP_NAME}"
     
-    # Ejecutar el script de backup en el servidor local mediante ssh
-    sshpass -p "${LOCAL_PASSWORD}" ssh -oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1 "${LOCAL_USER}@localhost" "bash ${SH_DIR}"
-
+    # Construir el comando completo
+    local comando="sshpass -p \"${LOCAL_PASSWORD}\" ssh -oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1 ${LOCAL_USER}@${LOCAL_HOST} \"bash ${SH_DIR} ${BACKUP_NAME}\""
+    
+    # Loguear el comando completo
+    log "COMANDO A USAR: ${comando}"
+    
+    # Ejecutar el comando
+    eval "${comando}"
+    
     if [ $? -ne 0 ]; then
         log "Error: Falló la ejecución del script de backup en el servidor local."
         exit 1
     fi
     log "Backup generado correctamente en el servidor local."
 }
+
 
 # Verificar espacio disponible en el servidor remoto usando SSH
 check_remote_space() {
@@ -84,6 +93,27 @@ check_remote_space() {
     return 0
 }
 
+# Función para transferir el backup desde CentOS 5 al servidor Ubuntu
+transfer_interno_backup() {
+    log "Iniciando descarga del backup desde el servidor CentOS 5..."
+    
+    # Construir el comando SCP
+    local comando="scp -oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1 ${REMOTE_USER}@${LOCAL_HOST}:${BACKUP_DIR}/${BACKUP_FILE} ${BACKUP_DIR}/"
+    
+    # Loguear el comando completo
+    log "Comando a ejecutar: ${comando}"
+    
+    # Ejecutar el comando
+    eval "${comando}"
+    
+    if [ $? -ne 0 ]; then
+        log "Error: Falló la descarga del backup desde el servidor CentOS 5."
+        exit 1
+    fi
+    
+    log "Backup descargado correctamente desde el servidor CentOS 5."
+}
+
 # Función para transferir el backup a otro servidor
 transfer_backup() {
     log "Iniciando transferencia del backup al host remoto..."
@@ -91,9 +121,15 @@ transfer_backup() {
     # Verificar el espacio remoto antes de la transferencia
     check_remote_space
 
-    # Usar sshpass para manejar la transferencia SCP desde el servidor local (CentOS 5)
-    sshpass -p "${LOCAL_PASSWORD}" scp -oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1 "${BACKUP_DIR}/${BACKUP_FILE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
+    # Construir el comando completo
+    local comando= "sshpass -p "${LOCAL_PASSWORD}" scp -oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1 "${BACKUP_DIR}/${BACKUP_FILE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}""
 
+     # Loguear el comando completo
+    log "COMANDO A USAR PARA TRANSFERENCIA: ${comando}"
+    
+    # Ejecutar el comando
+    eval "${comando}"
+    
     if [ $? -ne 0 ]; then
         log "Error: Falló la transferencia del backup al host remoto."
         exit 1
@@ -108,7 +144,7 @@ start_time=$(date +%s)
 check_dependencies
 check_local_space
 generate_backup
-transfer_backup
+transfer_interno_backup
 # clean_old_backups # Limpieza de backups antiguos (opcional)
 end_time=$(date +%s)
 elapsed_time=$((end_time - start_time))

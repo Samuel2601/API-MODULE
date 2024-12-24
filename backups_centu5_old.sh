@@ -14,7 +14,7 @@ BACKUP_DIR="/backups/oracle/temp"               # Directorio local para backups
 USER="sisesmer"                                 # Usuario de Oracle
 PASSWORD="sisesmer"                             # Contraseña de Oracle
 DATE=$(date +'%Y%m%d-%H%M%S')                     # Fecha actual para nombres únicos
-BACKUP_NAME="$1" #"expsisesmer_${DATE}.dmp"            # Nombre del archivo de backup
+BACKUP_NAME="expsisesmer_${DATE}.dmp"            # Nombre del archivo de backup
 BACKUP_FILE="${BACKUP_NAME}.gz"                  # Nombre del archivo comprimido
 LOG_FILE="${BACKUP_DIR}/backup_${DATE}.log"      # Archivo de log
 
@@ -53,27 +53,34 @@ check_dependencies() {
 # Función para generar el backup de Oracle
 generate_backup() {
     local start_time=$(date +%s)
-    log "Iniciando generación del backup para Oracle y compresión directa... ${BACKUP_NAME}"
-
-    exp "${USER}/${PASSWORD}" file="/dev/stdout" grants=n full=y | gzip -8 > "${BACKUP_DIR}/${BACKUP_NAME}.gz"
+    log "Iniciando generación del backup para Oracle..."
+    exp "${USER}/${PASSWORD}" file="${BACKUP_DIR}/${BACKUP_NAME}" grants=n full=y
 
     if [ $? -ne 0 ]; then
-        log "Error: Falló la generación o compresión del backup."
+        log "Error: Falló la generación del backup."
         exit 1
     fi
+    log "Backup generado correctamente: ${BACKUP_NAME}"
 
+    # Comprimir el archivo
+    log "Comprimiendo el backup..."
+    gzip -8 "${BACKUP_DIR}/${BACKUP_NAME}"
+
+    if [ $? -ne 0 ]; then
+        log "Error: Falló la compresión del archivo."
+        exit 1
+    fi
     local end_time=$(date +%s)
     local elapsed_time=$((end_time - start_time))
     local minutes=$((elapsed_time / 60))
     local seconds=$((elapsed_time % 60))
-    log "Backup generado y comprimido correctamente: ${BACKUP_NAME}.gz"
-    log "Tiempo total para generar y comprimir el backup: ${minutes} minutos y ${seconds} segundos"
+    log "Backup comprimido correctamente: ${BACKUP_NAME}.gz"
+    log "Tiempo total para generar y comprimir el backup: ${elapsed_time} segundos"
 
     # Tamaño del archivo
     local backup_size=$(du -h "${BACKUP_DIR}/${BACKUP_NAME}.gz" | cut -f1)
     log "Tamaño del archivo comprimido: ${backup_size}"
 }
-
 
 # Limpieza de backups antiguos (opcional)
 clean_old_backups() {
@@ -101,7 +108,7 @@ check_local_space() {
     log "Espacio disponible en el servidor local: ${local_space_gb} GB"
     
     # Verificar si hay suficiente espacio (por ejemplo, al menos 10GB)
-    local required_space=10  # Espacio requerido en GB
+    local required_space=3  # Espacio requerido en GB
 
     if (( local_space_gb < required_space )); then
         log "Error: No hay suficiente espacio en el servidor local para realizar el backup."
