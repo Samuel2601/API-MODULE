@@ -17,7 +17,7 @@ REMOTE_USER="root"                               # Usuario remoto
 REMOTE_PASSWORD="alcaldiA2025P"                  # Contraseña para ssh
 REMOTE_HOST="159.223.186.132"                    # IP del servidor remoto
 REMOTE_PATH="/var/backups/back_cabildo"          # Ruta remota
-TIMEOUT="30"                                     # Tiempo de espera para el comando SCP
+TIMEOUT="-1"                                     # Tiempo de espera para el comando SCP
 
 DATE=$(date +'%Y%m%d-%H%M%S')                     # Fecha actual para nombres únicos
 BACKUP_NAME="expsisesmer_${DATE}.dmp"            # Nombre del archivo de backup
@@ -36,22 +36,49 @@ log() {
 # Verificar dependencias
 check_dependencies() {
     log "Verificando dependencias..."
-    for cmd in scp sshpass; do
-        if ! command -v "$cmd" &>/dev/null; then
-            log "Error: $cmd no está instalado."
-            read -p "¿Deseas instalar $cmd? (s/n): " choice
-            if [[ "$choice" == "s" || "$choice" == "S" ]]; then
-                case $cmd in                 
-                    scp | ssh) yum install -y openssh-clients;;
-                    *) log "Comando desconocido: $cmd"; exit 1;;
-                esac
-            else
-                log "Por favor instala $cmd manualmente."
-                exit 1
-            fi
+    
+    # Lista de dependencias requeridas
+    DEPS=(
+        "scp:openssh-client"
+        "sshpass:sshpass"
+        "expect:expect"
+        "msmtp:msmtp"
+        "msmtp-mta:msmtp-mta"
+        "awk:gawk"
+        "df:coreutils"
+    )
+
+    # Detectar el sistema operativo
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS=$ID
+    else
+        OS=$(uname -s)
+    fi
+
+    # Instalar dependencias según el SO
+    for dep in "${DEPS[@]}"; do
+        CMD="${dep%%:*}"
+        PKG="${dep##*:}"
+        
+        if ! command -v "$CMD" &>/dev/null; then
+            log "Falta $CMD. Instalando $PKG..."
+            case $OS in
+                "ubuntu"|"debian")
+                    sudo apt-get update && sudo apt-get install -y "$PKG"
+                    ;;
+                "centos"|"rhel"|"fedora")
+                    sudo yum install -y "$PKG"
+                    ;;
+                *)
+                    log "Sistema operativo no soportado: $OS"
+                    exit 1
+                    ;;
+            esac
         fi
     done
-    log "Todas las dependencias están presentes."
+    
+    log "Todas las dependencias están instaladas."
 }
 
 # Función para generar el backup de Oracle
@@ -62,7 +89,7 @@ generate_backup() {
     local comando="sshpass -p \"${LOCAL_PASSWORD}\" ssh -oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1 ${LOCAL_USER}@${LOCAL_HOST} \"bash ${SH_DIR} ${BACKUP_NAME}\""
     
     # Loguear el comando completo
-    log "COMANDO A USAR: ${comando}"
+    #log "COMANDO A USAR: ${comando}"
     
     # Ejecutar el comando
     eval "${comando}"
@@ -75,76 +102,50 @@ generate_backup() {
 }
 
 
-# Verificar espacio disponible en el servidor remoto usando SSH
-check_remote_space() {
-    log "Verificando espacio disponible en el servidor remoto..."
-    local remote_space=""
-
-    # Usar SSH para verificar el espacio disponible en el servidor remoto
-    remote_space=$(sshpass -p "${REMOTE_PASSWORD}" ssh -oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1 "${REMOTE_USER}@${REMOTE_HOST}" 'df -h /' | grep -E '^/dev' | awk '{print $4}')
-
-    if [[ -z "${remote_space}" ]]; then
-        log "ADVERTENCIA: No se pudo verificar el espacio en el servidor remoto."
-        log "Continuando con la transferencia, pero se recomienda verificar manualmente el espacio disponible."
-        return 0  # Continuar con la ejecución
-    fi
-
-    log "Espacio disponible en el servidor remoto: ${remote_space}"
-    return 0
+# Función para descargar el backup desde el servidor CentOS 5
+download_backup_centos5() {
+    #ejecutar el script de descarga ./transfer_interno.sh ${BACKUP_FILE}
+       log "Iniciando descarga del backup desde el servidor CentOS 5..."
+    # Ejecutar el script de descarga pasando el nombre del archivo de backup
+    ./transfer_interno.sh "${BACKUP_FILE}"
 }
 
-# Función para transferir el backup desde CentOS 5 al servidor Ubuntu
-transfer_interno_backup() {
-    log "Iniciando descarga del backup desde el servidor CentOS 5..."
-    
-    # Construir el comando SCP
-    local comando="scp -oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1 ${REMOTE_USER}@${LOCAL_HOST}:${BACKUP_DIR}/${BACKUP_FILE} ${BACKUP_DIR}/"
-    
-    # Loguear el comando completo
-    log "Comando a ejecutar: ${comando}"
-    
-    # Ejecutar el comando
-    eval "${comando}"
-    
-    if [ $? -ne 0 ]; then
-        log "Error: Falló la descarga del backup desde el servidor CentOS 5."
-        exit 1
-    fi
-    
-    log "Backup descargado correctamente desde el servidor CentOS 5."
-}
 
 # Función para transferir el backup a otro servidor
 transfer_backup() {
-    log "Iniciando transferencia del backup al host remoto..."
+    # Ejecutar el script de transferencia ./transfer_externo.sh ${BACKUP_FILE}
+      log "Iniciando transferencia del backup al servidor remoto..."
+    # Ejecutar el script de transferencia pasando el nombre del archivo de backup
+    ./transfer_externo.sh "${BACKUP_FILE}"
 
-    # Verificar el espacio remoto antes de la transferencia
-    check_remote_space
+    delete_local_backup
+}
 
-    # Construir el comando completo
-    local comando= "sshpass -p "${LOCAL_PASSWORD}" scp -oHostKeyAlgorithms=+ssh-rsa -oKexAlgorithms=+diffie-hellman-group14-sha1 "${BACKUP_DIR}/${BACKUP_FILE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}""
-
-     # Loguear el comando completo
-    log "COMANDO A USAR PARA TRANSFERENCIA: ${comando}"
+# Función para eliminar el archivo de backup local después de la transferencia
+delete_local_backup() {
+    log "Eliminando el archivo de backup local: ${BACKUP_FILE}"
     
-    # Ejecutar el comando
-    eval "${comando}"
-    
-    if [ $? -ne 0 ]; then
-        log "Error: Falló la transferencia del backup al host remoto."
-        exit 1
+    if [ -f "${BACKUP_DIR}/${BACKUP_FILE}" ]; then
+        rm -f "${BACKUP_DIR}/${BACKUP_FILE}"
+        if [ $? -eq 0 ]; then
+            log "Archivo de backup local eliminado correctamente."
+        else
+            log "Error al eliminar el archivo de backup local."
+        fi
+    else
+        log "Error: El archivo de backup local no existe."
     fi
-    log "Backup transferido correctamente al host remoto."
 }
 
 
 # Ejecución del script
 log "***** Proceso de Backup Iniciado *****"
 start_time=$(date +%s)
+log "Hora de inicio del proceso de backup: ${start_time}"
 check_dependencies
-check_local_space
 generate_backup
-transfer_interno_backup
+download_backup_centos5
+transfer_backup
 # clean_old_backups # Limpieza de backups antiguos (opcional)
 end_time=$(date +%s)
 elapsed_time=$((end_time - start_time))
@@ -152,4 +153,8 @@ minutes=$((elapsed_time / 60))
 seconds=$((elapsed_time % 60))
 log "Tiempo total de ejecución del script: ${minutes} minutos y ${seconds} segundos"
 log "***** Proceso de Backup Finalizado Exitosamente *****"
+
+# Llamar al script de envío de correo y pasar los tiempos de ejecución
+./send_email.sh  "${LOCAL_HOST}" "${start_time}" "${minutes}" "${seconds}" "${LOG_FILE}"
+
 exit 0

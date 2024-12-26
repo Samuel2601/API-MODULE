@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resultado del Proceso de Backup de Oracle {{MACHINE_NAME}}</title>
+    <style>
+      /* Estilo general del cuerpo */
+      body {
+        font-family: "Arial", sans-serif; /* Usamos una tipografía limpia y fácil de leer */
+        background-color: #f0f2f5; /* Fondo suave para dar un efecto de amplitud */
+        margin: 0;
+        padding: 0;
+        color: #333; /* Color de texto oscuro para mejor contraste */
+      }
+
+      /* Contenedor principal con margen automático para centrarlo */
+      .container {
+        width: 80%;
+        max-width: 1000px; /* Máximo tamaño para evitar que se estire demasiado */
+        margin: 50px auto;
+        background-color: #fff; /* Fondo blanco para que resalte el contenido */
+        border-radius: 10px; /* Bordes redondeados para un toque moderno */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra suave para dar profundidad */
+        padding: 20px;
+      }
+
+      /* Estilo del encabezado */
+      .header {
+        background-color: #004d99; /* Color azul fuerte para el encabezado */
+        color: white; /* Texto blanco para resaltar sobre el fondo azul */
+        padding: 20px;
+        border-radius: 10px; /* Bordes redondeados para suavizar el diseño */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra para el efecto de profundidad */
+      }
+      .header h2 {
+        margin: 0;
+        font-size: 26px; /* Título grande para destacar la información */
+      }
+
+      /* Estilo general para el contenido */
+      .content {
+        margin-top: 20px;
+      }
+
+      /* Estilo para cada fila de información */
+      .info-row {
+        background-color: #fafafa; /* Fondo gris claro para las filas */
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+        transition: background-color 0.3s; /* Transición suave para el hover */
+      }
+      .info-row:hover {
+        background-color: #f0f0f0; /* Efecto hover suave */
+      }
+      .info-row b {
+        font-weight: 600; /* Hacer el texto en negrita para resaltar los títulos */
+      }
+
+      /* Sección de logs con fondo más oscuro y formato monoespaciado */
+      .log-section {
+        background-color: #f4f4f4;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace; /* Fuente monoespaciada para los logs */
+        white-space: pre-wrap; /* Mantener el formato de saltos de línea */
+        word-wrap: break-word;
+        margin-top: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave para los logs */
+      }
+      .log-section pre {
+        margin: 0;
+        font-size: 14px; /* Tamaño de fuente pequeño para los logs */
+        color: #333; /* Color de texto oscuro para facilitar la lectura */
+      }
+
+      /* Pie de página con texto centrado y discreto */
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 14px;
+        color: #777; /* Color gris claro para que no distraiga la atención */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Contenedor principal que envuelve todo el contenido -->
+    <div class="container">
+      <!-- Encabezado con el título del proceso -->
+      <div class="header">
+        <h2>Resultado del Proceso de Backup de Oracle {{MACHINE_NAME}}</h2>
+      </div>
+
+      <!-- Sección principal de contenido -->
+      <div class="content">
+        <!-- Fila para la fecha y hora de ejecución -->
+        <div class="info-row"><b>Fecha y Hora de Ejecución:</b> {{DATE}}</div>
+        <!-- Fila para el tiempo total del proceso -->
+        <div class="info-row">
+          <b>Tiempo Total:</b> {{MINUTES}} minutos y {{SECONDS}} segundos
+        </div>
+        <!-- Fila para el estado del proceso -->
+        <div class="info-row"><b>Estado:</b> {{STATUS}}</div>
+        
+        <!-- Sección de logs que muestra el contenido del registro -->
+        <div class="log-section">
+          <pre>{{LOG_CONTENT}}</pre>
+        </div>
+      </div>
+
+      <!-- Pie de página con derechos reservados -->
+      <div class="footer">
+        <p>
+          &copy; 2024 Backup System ESMERALDAS LA BELLA. Todos los derechos reservados.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
